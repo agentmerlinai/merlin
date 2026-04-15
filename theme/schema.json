@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://merlin.dev/theme/schema.json",
+  "title": "Merlin Theme",
+  "type": "object",
+  "required": ["primaryHue"],
+  "properties": {
+    "name":       { "type": "string" },
+    "primaryHue": { "type": "number", "minimum": 0, "maximum": 360,
+                    "description": "OKLCH hue angle for primary color role (0-360)" },
+    "accentHue":  { "type": "number", "minimum": 0, "maximum": 360,
+                    "description": "OKLCH hue angle for accent color role (0-360)" },
+    "fonts": {
+      "type": "object",
+      "properties": {
+        "body":    { "enum": ["MNeon","MArgon","MXenon","MKrypton","MRadon"] },
+        "heading": { "enum": ["MNeon","MArgon","MXenon","MKrypton","MRadon"] },
+        "caption": { "enum": ["MNeon","MArgon","MXenon","MKrypton","MRadon"] },
+        "code":    { "enum": ["MNeon","MArgon","MXenon","MKrypton","MRadon"] },
+        "agent":   { "enum": ["MNeon","MArgon","MXenon","MKrypton","MRadon"] },
+        "prose":   { "enum": ["MNeon","MArgon","MXenon","MKrypton","MRadon"] }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
