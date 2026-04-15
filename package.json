@@ -1,0 +1,9 @@
+{
+  "name": "merlin",
+  "type": "module",
+  "scripts": {
+    "test":     "node --test theme/tokens.test.js",
+    "generate": "node theme/generate.js",
+    "build":    "node theme/generate.js && node --test theme/tokens.test.js"
+  }
+}
