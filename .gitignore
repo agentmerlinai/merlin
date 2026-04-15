@@ -137,3 +137,13 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# macOS
+.DS_Store
+
+# ChunkHound local index
+.chunkhound.json
+.chunkhound/
+
+# Reveal.js vendored source (pitch/ui/dist/) must not be excluded by the `dist` rule above
+!pitch/ui/dist/
