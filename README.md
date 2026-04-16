@@ -4,6 +4,7 @@
     <img src="docs/assets/brand/merlin-wordmark-light.svg" alt="Merlin" width="520">
   </picture>
 </p>
+
 ![Status: In Development](https://img.shields.io/badge/status-in%20development-yellow)
 
 
