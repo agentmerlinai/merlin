@@ -2,8 +2,13 @@
   "name": "merlin",
   "type": "module",
   "scripts": {
-    "test":     "node --test theme/tokens.test.js",
+    "test": "node --test theme/tokens.test.js",
     "generate": "node theme/generate.js",
-    "build":    "node theme/generate.js && node --test theme/tokens.test.js"
+    "build": "node theme/generate.js && node --test theme/tokens.test.js",
+    "brand": "node scripts/gen-brand.mjs"
+  },
+  "devDependencies": {
+    "opentype.js": "^1.3.4",
+    "sharp": "^0.33.5"
   }
 }
