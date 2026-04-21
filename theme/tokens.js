@@ -21,7 +21,7 @@ export const RADII = { none: '0', sm: '4px', md: '8px', lg: '12px', xl: '16px', 
 
 function buildRoles(primaryHue, accentHue) {
   return {
-    primary:  { hue: primaryHue, peakChromaFraction: 0.65, label: `Primary (H=${primaryHue})` },
+    primary:  { hue: primaryHue, peakChromaFraction: 0.65, forceWhiteText: true, label: `Primary (H=${primaryHue})` },
     accent:   { hue: accentHue,  peakChromaFraction: 0.95, label: `Accent (H=${accentHue})` },
     neutral:  { hue: primaryHue, peakChromaFraction: 0.09, label: 'Neutral (brand-tinted)' },
     error:    { hue: 25,         peakChromaFraction: 0.61, label: 'Error' },
@@ -36,8 +36,8 @@ function buildPalettes(ROLES, lightBg, darkBg) {
     const scale = generateScale(cfg.hue, cfg.peakChromaFraction);
     scale.label = cfg.label;
 
-    const optLight = computeOptimalShade(cfg.hue, lightBg);
-    const optDark  = computeOptimalShade(cfg.hue, darkBg);
+    const optLight = computeOptimalShade(cfg.hue, lightBg, cfg.forceWhiteText);
+    const optDark  = computeOptimalShade(cfg.hue, darkBg,  cfg.forceWhiteText);
     if (!optLight) throw new Error(`No WCAG AA shade for hue ${cfg.hue} on light bg`);
     if (!optDark)  throw new Error(`No WCAG AA shade for hue ${cfg.hue} on dark bg`);
 
@@ -108,7 +108,7 @@ function resolveSemanticDark(role, palettes, primitives) {
     [`--color-${role}`]:        p.ctaDark.hex,
     [`--on-${role}`]:           p.ctaDark.textColor,
     [`--color-${role}-hover`]:  p.ctaDarkHover.hex,
-    [`--color-${role}-fg`]:     primitives[`--color-${role}-400`],
+    [`--color-${role}-fg`]:     primitives[`--color-${role}-300`],
     [`--color-${role}-subtle`]: primitives[`--color-${role}-950`],
   };
 }
@@ -129,14 +129,14 @@ export function computeTheme({ primaryHue = DEFAULT_THEME.primaryHue, accentHue 
     '--bg-muted':       primitives['--color-neutral-100'],
     '--bg-subtle':      primitives['--color-neutral-200'],
     '--text-primary':   primitives['--color-neutral-900'],
-    '--text-secondary': primitives['--color-neutral-500'],
-    '--text-muted':     primitives['--color-neutral-400'],
+    '--text-secondary': primitives['--color-neutral-600'],
+    '--text-muted':     primitives['--color-neutral-500'],
     '--text-inverse':   '#ffffff',
     ...Object.assign({}, ...COLOR_ROLES.map(r => resolveSemanticLight(r, palettes, primitives))),
-    '--border-default': primitives['--color-neutral-200'],
-    '--border-muted':   primitives['--color-neutral-100'],
-    '--border-strong':  primitives['--color-neutral-300'],
-    '--focus-ring':     primitives['--color-primary-400'],
+    '--border-default': primitives['--color-neutral-500'],
+    '--border-muted':   primitives['--color-neutral-300'],
+    '--border-strong':  primitives['--color-neutral-600'],
+    '--focus-ring':     primitives['--color-primary-600'],
     '--shadow-sm':      '0 1px 2px oklch(0 0 0 / .05)',
     '--shadow-md':      '0 2px 8px oklch(0 0 0 / .08), 0 1px 2px oklch(0 0 0 / .04)',
     '--shadow-lg':      '0 4px 16px oklch(0 0 0 / .10), 0 2px 4px oklch(0 0 0 / .04)',
@@ -148,13 +148,13 @@ export function computeTheme({ primaryHue = DEFAULT_THEME.primaryHue, accentHue 
     '--bg-muted':       primitives['--color-neutral-700'],
     '--bg-subtle':      primitives['--color-neutral-600'],
     '--text-primary':   primitives['--color-neutral-50'],
-    '--text-secondary': primitives['--color-neutral-400'],
-    '--text-muted':     primitives['--color-neutral-500'],
+    '--text-secondary': primitives['--color-neutral-300'],
+    '--text-muted':     primitives['--color-neutral-400'],
     '--text-inverse':   primitives['--color-neutral-900'],
     ...Object.assign({}, ...COLOR_ROLES.map(r => resolveSemanticDark(r, palettes, primitives))),
-    '--border-default': primitives['--color-neutral-700'],
-    '--border-muted':   primitives['--color-neutral-800'],
-    '--border-strong':  primitives['--color-neutral-600'],
+    '--border-default': primitives['--color-neutral-400'],
+    '--border-muted':   primitives['--color-neutral-600'],
+    '--border-strong':  primitives['--color-neutral-300'],
     '--focus-ring':     primitives['--color-primary-500'],
     '--shadow-sm':      '0 1px 2px oklch(0 0 0 / .20)',
     '--shadow-md':      '0 2px 8px oklch(0 0 0 / .30), 0 1px 2px oklch(0 0 0 / .15)',

@@ -1,0 +1,14 @@
+@font-face {
+  font-family: 'MXenon';
+  src: url('fonts/Monaspace Xenon Var.woff2') format('woff2');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'MNeon';
+  src: url('fonts/Monaspace Neon Var.woff2') format('woff2');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}

@@ -1,0 +1,32 @@
+.root {
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  font-family: var(--font-code);
+  font-size: 13px;
+  line-height: 1.8;
+  font-feature-settings: 'calt' 1, 'ss01' 1, 'ss02' 1;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  background: var(--bg-muted);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+}
+
+.kw {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.str {
+  color: var(--color-success);
+}
+
+.fn {
+  color: var(--color-accent);
+}
+
+.cm {
+  font-family: var(--font-prose);
+  color: var(--text-muted);
+}

@@ -4,7 +4,8 @@
   "scripts": {
     "test": "node --test theme/tokens.test.js",
     "generate": "node theme/generate.js",
-    "build": "node theme/generate.js && node --test theme/tokens.test.js",
+    "build:docs": "node scripts/build-docs.mjs",
+    "build": "node theme/generate.js && node scripts/build-docs.mjs && node --test theme/tokens.test.js",
     "brand": "node scripts/gen-brand.mjs"
   },
   "devDependencies": {

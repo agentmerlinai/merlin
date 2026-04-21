@@ -88,11 +88,20 @@ writeFileSync(join(outDir, 'merlin-wordmark-light.svg'),
 writeFileSync(join(outDir, 'merlin-wordmark-dark.svg'),
   wordmark(TOKEN.bgDark, TOKEN.titleDark, TOKEN.taglineDark));
 
-// 3. merlin-avatar.svg — mark only, verbatim, transparent bg
-writeFileSync(join(outDir, 'merlin-avatar.svg'), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 828 740">
-  ${innerPaths}
+// 3. merlin-avatar.svg + .png — mark centered on square canvas, transparent bg
+// Source mark: 828×740 → square: 828×828, vertical offset: (828-740)/2=44
+const avatarSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 828 828">
+  <g transform="translate(0,44)">
+    ${innerPaths}
+  </g>
 </svg>
-`);
+`;
+writeFileSync(join(outDir, 'merlin-avatar.svg'), avatarSvg);
+const avatarPng = await sharp(Buffer.from(avatarSvg))
+  .resize(828, 828)
+  .png({ compressionLevel: 9 })
+  .toBuffer();
+writeFileSync(join(outDir, 'merlin-avatar.png'), avatarPng);
 
 // 4. merlin-social-preview.svg + .png — 1200×630 (canonical OG dimensions)
 // Side-by-side layout, whole composition centered:
@@ -120,4 +129,4 @@ const png = await sharp(Buffer.from(socialSvg))
   .toBuffer();
 writeFileSync(join(outDir, 'merlin-social-preview.png'), png);
 
-console.log('Generated 5 brand assets in docs/assets/brand/ (4 SVG + 1 PNG)');
+console.log('Generated 6 brand assets in docs/assets/brand/ (4 SVG + 2 PNG)');

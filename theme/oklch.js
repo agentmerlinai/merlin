@@ -92,30 +92,34 @@ export function generateScale(hue, peakChromaFraction) {
 }
 
 /**
- * Find the most chromatic shade for `hue` where the best text color
- * (black or white) achieves WCAG AA (4.5:1). Parameterized by surface background:
+ * Find the most chromatic shade for `hue` where the chosen text color achieves
+ * WCAG AA (4.5:1). Parameterized by surface background:
  *
  * - Light surfaces: search full L range — no upper cap, vibrancy first.
  * - Dark surfaces: floor the search at bgL + 0.18 so the shade is
  *   distinguishably lighter than the surface (prevents dark-on-dark invisibility).
  *
- * Luminous hues (yellow, green) peak at high L and are vibrant on both surfaces.
- * Low-peak hues (violet, blue) are naturally lifted in dark mode by the floor.
+ * `forceWhiteText` — when true, evaluate contrast against white only. Use for
+ * chromatic hues (e.g. purple) where white text is perceptually superior even
+ * when black has marginally higher contrast ratio.
+ *
  * Returns {L, C, hex, textColor, textCR, score} or null.
  */
-export function computeOptimalShade(hue, bgHex) {
+export function computeOptimalShade(hue, bgHex, forceWhiteText = false) {
   const bgL = Math.cbrt(relativeLuminance(bgHex)); // OKLCH L ≈ ∛Y (achromatic approx)
-  // Both modes use a comfort band that avoids peak-chroma extremes:
-  //   Light: [0.60, bgL-0.15] — no near-black over-saturated shades, no near-white washed-out shades
-  //   Dark:  [bgL+0.25, 0.97] — floor above surface so shade stands out; no upper cap
-  const lFloor = bgL < 0.5 ? bgL + 0.25 : 0.60;
+  // Normal mode: comfort band that avoids peak-chroma extremes.
+  //   Light: [0.60, bgL-0.15] — no near-black shades, no washed-out shades
+  //   Dark:  [bgL+0.25, 0.97] — floor above surface so shade stands out
+  // forceWhiteText: lower the floor so the search reaches darker shades where
+  //   white text can actually achieve 4.5:1 (vibrant CTAs like primary purple).
+  const lFloor = forceWhiteText ? 0.35 : (bgL < 0.5 ? bgL + 0.25 : 0.60);
   const lMax   = bgL > 0.5 ? bgL - 0.15 : 0.97;
 
   let best = null;
   for (let L = lFloor; L <= lMax; L += 0.005) {
     const C = maxGamutChroma(L, hue) * 0.98;
     const hex = oklchToHex(L, C, hue);
-    const textColor = bestTextColor(hex);
+    const textColor = forceWhiteText ? '#ffffff' : bestTextColor(hex);
     const textCR = contrastRatio(hex, textColor);
     if (textCR < 4.5) continue;
     if (!best || C > best.score) best = { L, C, hex, textColor, textCR, score: C };

@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Merlin — Expertise as Code</title>
+
+  <!-- SEO / OG -->
+  <meta name="description" content="Code was never the hard part. Engineering is. Merlin encodes how your best engineers think into TypeScript missions — with guardrails, the right model per step, and human checkpoints built in.">
+  <link rel="canonical" href="https://agentmerlin.ai">
+  <meta property="og:title" content="Merlin — Expertise as Code">
+  <meta property="og:description" content="Code was never the hard part. Engineering is. Merlin encodes how your best engineers think into TypeScript missions — with guardrails, the right model per step, and human checkpoints built in.">
+  <meta property="og:image" content="https://agentmerlin.ai/assets/brand/merlin-social-preview.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://agentmerlin.ai">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Merlin — Expertise as Code">
+  <meta name="twitter:description" content="Code was never the hard part. Engineering is. Merlin encodes how your best engineers think into TypeScript missions — with guardrails, the right model per step, and human checkpoints built in.">
+  <meta name="twitter:image" content="https://agentmerlin.ai/assets/brand/merlin-social-preview.png">
+
+  <link rel="stylesheet" href="assets/theme/properties.css">
+  <link rel="stylesheet" href="assets/theme/semantic.css">
+  <link rel="stylesheet" href="assets/fonts.css">
+
+  <style>
+    /* ── Base ──────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      font-size: var(--font-size-base);
+      line-height: var(--leading-normal);
+      color: var(--text-primary);
+      background-color: var(--bg-page);
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    @media (min-resolution: 192dpi) {
+      body { -webkit-font-smoothing: antialiased; }
+    }
+
+    .btn-theme {
+      background: none;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-full);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: var(--font-size-sm);
+      padding: var(--space-1_5) var(--space-3);
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-theme:hover { border-color: var(--border-strong); color: var(--text-primary); }
+
+    .theme-icon-sun, .theme-icon-moon { display: none; }
+    [data-theme="light"] .theme-icon-sun  { display: inline-block; }
+    [data-theme="light"] .theme-icon-moon { display: none; }
+    [data-theme="dark"]  .theme-icon-moon { display: inline-block; }
+    [data-theme="dark"]  .theme-icon-sun  { display: none; }
+
+    /* ── Hero ──────────────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: var(--space-16) var(--space-8) var(--space-20);
+    }
+
+    .hero-h1 {
+      font-family: var(--font-heading);
+      font-size: var(--font-size-4xl);
+      font-weight: 700;
+      line-height: var(--leading-tight);
+      letter-spacing: var(--tracking-tight);
+      color: var(--text-primary);
+      max-width: 800px;
+      margin-bottom: var(--space-6);
+    }
+
+    .hero-tagline {
+      font-family: var(--font-heading);
+      font-size: var(--font-size-lg);
+      font-weight: 700;
+      color: var(--color-accent-fg);
+      margin-bottom: var(--space-6);
+    }
+
+    .hero-sub {
+      font-size: var(--font-size-md);
+      line-height: var(--leading-relaxed);
+      color: var(--text-secondary);
+      max-width: 620px;
+      margin-bottom: var(--space-10);
+    }
+
+    .cta-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-4);
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      background-color: var(--color-primary);
+      color: var(--on-primary);
+      font-family: var(--font-body);
+      font-size: var(--font-size-base);
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-6);
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+
+    .star-count { font-size: var(--font-size-sm); color: var(--text-muted); min-height: 1.2em; }
+
+    /* ── L2: Problem ───────────────────────────────────────────── */
+    .problem {
+      background-color: var(--bg-muted);
+      padding: var(--space-20) var(--space-8);
+    }
+
+    .problem-inner {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .problem-dual {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-12);
+    }
+
+    .problem-face {
+      font-size: var(--font-size-base);
+      line-height: var(--leading-relaxed);
+      color: var(--text-secondary);
+    }
+
+    .problem-face strong { color: var(--text-primary); }
+
+    .problem-face .problem-source {
+      display: block;
+      margin-top: var(--space-4);
+      font-size: var(--font-size-xs);
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .problem-bridge {
+      margin-top: var(--space-12);
+      text-align: center;
+      font-family: var(--font-heading);
+      font-size: var(--font-size-2xl);
+      font-weight: 700;
+      color: var(--color-accent-fg);
+      line-height: var(--leading-tight);
+    }
+
+    /* ── Section shared ────────────────────────────────────────── */
+    .section-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1_5);
+      font-family: var(--font-body);
+      font-size: var(--font-size-sm);
+      font-weight: 700;
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--color-accent-fg);
+      background: var(--color-accent-subtle);
+      border-radius: var(--radius-full);
+      padding: var(--space-1) var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+    [data-theme="dark"] .section-eyebrow {
+      color: var(--color-accent);
+    }
+
+    .section-heading {
+      font-family: var(--font-heading);
+      font-size: var(--font-size-2xl);
+      font-weight: 700;
+      line-height: var(--leading-tight);
+      letter-spacing: var(--tracking-tight);
+      color: var(--text-primary);
+      margin-bottom: var(--space-3);
+    }
+
+    .section-sub {
+      font-size: var(--font-size-base);
+      color: var(--text-secondary);
+      line-height: var(--leading-relaxed);
+      max-width: 520px;
+      margin: 0 auto var(--space-12);
+    }
+
+    /* ── L3: Concept (Missions + Expertise as Code) ────────────── */
+    .concept {
+      padding: var(--space-20) var(--space-8);
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .concept-contrast {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-6);
+      text-align: left;
+      margin-bottom: var(--space-12);
+    }
+
+    .concept-before,
+    .concept-after {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+      line-height: var(--leading-relaxed);
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .concept-before { border-top: 3px solid var(--color-error); }
+    .concept-after  { border-top: 3px solid var(--color-success); }
+
+    .concept-contrast-label {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-family: var(--font-heading);
+      font-size: var(--font-size-xs);
+      font-weight: 700;
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      margin-bottom: var(--space-3);
+    }
+    .concept-contrast-label .icon-inline {
+      width: var(--space-5);
+      height: var(--space-5);
+    }
+    .concept-before .concept-contrast-label { color: var(--color-error-fg); }
+    .concept-after  .concept-contrast-label { color: var(--color-success-fg); }
+
+    .concept-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-12);
+      align-items: start;
+      text-align: left;
+      margin-top: var(--space-12);
+    }
+
+    .concept-desc {
+      font-size: var(--font-size-base);
+      color: var(--text-secondary);
+      line-height: var(--leading-relaxed);
+    }
+
+    .concept-desc p + p { margin-top: var(--space-4); }
+
+    .concept-analogy {
+      margin-top: var(--space-8);
+      font-family: var(--font-heading);
+      font-size: var(--font-size-md);
+      font-weight: 700;
+      color: var(--color-accent-fg);
+      line-height: var(--leading-tight);
+      border-left: 3px solid var(--color-accent);
+      padding-left: var(--space-5);
+    }
+
+    .concept-reveal {
+      margin-top: var(--space-8);
+      background: var(--color-primary-subtle);
+      border: 1px solid var(--color-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5) var(--space-6);
+      font-size: var(--font-size-base);
+      color: var(--text-primary);
+      line-height: var(--leading-relaxed);
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .concept-reveal strong {
+      color: var(--color-primary-fg);
+    }
+    [data-theme="dark"] .concept-reveal strong {
+      color: var(--color-primary-fg);
+    }
+
+    .persona-pair {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-4);
+    }
+
+    .persona-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .persona-label {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-family: var(--font-heading);
+      font-size: var(--font-size-xs);
+      font-weight: 700;
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--color-primary-fg);
+      margin-bottom: var(--space-2);
+    }
+    .persona-label .icon-inline {
+      width: var(--space-5);
+      height: var(--space-5);
+    }
+
+    .persona-title {
+      font-family: var(--font-heading);
+      font-size: var(--font-size-base);
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-3);
+    }
+
+    .persona-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1_5);
+    }
+
+    .persona-list li {
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+      line-height: var(--leading-relaxed);
+      padding-left: var(--space-5);
+      position: relative;
+    }
+
+    .persona-list li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--text-muted);
+    }
+
+    /* ── Levels (compact, inline within concept) ───────────────── */
+    .levels-compact {
+      margin-top: var(--space-12);
+      text-align: center;
+    }
+
+    .levels-compact-heading {
+      font-family: var(--font-heading);
+      font-size: var(--font-size-md);
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-6);
+    }
+
+    .level-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-4);
+      text-align: left;
+    }
+
+    .level-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-gap-sm);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5) var(--space-4);
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .level-badge {
+      display: inline-block;
+      font-family: var(--font-body);
+      font-size: var(--font-size-xs);
+      font-weight: 600;
+      background: var(--color-primary-subtle);
+      color: var(--color-primary-fg);
+      border-radius: var(--radius-full);
+      padding: var(--space-0_5) var(--space-2);
+    }
+
+    .level-heading {
+      font-family: var(--font-heading);
+      font-size: var(--font-size-sm);
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: var(--leading-tight);
+    }
+
+    .level-desc {
+      font-size: var(--font-size-xs);
+      color: var(--text-secondary);
+      line-height: var(--leading-relaxed);
+    }
+
+    .levels-kicker {
+      margin-top: var(--space-8);
+      font-family: var(--font-heading);
+      font-size: var(--font-size-md);
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: var(--leading-tight);
+      max-width: 640px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ── Code panel ─────────────────────────────────────────────── */
+    .code-panel {
+      background-color: var(--bg-muted);
+      padding: var(--space-16) var(--space-8);
+    }
+
+    .code-panel-inner {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .code-label {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1_5);
+      font-size: var(--font-size-sm);
+      font-weight: 700;
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--color-accent-fg);
+      background: var(--color-accent-subtle);
+      border-radius: var(--radius-full);
+      padding: var(--space-1) var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+    [data-theme="dark"] .code-label {
+      color: var(--color-accent);
+    }
+
+    .code-intro {
+      font-size: var(--font-size-base);
+      color: var(--text-primary);
+      line-height: var(--leading-relaxed);
+      margin-bottom: var(--space-6);
+    }
+
+    .code-block {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      padding: var(--space-8);
+      overflow-x: auto;
+      margin-bottom: var(--space-8);
+    }
+    [data-theme="dark"] .code-block {
+      background-color: var(--bg-surface);
+    }
+
+    .code-block pre {
+      font-family: var(--font-code);
+      font-size: var(--font-size-sm);
+      line-height: var(--leading-relaxed);
+      color: var(--text-primary);
+      white-space: pre;
+    }
+
+    .tok-comment { color: var(--text-secondary); font-style: italic; }
+    .tok-keyword { color: var(--color-primary-fg); }
+    .tok-const   { color: var(--color-accent); }
+    .tok-func    { color: var(--color-primary); }
+    .tok-string  { color: var(--color-success-700); }
+    .tok-punct   { color: var(--text-secondary); }
+    .tok-param   { color: var(--text-primary); }
+
+    /* Theme-specific overrides for syntax tokens with insufficient contrast */
+    [data-theme="light"] .tok-const  { color: var(--color-accent-fg); }
+    [data-theme="light"] .tok-func    { color: var(--color-primary-fg); }
+    [data-theme="dark"]  .tok-string  { color: var(--color-success-fg); }
+    [data-theme="dark"]  .tok-keyword { color: var(--color-primary-200); }
+    [data-theme="dark"]  .tok-func    { color: var(--color-primary-200); }
+    [data-theme="dark"]  .tok-comment,
+    [data-theme="dark"]  .tok-punct   { color: var(--color-neutral-300); }
+
+    .code-caption {
+      font-size: var(--font-size-sm);
+      color: var(--text-primary);
+      line-height: var(--leading-relaxed);
+      border-left: 2px solid var(--border-strong);
+      padding-left: var(--space-4);
+    }
+
+    /* ── L5: Features + Why Now ─────────────────────────────────── */
+    .features {
+      padding: var(--space-20) var(--space-8);
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-5);
+      text-align: left;
+    }
+
+    .feature-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-gap-md);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .feature-card h3 {
+      font-family: var(--font-heading);
+      font-size: var(--font-size-base);
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .feature-card p {
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+      line-height: var(--leading-relaxed);
+    }
+
+    .feature-enterprise-signal {
+      display: inline-block;
+      font-family: var(--font-body);
+      font-size: var(--font-size-xs);
+      font-weight: 600;
+      background: var(--color-accent-subtle);
+      color: var(--color-accent-fg);
+      border-radius: var(--radius-full);
+      padding: var(--space-0_5) var(--space-2);
+    }
+
+    .why-now {
+      margin-top: var(--space-12);
+      max-width: 720px;
+      margin-left: auto;
+      margin-right: auto;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-left: 3px solid var(--color-accent);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      text-align: left;
+      font-size: var(--font-size-base);
+      color: var(--text-secondary);
+      line-height: var(--leading-relaxed);
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .why-now-heading {
+      font-family: var(--font-heading);
+      font-size: var(--font-size-md);
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-3);
+    }
+
+    .why-now .problem-source {
+      display: block;
+      margin-top: var(--space-4);
+      font-size: var(--font-size-xs);
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* ── Flywheel ───────────────────────────────────────────────── */
+    .flywheel {
+      padding: var(--space-16) var(--space-8);
+      background: var(--color-primary-subtle);
+      transition: background-color 0.2s;
+    }
+
+    .flywheel-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .flywheel-heading {
+      font-family: var(--font-heading);
+      font-size: var(--font-size-2xl);
+      font-weight: 700;
+      color: var(--color-primary-fg);
+      line-height: var(--leading-tight);
+      letter-spacing: var(--tracking-tight);
+      margin-bottom: var(--space-5);
+    }
+
+    .flywheel-body {
+      font-size: var(--font-size-base);
+      color: var(--text-secondary);
+      line-height: var(--leading-relaxed);
+    }
+
+    /* ── Final CTA ──────────────────────────────────────────────── */
+    .final-cta {
+      padding: var(--space-24) var(--space-8);
+      text-align: center;
+    }
+
+    .final-cta-heading {
+      font-family: var(--font-heading);
+      font-size: var(--font-size-3xl);
+      font-weight: 700;
+      line-height: var(--leading-tight);
+      letter-spacing: var(--tracking-tight);
+      color: var(--text-primary);
+      max-width: 680px;
+      margin: 0 auto var(--space-10);
+    }
+
+    /* ── Footer ─────────────────────────────────────────────────── */
+    .footer {
+      border-top: 1px solid var(--border-muted);
+      padding: var(--space-12) var(--space-8);
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+
+    .footer-avatar { width: 64px; height: 64px; border-radius: var(--radius-xl); margin-bottom: var(--space-4); }
+
+    .hero-avatar {
+      display: block;
+      width: var(--space-20);
+      height: var(--space-20);
+      border-radius: var(--radius-xl);
+      margin-bottom: var(--space-5);
+    }
+    .footer-expertise { font-size: var(--font-size-sm); color: var(--text-muted); margin-bottom: var(--space-4); }
+
+    .footer-tagline {
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-5);
+      line-height: var(--leading-relaxed);
+    }
+    .footer-tagline a { color: var(--color-primary-fg); text-decoration: none; }
+    .footer-tagline a:hover { text-decoration: underline; }
+
+    .footer-links { display: flex; justify-content: center; gap: var(--space-5); }
+
+    .footer-link { color: var(--text-muted); font-size: var(--font-size-sm); text-decoration: none; transition: color 0.15s; }
+    .footer-link:hover { color: var(--text-primary); }
+
+    /* ── Icons ──────────────────────────────────────────────────── */
+    .icon {
+      display: block;
+      width: var(--space-8);
+      height: var(--space-8);
+      flex-shrink: 0;
+    }
+    .icon-sm {
+      display: block;
+      width: var(--space-8);
+      height: var(--space-8);
+      flex-shrink: 0;
+    }
+    .icon-inline {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      vertical-align: -0.15em;
+      flex-shrink: 0;
+    }
+    .icon-primary { color: var(--color-primary-fg); }
+    .icon-accent  { color: var(--color-accent-fg); }
+    .icon-success { color: var(--color-success-fg); }
+    .icon-error   { color: var(--color-error-fg); }
+    .icon-muted   { color: var(--text-muted); }
+
+    /* ── Responsive ─────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .hero-h1 { font-size: var(--font-size-3xl); }
+      .hero-tagline { font-size: var(--font-size-md); }
+      .hero { padding: var(--space-12) var(--space-4); }
+      .problem { padding: var(--space-12) var(--space-4); }
+      .problem-dual { grid-template-columns: 1fr; }
+      .problem-bridge { font-size: var(--font-size-xl); }
+      .concept { padding: var(--space-12) var(--space-4); }
+      .concept-contrast { grid-template-columns: 1fr; }
+      .concept-grid { grid-template-columns: 1fr; }
+      .level-grid { grid-template-columns: 1fr; }
+      .levels-kicker { font-size: var(--font-size-base); margin-top: var(--space-6); }
+      .code-panel { padding: var(--space-12) var(--space-4); }
+      .features { padding: var(--space-12) var(--space-4); }
+      .features-grid { grid-template-columns: 1fr; }
+      .flywheel { padding: var(--space-12) var(--space-4); }
+      .flywheel-heading { font-size: var(--font-size-xl); }
+      .final-cta { padding: var(--space-16) var(--space-4); }
+      .final-cta-heading { font-size: var(--font-size-2xl); }
+      .hero-avatar { width: 64px; height: 64px; }
+    }
+  </style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:none">
+<defs>
+  <symbol id="ph-sun" viewBox="0 0 256 256"><path d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"/></symbol>
+  <symbol id="ph-moon" viewBox="0 0 256 256"><path d="M233.54,142.23a8,8,0,0,0-8-2,88.08,88.08,0,0,1-109.8-109.8,8,8,0,0,0-10-10,104.84,104.84,0,0,0-52.91,37A104,104,0,0,0,136,224a103.09,103.09,0,0,0,62.52-20.88,104.84,104.84,0,0,0,37-52.91A8,8,0,0,0,233.54,142.23ZM188.9,190.34A88,88,0,0,1,65.66,67.11a89,89,0,0,1,31.4-26A106,106,0,0,0,96,56,104.11,104.11,0,0,0,200,160a106,106,0,0,0,14.92-1.06A89,89,0,0,1,188.9,190.34Z"/></symbol>
+  <symbol id="gh-logo" viewBox="0 0 98 96"><path fill-rule="evenodd" clip-rule="evenodd" d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.405 46.69 2.427.49 3.316-1.059 3.316-2.362 0-1.141-.08-5.052-.08-9.127-13.59 2.934-16.42-5.867-16.42-5.867-2.184-5.704-5.42-7.17-5.42-7.17-4.448-3.015.324-3.015.324-3.015 4.934.326 7.523 5.052 7.523 5.052 4.367 7.496 11.404 5.378 14.235 4.074.404-3.178 1.699-5.378 3.074-6.6-10.839-1.141-22.243-5.378-22.243-24.283 0-5.378 1.94-9.778 5.014-13.2-.485-1.222-2.184-6.275.486-13.038 0 0 4.125-1.304 13.426 5.052a46.97 46.97 0 0 1 12.214-1.63c4.125 0 8.33.571 12.213 1.63 9.302-6.356 13.427-5.052 13.427-5.052 2.67 6.763.97 11.816.485 13.038 3.155 3.422 5.015 7.822 5.015 13.2 0 18.905-11.404 23.06-22.324 24.283 1.78 1.548 3.316 4.481 3.316 9.126 0 6.6-.08 11.897-.08 13.526 0 1.304.89 2.853 3.316 2.364 19.412-6.52 33.405-24.935 33.405-46.691C97.707 22 75.788 0 48.854 0z"/></symbol>
+  <symbol id="ph-flame" viewBox="0 0 256 256"><path d="M208,144a80,80,0,0,1-160,0c0-30.57,14.42-58.26,31-80l33,32,26.27-72C159.86,41.92,208,88.15,208,144Z" opacity="0.2"/><path d="M183.89,153.34a57.6,57.6,0,0,1-46.56,46.55A8.75,8.75,0,0,1,136,200a8,8,0,0,1-1.32-15.89c16.57-2.79,30.63-16.85,33.44-33.45a8,8,0,0,1,15.78,2.68ZM216,144a88,88,0,0,1-176,0c0-27.92,11-56.47,32.66-84.85a8,8,0,0,1,11.93-.89l24.12,23.41,22-60.41a8,8,0,0,1,12.63-3.41C165.21,36,216,84.55,216,144Zm-16,0c0-46.09-35.79-85.92-58.21-106.33L119.52,98.74a8,8,0,0,1-13.09,3L80.06,76.16C64.09,99.21,56,122,56,144a72,72,0,0,0,144,0Z"/></symbol>
+  <symbol id="ph-x-circle" viewBox="0 0 256 256"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></symbol>
+  <symbol id="ph-check-circle" viewBox="0 0 256 256"><path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></symbol>
+  <symbol id="ph-crown" viewBox="0 0 256 256"><path d="M216.71,99.73l-15.6,93.59a8,8,0,0,1-7.89,6.68H62.78a8,8,0,0,1-7.89-6.68L39.29,99.73l.08,0a19.82,19.82,0,0,0,9.22-4.16h0L88,144l32-73.65h0a20,20,0,0,0,15.92,0h0L168,144l39.39-48.48h0a19.82,19.82,0,0,0,9.22,4.16Z" opacity="0.2"/><path d="M248,80a28,28,0,1,0-51.12,15.77l-26.79,33L146,73.4a28,28,0,1,0-36.06,0L85.91,128.74l-26.79-33a28,28,0,1,0-26.6,12L47,194.63A16,16,0,0,0,62.78,208H193.22A16,16,0,0,0,209,194.63l14.47-86.85A28,28,0,0,0,248,80ZM128,40a12,12,0,1,1-12,12A12,12,0,0,1,128,40ZM24,80A12,12,0,1,1,36,92,12,12,0,0,1,24,80ZM193.22,192H62.78L48.86,108.52,81.79,149A8,8,0,0,0,88,152a7.83,7.83,0,0,0,1.08-.07,8,8,0,0,0,6.26-4.74l29.3-67.4a27,27,0,0,0,6.72,0l29.3,67.4a8,8,0,0,0,6.26,4.74A7.83,7.83,0,0,0,168,152a8,8,0,0,0,6.21-3l32.93-40.52ZM220,92a12,12,0,1,1,12-12A12,12,0,0,1,220,92Z"/></symbol>
+  <symbol id="ph-user" viewBox="0 0 256 256"><path d="M192,96a64,64,0,1,1-64-64A64,64,0,0,1,192,96Z" opacity="0.2"/><path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"/></symbol>
+  <symbol id="ph-compass" viewBox="0 0 256 256"><path d="M128,32a96,96,0,1,0,96,96A96,96,0,0,0,128,32Zm16,112L80,176l32-64,64-32Z" opacity="0.2"/><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216ZM172.42,72.84l-64,32a8.05,8.05,0,0,0-3.58,3.58l-32,64A8,8,0,0,0,80,184a8.1,8.1,0,0,0,3.58-.84l64-32a8.05,8.05,0,0,0,3.58-3.58l32-64a8,8,0,0,0-10.74-10.74ZM138,138,97.89,158.11,118,118l40.15-20.07Z"/></symbol>
+  <symbol id="ph-chain" viewBox="0 0 256 256"><path d="M104,168a40,40,0,1,1-40-40A40,40,0,0,1,104,168Zm88-40a40,40,0,1,0,40,40A40,40,0,0,0,192,128Z" opacity="0.2"/><path d="M237.2,151.87v0a47.1,47.1,0,0,0-2.35-5.45L193.26,51.8a7.82,7.82,0,0,0-1.66-2.44,32,32,0,0,0-45.26,0A8,8,0,0,0,144,55V80H112V55a8,8,0,0,0-2.34-5.66,32,32,0,0,0-45.26,0,7.82,7.82,0,0,0-1.66,2.44L21.15,146.4a47.1,47.1,0,0,0-2.35,5.45v0A48,48,0,1,0,112,168V96h32v72a48,48,0,1,0,93.2-16.13ZM76.71,59.75a16,16,0,0,1,19.29-1v73.51a47.9,47.9,0,0,0-46.79-9.92ZM64,200a32,32,0,1,1,32-32A32,32,0,0,1,64,200ZM160,58.74a16,16,0,0,1,19.29,1l27.5,62.58A47.9,47.9,0,0,0,160,132.25ZM192,200a32,32,0,1,1,32-32A32,32,0,0,1,192,200Z"/></symbol>
+  <symbol id="ph-rocket" viewBox="0 0 256 256"><path d="M128,48,68.32,70.38a8,8,0,0,0-5.08,6.17L40,216l139.45-23.24a8,8,0,0,0,6.17-5.08L208,128Zm-4,104a20,20,0,1,1,20-20A20,20,0,0,1,124,152Z" opacity="0.2"/><path d="M248,92.68a15.86,15.86,0,0,0-4.69-11.31L174.63,12.68a16,16,0,0,0-22.63,0L123.57,41.11l-58,21.77A16.06,16.06,0,0,0,55.35,75.23L32.11,214.68A8,8,0,0,0,40,224a8.4,8.4,0,0,0,1.32-.11l139.44-23.24a16,16,0,0,0,12.35-10.17l21.77-58L243.31,104A15.87,15.87,0,0,0,248,92.68Zm-69.87,92.19L63.32,204l47.37-47.37a28,28,0,1,0-11.32-11.32L52,192.7,71.13,77.86,126,57.29,198.7,130ZM112,132a12,12,0,1,1,12,12A12,12,0,0,1,112,132Zm96-15.32L139.31,48l24-24L232,92.68Z"/></symbol>
+  <symbol id="ph-monitor" viewBox="0 0 256 256"><path d="M224,64V176a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V64A16,16,0,0,1,48,48H208A16,16,0,0,1,224,64Z" opacity="0.2"/><path d="M208,40H48A24,24,0,0,0,24,64V176a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V64A24,24,0,0,0,208,40Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H208a8,8,0,0,1,8,8Zm-48,48a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,224Z"/></symbol>
+  <symbol id="ph-stack" viewBox="0 0 256 256"><path d="M224,80l-96,56L32,80l96-56Z" opacity="0.2"/><path d="M230.91,172A8,8,0,0,1,228,182.91l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,36,169.09l92,53.65,92-53.65A8,8,0,0,1,230.91,172ZM220,121.09l-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09ZM24,80a8,8,0,0,1,4-6.91l96-56a8,8,0,0,1,8.06,0l96,56a8,8,0,0,1,0,13.82l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,24,80Zm23.88,0L128,126.74,208.12,80,128,33.26Z"/></symbol>
+  <symbol id="ph-shield" viewBox="0 0 256 256"><path d="M216,56v56c0,96-88,120-88,120S40,208,40,112V56a8,8,0,0,1,8-8H208A8,8,0,0,1,216,56Z" opacity="0.2"/><path d="M208,40H48A16,16,0,0,0,32,56v56c0,52.72,25.52,84.67,46.93,102.19,23.06,18.86,46,25.26,47,25.53a8,8,0,0,0,4.2,0c1-.27,23.91-6.67,47-25.53C198.48,196.67,224,164.72,224,112V56A16,16,0,0,0,208,40Zm0,72c0,37.07-13.66,67.16-40.6,89.42A129.3,129.3,0,0,1,128,223.62a128.25,128.25,0,0,1-38.92-21.81C61.82,179.51,48,149.3,48,112l0-56,160,0ZM82.34,141.66a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32l-56,56a8,8,0,0,1-11.32,0Z"/></symbol>
+  <symbol id="ph-devices" viewBox="0 0 256 256"><path d="M200,64V80H176a16,16,0,0,0-16,16v80H40a16,16,0,0,1-16-16V64A16,16,0,0,1,40,48H184A16,16,0,0,1,200,64Z" opacity="0.2"/><path d="M224,72H208V64a24,24,0,0,0-24-24H40A24,24,0,0,0,16,64v96a24,24,0,0,0,24,24H152v8a24,24,0,0,0,24,24h48a24,24,0,0,0,24-24V96A24,24,0,0,0,224,72ZM40,168a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H184a8,8,0,0,1,8,8v8H176a24,24,0,0,0-24,24v72Zm192,24a8,8,0,0,1-8,8H176a8,8,0,0,1-8-8V96a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8Zm-96,16a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h40A8,8,0,0,1,136,208Zm80-96a8,8,0,0,1-8,8H192a8,8,0,0,1,0-16h16A8,8,0,0,1,216,112Z"/></symbol>
+  <symbol id="ph-users" viewBox="0 0 256 256"><path d="M168,144a40,40,0,1,1-40-40A40,40,0,0,1,168,144ZM64,56A32,32,0,1,0,96,88,32,32,0,0,0,64,56Zm128,0a32,32,0,1,0,32,32A32,32,0,0,0,192,56Z" opacity="0.2"/><path d="M244.8,150.4a8,8,0,0,1-11.2-1.6A51.6,51.6,0,0,0,192,128a8,8,0,0,1,0-16,24,24,0,1,0-23.24-30,8,8,0,1,1-15.5-4A40,40,0,1,1,219,117.51a67.94,67.94,0,0,1,27.43,21.68A8,8,0,0,1,244.8,150.4ZM190.92,212a8,8,0,1,1-13.85,8,57,57,0,0,0-98.15,0,8,8,0,1,1-13.84-8,72.06,72.06,0,0,1,33.74-29.92,48,48,0,1,1,58.36,0A72.06,72.06,0,0,1,190.92,212ZM128,176a32,32,0,1,0-32-32A32,32,0,0,0,128,176ZM72,120a8,8,0,0,0-8-8A24,24,0,1,1,87.24,82a8,8,0,1,0,15.5-4A40,40,0,1,0,37,117.51,67.94,67.94,0,0,0,9.6,139.19a8,8,0,1,0,12.8,9.61A51.6,51.6,0,0,1,64,128,8,8,0,0,0,72,120Z"/></symbol>
+  <symbol id="ph-trending-up" viewBox="0 0 256 256"><path d="M232,56v64L168,56Z" opacity="0.2"/><path d="M232,48H168a8,8,0,0,0-5.66,13.66L188.69,88,136,140.69l-34.34-34.35a8,8,0,0,0-11.32,0l-72,72a8,8,0,0,0,11.32,11.32L96,123.31l34.34,34.35a8,8,0,0,0,11.32,0L200,99.31l26.34,26.35A8,8,0,0,0,240,120V56A8,8,0,0,0,232,48Zm-8,52.69L187.31,64H224Z"/></symbol>
+</defs>
+</svg>
+
+  <button class="btn-theme" id="themeToggle" aria-label="Toggle theme"
+    style="position:fixed;top:var(--space-4);right:var(--space-4);z-index:100;">
+    <svg class="icon-inline theme-icon-sun" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-sun"></use></svg>
+    <svg class="icon-inline theme-icon-moon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-moon"></use></svg>
+  </button>
+
+  <!-- L1: Hero -->
+  <section class="hero">
+    <img class="hero-avatar" src="assets/brand/merlin-avatar.svg" alt="" aria-hidden="true">
+    <h1 class="hero-h1">Code was never the hard part.<br>Engineering is.</h1>
+    <p class="hero-tagline">Solve it once. Run it forever.</p>
+    <p class="hero-sub">
+      Merlin missions are TypeScript files that encode your expertise &mdash; which model runs each step, where you must approve, what always passes. Commit them once. They run for every engineer, on any device, autonomously until a checkpoint needs you.
+    </p>
+
+    <div class="cta-group">
+      <a href="https://github.com/agentmerlinai/merlin" class="btn-primary" target="_blank" rel="noopener">
+        <svg class="icon-inline" viewBox="0 0 98 96" fill="currentColor" aria-hidden="true"><use href="#gh-logo"></use></svg> Star on GitHub
+      </a>
+      <p class="star-count" id="starCount" aria-live="polite">
+        <noscript>Star us on GitHub to follow along</noscript>
+      </p>
+    </div>
+  </section>
+
+  <!-- L2: The Problem -->
+  <section class="problem" aria-label="The problem">
+    <div class="problem-inner">
+      <div class="problem-dual">
+        <div class="problem-face">
+          You kick off an agent. Step&nbsp;8 drifts. You context-switch to redirect it. You check again at step&nbsp;15. You&rsquo;ve lost two hours supervising instead of building. <strong>You&rsquo;re not shipping with AI &mdash; you&rsquo;re babysitting it.</strong>
+        </div>
+        <div class="problem-face">
+          Same tool. Radically different outcomes &mdash; because every engineer makes different instinctive decisions about when to intervene, which model to trust, what to validate. <strong>A 95%-accurate step repeated 20 times succeeds 36% of the time. The expertise is knowing where the human resets that clock.</strong>
+          <span class="problem-source">AgileEngine 2025</span>
+        </div>
+      </div>
+      <p class="problem-bridge">&ldquo;What if knowing when to intervene was something you could ship?&rdquo;</p>
+    </div>
+  </section>
+
+  <!-- L3: Missions + "Expertise as Code" -->
+  <section class="concept" aria-label="What is a mission">
+    <p class="section-eyebrow"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-flame"></use></svg> Missions</p>
+    <h2 class="section-heading">What Is a Mission?</h2>
+    <p class="section-sub">Not a prompt. Not a script. Your judgment &mdash; when to run freely, when to intervene &mdash; expressed in plain language, committed as code.</p>
+
+    <div class="concept-contrast">
+      <div class="concept-before">
+        <p class="concept-contrast-label"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-x-circle"></use></svg> Without Merlin</p>
+        The agent runs. No one decided where to check in. Step&nbsp;12 drifts. Steps&nbsp;13&ndash;20 compound the error. You find out at the end &mdash; if you find it. And nobody on the team makes the same call twice.
+      </div>
+      <div class="concept-after">
+        <p class="concept-contrast-label"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-check-circle"></use></svg> With Merlin</p>
+        You describe the rules: research runs freely, plan needs approval, execution stays scoped, tests are non-negotiable. Merlin writes that as a mission. It enforces your rules for every engineer, every run, without you watching.
+      </div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-desc">
+        <p>A mission is a TypeScript file that encodes <em>how</em> a task should be done &mdash; not just what to do.</p>
+        <p>It&rsquo;s also what you fire off when you need to focus on something else. The mission runs, validates, and halts at the exact moments that need your judgment. Ten missions across ten projects &mdash; you&rsquo;re notified when any one of them needs you.</p>
+        <p>Your staff engineer describes the workflow intent; Merlin generates the mission and commits it to <code>.merlin/missions/</code>. It gets code-reviewed like any other code. Versioned. Shared across the team.</p>
+        <div class="concept-analogy">&ldquo;Design when the machine needs you once.<br>It runs dependably forever.&rdquo;</div>
+        <div class="concept-reveal">
+          We call this <strong>Expertise as Code</strong>. Your knowledge of which model earns each step, where you must approve, and what must never be skipped &mdash; versioned in git, executable by anyone, improving with every run.
+        </div>
+      </div>
+
+      <div class="persona-pair">
+        <div class="persona-card">
+          <p class="persona-label"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-crown"></use></svg> Architect</p>
+          <p class="persona-title">Senior / Staff Engineer</p>
+          <ul class="persona-list">
+            <li>Describes the workflow: where to pause, which model, what must never be skipped</li>
+            <li>Asks Merlin to generate a mission &mdash; Merlin researches the codebase, proposes a plan, writes the TypeScript</li>
+            <li>Reviews the generated mission like a PR, optionally edits, commits to <code>.merlin/missions/</code></li>
+            <li>Fires missions and works on other things while they run</li>
+            <li>Defines where humans must approve</li>
+          </ul>
+        </div>
+        <div class="persona-card">
+          <p class="persona-label"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-user"></use></svg> Any Engineer</p>
+          <p class="persona-title">Junior, Mid, Senior &mdash; Everyone Else</p>
+          <ul class="persona-list">
+            <li>Picks a mission, provides inputs</li>
+            <li>Gets the senior engineer&rsquo;s checkpoint placement without needing to know why</li>
+            <li>Runs missions from phone, tablet, or desktop &mdash; approves at checkpoints, picks up results</li>
+            <li>Monitors progress in the Control Room from any device</li>
+            <li>Approves or edits the plan at defined checkpoints</li>
+            <li>Gets senior-quality output with guardrails baked in</li>
+            <li>No AI knowledge required</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Levels (compact) -->
+    <div class="levels-compact">
+      <h3 class="levels-compact-heading">Complexity that fits the person</h3>
+      <div class="level-grid">
+        <div class="level-card">
+          <span class="level-badge">Level 1</span>
+          <svg class="icon-sm icon-muted" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-compass"></use></svg>
+          <h4 class="level-heading">Guided</h4>
+          <p class="level-desc">Pick a mission. Provide inputs. Wait for results. Approve the plan when it appears. Decide whether to commit when it&rsquo;s done. No AI knowledge required.</p>
+        </div>
+        <div class="level-card">
+          <span class="level-badge">Level 2</span>
+          <svg class="icon-sm icon-accent" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-chain"></use></svg>
+          <h4 class="level-heading">Informed</h4>
+          <p class="level-desc">Monitor execution in real time. Make decisions at branch points. Override model selection per step. Inspect every agent decision before it becomes code.</p>
+        </div>
+        <div class="level-card">
+          <span class="level-badge">Level 3</span>
+          <svg class="icon-sm icon-primary" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-rocket"></use></svg>
+          <h4 class="level-heading">Architect</h4>
+          <p class="level-desc">Design the workflow: research strategies, validation criteria, approval checkpoints, model per step. Ask Merlin to generate the TypeScript. Review it, optionally edit it, commit it.</p>
+        </div>
+      </div>
+      <p class="levels-kicker">Most of your team runs at Level&nbsp;1&ndash;2.<br>Your top engineers work at Level&nbsp;3.<br>Everyone ships Level&nbsp;3 quality.</p>
+    </div>
+  </section>
+
+  <!-- L4: Code Example -->
+  <section class="code-panel" aria-label="Mission code example">
+    <div class="code-panel-inner">
+      <p class="code-label"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-flame"></use></svg> Your process, as TypeScript. Generated by Merlin. Enforced every time.</p>
+      <p class="code-intro">Research before executing. Plan before coding. Approval before committing. You already know this workflow. Describe it to Merlin &mdash; Merlin writes the TypeScript. That mission runs the same way whether you&rsquo;re at your desk or reviewing from your phone, and whether it&rsquo;s you running it or the newest engineer on the team.</p>
+      <div class="code-block">
+        <pre><code><span class="tok-comment">// Step 1: Research &mdash; Gemini Flash, read-only, cheap &mdash; runs freely</span>
+<span class="tok-keyword">const</span> <span class="tok-const">research</span> <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-func">agent</span><span class="tok-punct">(</span><span class="tok-string">"Analyze the codebase for related patterns"</span><span class="tok-punct">, {</span>
+  <span class="tok-param">tools</span><span class="tok-punct">: [</span><span class="tok-string">"glob"</span><span class="tok-punct">,</span> <span class="tok-string">"grep"</span><span class="tok-punct">,</span> <span class="tok-string">"read"</span><span class="tok-punct">],</span>   <span class="tok-comment">// read-only &mdash; can&rsquo;t accidentally change anything</span>
+  <span class="tok-param">model</span><span class="tok-punct">:</span> <span class="tok-string">"gemini-flash"</span><span class="tok-punct">,</span>             <span class="tok-comment">// cheap and fast; near-100% on structured lookups</span>
+  <span class="tok-param">provider</span><span class="tok-punct">:</span> <span class="tok-string">"google"</span>
+<span class="tok-punct">});</span>
+
+<span class="tok-comment">// Step 2: Plan &mdash; Sonnet for reasoning &mdash; balanced accuracy and cost</span>
+<span class="tok-keyword">const</span> <span class="tok-const">plan</span> <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-func">agent</span><span class="tok-punct">(</span><span class="tok-string">"Propose a fix based on this research: "</span> <span class="tok-punct">+</span> <span class="tok-const">research</span><span class="tok-punct">);</span>
+<span class="tok-keyword">const</span> <span class="tok-const">approved</span> <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-func">prompt</span><span class="tok-punct">(</span><span class="tok-string">"ApprovalForm"</span><span class="tok-punct">, {</span>  <span class="tok-comment">// human checkpoint &mdash; resets the probability clock</span>
+  <span class="tok-param">title</span><span class="tok-punct">:</span> <span class="tok-string">"Review the proposed plan"</span><span class="tok-punct">,</span>
+  <span class="tok-param">plan</span><span class="tok-punct">:</span> <span class="tok-const">plan</span><span class="tok-punct">,</span>
+  <span class="tok-param">options</span><span class="tok-punct">: [</span><span class="tok-string">"Approve"</span><span class="tok-punct">,</span> <span class="tok-string">"Approve with changes"</span><span class="tok-punct">,</span> <span class="tok-string">"Reject"</span><span class="tok-punct">]</span>
+<span class="tok-punct">});</span>
+
+<span class="tok-comment">// Step 3: Execute &mdash; only what the engineer approved</span>
+<span class="tok-keyword">await</span> <span class="tok-func">agent</span><span class="tok-punct">(</span><span class="tok-string">"Implement the approved plan: "</span> <span class="tok-punct">+</span> <span class="tok-const">approved</span><span class="tok-punct">);</span>
+
+<span class="tok-comment">// Step 4: Validate &mdash; always runs &mdash; the architect said validation is non-negotiable</span>
+<span class="tok-keyword">await</span> <span class="tok-func">bash</span><span class="tok-punct">(</span><span class="tok-string">"npm run test"</span><span class="tok-punct">);</span>
+<span class="tok-keyword">const</span> <span class="tok-const">review</span> <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-func">agent</span><span class="tok-punct">(</span><span class="tok-string">"Review the diff for regressions"</span><span class="tok-punct">);</span>
+
+<span class="tok-comment">// Step 5: Commit &mdash; your call &mdash; always</span>
+<span class="tok-keyword">await</span> <span class="tok-func">prompt</span><span class="tok-punct">(</span><span class="tok-string">"ResultsView"</span><span class="tok-punct">, {</span>
+  <span class="tok-param">title</span><span class="tok-punct">:</span> <span class="tok-string">"Review changes before committing"</span><span class="tok-punct">,</span>
+  <span class="tok-param">diff</span><span class="tok-punct">:</span> <span class="tok-const">review</span><span class="tok-punct">,</span>
+  <span class="tok-param">actions</span><span class="tok-punct">: [</span><span class="tok-string">"Commit"</span><span class="tok-punct">,</span> <span class="tok-string">"Request changes"</span><span class="tok-punct">,</span> <span class="tok-string">"Discard"</span><span class="tok-punct">]</span>
+<span class="tok-punct">});</span></code></pre>
+      </div>
+      <p class="code-caption">
+        Five steps. Two human checkpoints. Three providers. Your expertise &mdash; encoded once, running dependably for every engineer on every run.
+      </p>
+    </div>
+  </section>
+
+  <!-- L5: Features + Why Now -->
+  <section class="features" aria-label="Platform features">
+    <h2 class="section-heading">The Platform</h2>
+    <p class="section-sub">Everything your missions need to run, monitor, and improve.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <svg class="icon icon-primary" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-monitor"></use></svg>
+        <h3>Control Room</h3>
+        <p>The Switchboard shows every mission across every project, sorted by urgency &mdash; input needed, error, running, done. One view, full triage. Live metro map of each run. Get notified when a checkpoint needs you. Nothing to watch until then.</p>
+        <span class="feature-enterprise-signal">Full audit trail</span>
+      </div>
+      <div class="feature-card">
+        <svg class="icon icon-accent" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-stack"></use></svg>
+        <h3>Multi-Model</h3>
+        <p>Haiku or Gemini Flash for research. Sonnet or GPT-4o for reasoning. Opus or Gemini Ultra where accuracy is critical. Mix Anthropic, OpenAI, Gemini, and local models in one mission &mdash; one provider per step, automatically optimal.</p>
+        <span class="feature-enterprise-signal">Per-step budget controls</span>
+      </div>
+      <div class="feature-card">
+        <svg class="icon icon-success" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-shield"></use></svg>
+        <h3>Structural Guardrails</h3>
+        <p>Can&rsquo;t skip research. Can&rsquo;t bypass approval. Can&rsquo;t commit without review. V8 isolate crash isolation.</p>
+        <span class="feature-enterprise-signal">Architecture-enforced constraints</span>
+      </div>
+      <div class="feature-card">
+        <svg class="icon icon-primary" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-devices"></use></svg>
+        <h3>Works Everywhere</h3>
+        <p>Fire a mission from your laptop. Approve the plan from your phone on the train. The machine keeps running. Pick up results on any device.</p>
+        <span class="feature-enterprise-signal">Cross-timezone handoff</span>
+      </div>
+      <div class="feature-card">
+        <svg class="icon icon-accent" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-users"></use></svg>
+        <h3>Round Table</h3>
+        <p>For your highest-stakes steps: 3 providers vote, majority wins. The architect places this at the nodes where per-step accuracy matters most.</p>
+        <span class="feature-enterprise-signal">Multi-provider validation</span>
+      </div>
+      <div class="feature-card">
+        <svg class="icon icon-success" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-trending-up"></use></svg>
+        <h3>Knowledge Compounds</h3>
+        <p>Every run audited. Engineers rate missions. Teams see what works. Missions improve with use.</p>
+        <span class="feature-enterprise-signal">Institutional knowledge retention</span>
+      </div>
+    </div>
+
+    <div class="why-now">
+      <p class="why-now-heading">Why Now</p>
+      AI agents reached capability. Orchestration didn&rsquo;t keep up. 13% fewer junior engineers are entering the field &mdash; the apprenticeship model is breaking. &ldquo;Vibe coding&rdquo; proved that speed without discipline produces debt, not software. MCP standardized tool integration. The window to encode expertise is now.
+      <span class="problem-source">Sundeep Teki, Stack Overflow 2026</span>
+    </div>
+  </section>
+
+  <!-- L6: Flywheel -->
+  <section class="flywheel" aria-label="Knowledge compounds">
+    <div class="flywheel-inner">
+      <h2 class="flywheel-heading">Knowledge Compounds</h2>
+      <p class="flywheel-body">
+        Every run that completes sharpens the expertise. Engineers rate missions. Teams see which checkpoint placements hold under real conditions. Missions improve. Your best engineers&rsquo; judgment doesn&rsquo;t retire when they move on &mdash; it compounds in git, running for everyone who comes after.
+      </p>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="final-cta" aria-label="Call to action">
+    <h2 class="final-cta-heading">Every engineer ships at the level of your best engineer.</h2>
+
+    <p class="hero-sub" style="margin: 0 auto var(--space-10); max-width: 480px;">Their expertise &mdash; encoded once, running dependably forever.</p>
+
+    <div class="cta-group" style="margin: 0 auto;">
+      <a href="https://github.com/agentmerlinai/merlin" class="btn-primary" target="_blank" rel="noopener">
+        <svg class="icon-inline" viewBox="0 0 98 96" fill="currentColor" aria-hidden="true"><use href="#gh-logo"></use></svg> Star on GitHub
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <img class="footer-avatar" src="assets/brand/merlin-avatar.svg" alt="Merlin avatar">
+    <p class="footer-expertise">Expertise as Code.</p>
+    <p class="footer-tagline">
+      Building in public at
+      <a href="https://github.com/agentmerlinai/merlin" target="_blank" rel="noopener">github.com/agentmerlinai/merlin</a>
+    </p>
+    <div class="footer-links">
+      <a href="https://github.com/agentmerlinai/merlin" class="footer-link" target="_blank" rel="noopener" aria-label="GitHub repository">
+        <svg class="icon-inline" viewBox="0 0 98 96" fill="currentColor" aria-hidden="true"><use href="#gh-logo"></use></svg> GitHub
+      </a>
+      <a href="https://github.com/agentmerlinai/merlin/stargazers" class="footer-link" target="_blank" rel="noopener">&#11088; Star us</a>
+    </div>
+  </footer>
+
+  <script>
+    /* ── Theme ─────────────────────────────────────────────────── */
+    (function () {
+      var html = document.documentElement;
+      var btn = document.getElementById('themeToggle');
+
+      function applyTheme(theme) {
+        html.setAttribute('data-theme', theme);
+        try { localStorage.setItem('merlin-theme', theme); } catch (e) {}
+      }
+
+      var stored;
+      try { stored = localStorage.getItem('merlin-theme'); } catch (e) {}
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var initial = stored || (prefersDark ? 'dark' : 'dark');
+      applyTheme(initial);
+
+      btn.addEventListener('click', function () {
+        var current = html.getAttribute('data-theme');
+        applyTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    })();
+
+    /* ── GitHub star count ─────────────────────────────────────── */
+    (function () {
+      var el = document.getElementById('starCount');
+      if (!el) return;
+
+      var cached;
+      try { cached = sessionStorage.getItem('merlin-stars'); } catch (e) {}
+      if (cached) { el.textContent = cached; return; }
+
+      fetch('https://api.github.com/repos/agentmerlinai/merlin', {
+        headers: { Accept: 'application/vnd.github.v3+json' }
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var n = data.stargazers_count;
+        if (typeof n !== 'number') return;
+        var formatted = n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : String(n);
+        var text = 'Join ' + formatted + ' engineer' + (n === 1 ? '' : 's') + ' who starred';
+        el.textContent = text;
+        try { sessionStorage.setItem('merlin-stars', text); } catch (e) {}
+      })
+      .catch(function () {});
+    })();
+
+  </script>
+
+</body>
+</html>

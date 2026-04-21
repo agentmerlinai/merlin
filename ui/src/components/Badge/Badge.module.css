@@ -1,0 +1,45 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  gap: 4px;
+}
+
+/* Variants */
+.primary {
+  background: var(--color-primary-subtle);
+  color: var(--color-primary-fg);
+}
+
+.accent {
+  background: var(--color-accent-subtle);
+  color: var(--color-accent-fg);
+}
+
+.error {
+  background: var(--color-error-subtle);
+  color: var(--color-error-fg);
+}
+
+.warning {
+  background: var(--color-warning-subtle);
+  color: var(--color-warning-fg);
+}
+
+.success {
+  background: var(--color-success-subtle);
+  color: var(--color-success-fg);
+}
+
+/* Dot indicator */
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}

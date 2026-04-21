@@ -1,0 +1,75 @@
+.root {
+  --_bg: var(--color-primary);
+  --_color: var(--on-primary);
+  --_border: transparent;
+
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--_border);
+  background: var(--_bg);
+  color: var(--_color);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.15s;
+}
+
+.root:hover {
+  opacity: 0.85;
+}
+
+.root:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Variants */
+.primary {
+  --_bg: var(--color-primary);
+  --_color: var(--on-primary);
+  --_border: transparent;
+}
+
+.accent {
+  --_bg: var(--color-accent);
+  --_color: var(--on-accent);
+  --_border: transparent;
+}
+
+.outline {
+  --_bg: transparent;
+  --_color: var(--color-primary);
+  --_border: var(--border-strong);
+}
+
+.ghost {
+  --_bg: transparent;
+  --_color: var(--text-secondary);
+  --_border: transparent;
+}
+
+.danger {
+  --_bg: var(--color-error);
+  --_color: var(--on-error);
+  --_border: transparent;
+}
+
+/* Sizes */
+.sm {
+  font-size: 11px;
+  padding: 4px 10px;
+}
+
+.md {
+  font-size: 13px;
+  padding: 8px 16px;
+}
+
+.lg {
+  font-size: 15px;
+  padding: 12px 24px;
+}
