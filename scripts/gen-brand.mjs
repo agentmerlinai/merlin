@@ -33,13 +33,13 @@ const TOKEN = {
   bgDark:       '#292b34',  // --bg-page (dark)             neutral-900
 
   titleLight:   '#574ecf',  // --color-primary-fg (light)   primary-600
-  titleDark:    '#898dfd',  // --color-primary-fg (dark)    primary-400
+  titleDark:    '#a9affe',  // --color-primary-fg (dark)    primary-300
 
   taglineLight: '#7d7f90',  // --text-secondary (light)     neutral-500
-  taglineDark:  '#989aab',  // --text-secondary (dark)      neutral-400
+  taglineDark:  '#fecb16',  // --color-accent (dark)        accent (vivid gold)
 };
 
-const TAGLINE = 'Expertise as code';
+const TAGLINE = 'Expertise as Code';
 
 // --- Read source assets ---
 
@@ -103,21 +103,31 @@ const avatarPng = await sharp(Buffer.from(avatarSvg))
   .toBuffer();
 writeFileSync(join(outDir, 'merlin-avatar.png'), avatarPng);
 
+// favicon-32x32.png
+const fav32 = await sharp(Buffer.from(avatarSvg)).resize(32, 32).png({ compressionLevel: 9 }).toBuffer();
+writeFileSync(join(outDir, 'favicon-32x32.png'), fav32);
+
+// apple-touch-icon.png (180×180)
+const touchIcon = await sharp(Buffer.from(avatarSvg)).resize(180, 180).png({ compressionLevel: 9 }).toBuffer();
+writeFileSync(join(outDir, 'apple-touch-icon.png'), touchIcon);
+
 // 4. merlin-social-preview.svg + .png — 1200×630 (canonical OG dimensions)
-// Side-by-side layout, whole composition centered:
+// Side-by-side [mark | text] layout, all values on 4pt grid:
 //   scale=0.2705 → mark 224×200px
-//   content: mark(224) + gap(80) + text(≈432) = 736px → pad=(1200-736)/2=232 (4×58)
-//   translate(232,216): mark centered vertically on canvas (216=4×54, mark_cy=316≈315)
-//   text x=536 (4×134), baselines vertically centered on mark_cy=316
-//   title baseline=332 (4×83), tagline baseline=384 (4×96)
+//   gap = 64px (space-16); composition 224+64+≈432 = 720 → pad=(1200−720)/2 = 240 (60×4)
+//   mark: translate(240,216) → center (352,316)  [240=60×4, 216=54×4]
+//   text x=528 (132×4)
+//   MXenon caps: 120px→88 (22×4), 40px→32 (8×4), gap 16 (space-4)
+//   cap-stack 88+16+32=136 → cap-top=316−68=248 (62×4)
+//   "Merlin" baseline 248+88=336 (84×4), tagline baseline 352+32=384 (96×4)
 const socialSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
   ${fontStyle}
   <rect width="1200" height="630" fill="${TOKEN.bgDark}"/>
-  <g transform="translate(232,216) scale(0.2705)">
+  <g transform="translate(240,216) scale(0.2705)">
     ${innerPaths}
   </g>
-  <text x="536" y="332" font-family="MXenon" font-weight="700" font-size="120" fill="${TOKEN.titleDark}">Merlin</text>
-  <text x="536" y="384" font-family="MXenon" font-weight="400" font-size="40" fill="${TOKEN.taglineDark}">${TAGLINE}</text>
+  <text x="528" y="336" font-family="MXenon" font-weight="700" font-size="120" fill="${TOKEN.titleDark}">Merlin</text>
+  <text x="528" y="384" font-family="MXenon" font-weight="400" font-size="40" fill="${TOKEN.taglineDark}">${TAGLINE}</text>
 </svg>
 `;
 writeFileSync(join(outDir, 'merlin-social-preview.svg'), socialSvg);
@@ -129,4 +139,4 @@ const png = await sharp(Buffer.from(socialSvg))
   .toBuffer();
 writeFileSync(join(outDir, 'merlin-social-preview.png'), png);
 
-console.log('Generated 6 brand assets in docs/assets/brand/ (4 SVG + 2 PNG)');
+console.log('Generated 8 brand assets in docs/assets/brand/ (4 SVG + 4 PNG)');

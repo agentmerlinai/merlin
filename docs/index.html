@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Merlin — Expertise as Code</title>
 
+  <!-- Favicon -->
+  <link rel="icon" href="assets/brand/merlin-avatar.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/brand/favicon-32x32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/brand/apple-touch-icon.png">
+
   <!-- SEO / OG -->
   <meta name="description" content="Code was never the hard part. Engineering is. Merlin encodes how your best engineers think into TypeScript missions — with guardrails, the right model per step, and human checkpoints built in.">
   <link rel="canonical" href="https://agentmerlin.ai">
@@ -56,11 +61,6 @@
     }
     .btn-theme:hover { border-color: var(--border-strong); color: var(--text-primary); }
 
-    .theme-icon-sun, .theme-icon-moon { display: none; }
-    [data-theme="light"] .theme-icon-sun  { display: inline-block; }
-    [data-theme="light"] .theme-icon-moon { display: none; }
-    [data-theme="dark"]  .theme-icon-moon { display: inline-block; }
-    [data-theme="dark"]  .theme-icon-sun  { display: none; }
 
     /* ── Hero ──────────────────────────────────────────────────── */
     .hero {
@@ -755,10 +755,9 @@
 </defs>
 </svg>
 
-  <button class="btn-theme" id="themeToggle" aria-label="Toggle theme"
+  <button class="btn-theme" id="themeToggle" aria-label="Switch to light theme"
     style="position:fixed;top:var(--space-4);right:var(--space-4);z-index:100;">
-    <svg class="icon-inline theme-icon-sun" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-sun"></use></svg>
-    <svg class="icon-inline theme-icon-moon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-moon"></use></svg>
+    <svg class="icon-inline" id="themeIcon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-monitor"></use></svg>
   </button>
 
   <!-- L1: Hero -->
@@ -1014,22 +1013,35 @@
     /* ── Theme ─────────────────────────────────────────────────── */
     (function () {
       var html = document.documentElement;
-      var btn = document.getElementById('themeToggle');
+      var btn  = document.getElementById('themeToggle');
+      var mq   = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+      var labels = { auto: 'Switch to light theme', light: 'Switch to dark theme', dark: 'Switch to auto theme' };
+      var icons  = { auto: '#ph-monitor', light: '#ph-sun', dark: '#ph-moon' };
+      var cycle  = { auto: 'light', light: 'dark', dark: 'auto' };
 
-      function applyTheme(theme) {
-        html.setAttribute('data-theme', theme);
-        try { localStorage.setItem('merlin-theme', theme); } catch (e) {}
+      function applyPref(pref) {
+        var resolved = pref === 'auto' ? (mq && mq.matches ? 'dark' : 'light') : pref;
+        html.setAttribute('data-theme-pref', pref);
+        html.setAttribute('data-theme', resolved);
+        btn.setAttribute('aria-label', labels[pref] || 'Toggle theme');
+        document.querySelector('#themeIcon use').setAttribute('href', icons[pref] || '#ph-monitor');
+        try { localStorage.setItem('merlin-theme', pref); } catch (e) {}
       }
 
       var stored;
       try { stored = localStorage.getItem('merlin-theme'); } catch (e) {}
-      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      var initial = stored || (prefersDark ? 'dark' : 'dark');
-      applyTheme(initial);
+      applyPref(stored || 'auto');
+
+      if (mq) {
+        mq.addEventListener('change', function () {
+          if (html.getAttribute('data-theme-pref') === 'auto') {
+            html.setAttribute('data-theme', mq.matches ? 'dark' : 'light');
+          }
+        });
+      }
 
       btn.addEventListener('click', function () {
-        var current = html.getAttribute('data-theme');
-        applyTheme(current === 'dark' ? 'light' : 'dark');
+        applyPref(cycle[html.getAttribute('data-theme-pref')] || 'auto');
       });
     })();
 
