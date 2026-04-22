@@ -307,6 +307,113 @@
       color: var(--color-primary-fg);
     }
 
+    .mission-vs-skill {
+      margin-top: var(--space-12);
+      padding-top: var(--space-12);
+      border-top: 1px solid var(--border-muted);
+    }
+
+    .mission-vs-skill .section-sub {
+      max-width: 680px;
+      margin-bottom: var(--space-8);
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-5);
+      text-align: left;
+    }
+
+    .comparison-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-gap-md);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .comparison-card.skill-card {
+      border-top: 3px solid var(--color-accent);
+    }
+
+    .comparison-card.mission-card {
+      border-top: 3px solid var(--color-primary);
+    }
+
+    .comparison-label {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-family: var(--font-heading);
+      font-size: var(--font-size-sm);
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: var(--leading-tight);
+    }
+
+    .comparison-label .icon-inline {
+      width: var(--space-5);
+      height: var(--space-5);
+    }
+
+    .comparison-kicker {
+      font-family: var(--font-body);
+      font-size: var(--font-size-xs);
+      font-weight: 700;
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .comparison-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .comparison-list li {
+      position: relative;
+      padding-left: var(--space-5);
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+      line-height: var(--leading-relaxed);
+    }
+
+    .comparison-list li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--text-muted);
+    }
+
+    .comparison-takeaway {
+      margin-top: var(--space-8);
+      font-family: var(--font-heading);
+      font-size: var(--font-size-md);
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: var(--leading-tight);
+      max-width: 760px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .comparison-summary {
+      margin-top: var(--space-4);
+      font-size: var(--font-size-base);
+      color: var(--text-secondary);
+      line-height: var(--leading-relaxed);
+      max-width: 760px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
     .persona-pair {
       display: grid;
       grid-template-columns: 1fr;
@@ -721,6 +828,7 @@
       .concept { padding: var(--space-12) var(--space-4); }
       .concept-contrast { grid-template-columns: 1fr; }
       .concept-grid { grid-template-columns: 1fr; }
+      .comparison-grid { grid-template-columns: 1fr; }
       .level-grid { grid-template-columns: 1fr; }
       .levels-kicker { font-size: var(--font-size-base); margin-top: var(--space-6); }
       .code-panel { padding: var(--space-12) var(--space-4); }
@@ -801,7 +909,7 @@
   <section class="concept" aria-label="What is a mission">
     <p class="section-eyebrow"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-flame"></use></svg> Missions</p>
     <h2 class="section-heading">What Is a Mission?</h2>
-    <p class="section-sub">Not a prompt. Not a script. Your judgment &mdash; when to run freely, when to intervene &mdash; expressed in plain language, committed as code.</p>
+    <p class="section-sub">Not just guidance for an agent to interpret. A mission is executable control over how the work runs: which model handles each step, how contexts split and pass state, where humans interact, what always gets validated, when the system must stop, and what logic the workflow can express.</p>
 
     <div class="concept-contrast">
       <div class="concept-before">
@@ -851,6 +959,47 @@
           </ul>
         </div>
       </div>
+    </div>
+
+    <div class="mission-vs-skill" aria-label="Mission versus skill">
+      <p class="section-eyebrow"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-stack"></use></svg> Mission vs Skill</p>
+      <h3 class="section-heading">Skills are easy to write. Missions are easy to trust.</h3>
+      <p class="section-sub">A skill is Markdown: quick to write, easy to tweak, weak on control. A mission is the inverse: more deliberate to author, but backed by full TypeScript and exact execution rules.</p>
+
+      <div class="comparison-grid">
+        <article class="comparison-card skill-card">
+          <p class="comparison-kicker">Easy authoring, weak control</p>
+          <p class="comparison-label"><svg class="icon-inline icon-accent" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-stack"></use></svg> Skill</p>
+          <ul class="comparison-list">
+            <li>Written in Markdown</li>
+            <li>Fast to write and easy to tweak</li>
+            <li>Good for reusable guidance or one focused capability</li>
+            <li>Lives inside one agent context</li>
+            <li>Depends on the agent&rsquo;s interpretation in the moment</li>
+            <li>Cannot define checkpoints, transfer rules, or stop conditions exactly</li>
+            <li>Cannot express real control flow, loops, or integration logic as code</li>
+            <li>Cannot drive a parsed execution map or dynamic process UI</li>
+          </ul>
+        </article>
+
+        <article class="comparison-card mission-card">
+          <p class="comparison-kicker">More effort, explicit control</p>
+          <p class="comparison-label"><svg class="icon-inline icon-primary" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-flame"></use></svg> Mission</p>
+          <ul class="comparison-list">
+            <li>Written as executable TypeScript workflow</li>
+            <li>More deliberate to author and review</li>
+            <li>Defines sequence, approvals, validation, and stop conditions exactly</li>
+            <li>Controls multiple contexts and what transfers between them</li>
+            <li>Places the human in the loop deliberately, with custom React interactions</li>
+            <li>Uses real TypeScript control flow, loops, branching, and tool integrations</li>
+            <li>Can be parsed from its AST into execution maps and dynamic UI</li>
+            <li>Makes judgment repeatable instead of mood-dependent</li>
+          </ul>
+        </article>
+      </div>
+
+      <p class="comparison-takeaway">A skill tells one agent something useful. A mission tells Merlin exactly how the whole job must run.</p>
+      <p class="comparison-summary">Skills optimize for ease. Missions optimize for control and reliability.</p>
     </div>
 
     <!-- Levels (compact) -->
