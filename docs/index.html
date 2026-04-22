@@ -642,6 +642,10 @@
       color: var(--color-primary-fg);
     }
 
+    .mission-step-icon {
+      display: inline-flex;
+    }
+
     .mission-step-title {
       font-family: var(--font-heading);
       font-size: var(--font-size-sm);
@@ -933,31 +937,9 @@
   </style>
 </head>
 <body>
-<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:none">
-<defs>
-  <symbol id="ph-sun" viewBox="0 0 256 256"><path d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"/></symbol>
-  <symbol id="ph-moon" viewBox="0 0 256 256"><path d="M233.54,142.23a8,8,0,0,0-8-2,88.08,88.08,0,0,1-109.8-109.8,8,8,0,0,0-10-10,104.84,104.84,0,0,0-52.91,37A104,104,0,0,0,136,224a103.09,103.09,0,0,0,62.52-20.88,104.84,104.84,0,0,0,37-52.91A8,8,0,0,0,233.54,142.23ZM188.9,190.34A88,88,0,0,1,65.66,67.11a89,89,0,0,1,31.4-26A106,106,0,0,0,96,56,104.11,104.11,0,0,0,200,160a106,106,0,0,0,14.92-1.06A89,89,0,0,1,188.9,190.34Z"/></symbol>
-  <symbol id="gh-logo" viewBox="0 0 98 96"><path fill-rule="evenodd" clip-rule="evenodd" d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.405 46.69 2.427.49 3.316-1.059 3.316-2.362 0-1.141-.08-5.052-.08-9.127-13.59 2.934-16.42-5.867-16.42-5.867-2.184-5.704-5.42-7.17-5.42-7.17-4.448-3.015.324-3.015.324-3.015 4.934.326 7.523 5.052 7.523 5.052 4.367 7.496 11.404 5.378 14.235 4.074.404-3.178 1.699-5.378 3.074-6.6-10.839-1.141-22.243-5.378-22.243-24.283 0-5.378 1.94-9.778 5.014-13.2-.485-1.222-2.184-6.275.486-13.038 0 0 4.125-1.304 13.426 5.052a46.97 46.97 0 0 1 12.214-1.63c4.125 0 8.33.571 12.213 1.63 9.302-6.356 13.427-5.052 13.427-5.052 2.67 6.763.97 11.816.485 13.038 3.155 3.422 5.015 7.822 5.015 13.2 0 18.905-11.404 23.06-22.324 24.283 1.78 1.548 3.316 4.481 3.316 9.126 0 6.6-.08 11.897-.08 13.526 0 1.304.89 2.853 3.316 2.364 19.412-6.52 33.405-24.935 33.405-46.691C97.707 22 75.788 0 48.854 0z"/></symbol>
-  <symbol id="ph-flame" viewBox="0 0 256 256"><path d="M208,144a80,80,0,0,1-160,0c0-30.57,14.42-58.26,31-80l33,32,26.27-72C159.86,41.92,208,88.15,208,144Z" opacity="0.2"/><path d="M183.89,153.34a57.6,57.6,0,0,1-46.56,46.55A8.75,8.75,0,0,1,136,200a8,8,0,0,1-1.32-15.89c16.57-2.79,30.63-16.85,33.44-33.45a8,8,0,0,1,15.78,2.68ZM216,144a88,88,0,0,1-176,0c0-27.92,11-56.47,32.66-84.85a8,8,0,0,1,11.93-.89l24.12,23.41,22-60.41a8,8,0,0,1,12.63-3.41C165.21,36,216,84.55,216,144Zm-16,0c0-46.09-35.79-85.92-58.21-106.33L119.52,98.74a8,8,0,0,1-13.09,3L80.06,76.16C64.09,99.21,56,122,56,144a72,72,0,0,0,144,0Z"/></symbol>
-  <symbol id="ph-x-circle" viewBox="0 0 256 256"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></symbol>
-  <symbol id="ph-check-circle" viewBox="0 0 256 256"><path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></symbol>
-  <symbol id="ph-crown" viewBox="0 0 256 256"><path d="M216.71,99.73l-15.6,93.59a8,8,0,0,1-7.89,6.68H62.78a8,8,0,0,1-7.89-6.68L39.29,99.73l.08,0a19.82,19.82,0,0,0,9.22-4.16h0L88,144l32-73.65h0a20,20,0,0,0,15.92,0h0L168,144l39.39-48.48h0a19.82,19.82,0,0,0,9.22,4.16Z" opacity="0.2"/><path d="M248,80a28,28,0,1,0-51.12,15.77l-26.79,33L146,73.4a28,28,0,1,0-36.06,0L85.91,128.74l-26.79-33a28,28,0,1,0-26.6,12L47,194.63A16,16,0,0,0,62.78,208H193.22A16,16,0,0,0,209,194.63l14.47-86.85A28,28,0,0,0,248,80ZM128,40a12,12,0,1,1-12,12A12,12,0,0,1,128,40ZM24,80A12,12,0,1,1,36,92,12,12,0,0,1,24,80ZM193.22,192H62.78L48.86,108.52,81.79,149A8,8,0,0,0,88,152a7.83,7.83,0,0,0,1.08-.07,8,8,0,0,0,6.26-4.74l29.3-67.4a27,27,0,0,0,6.72,0l29.3,67.4a8,8,0,0,0,6.26,4.74A7.83,7.83,0,0,0,168,152a8,8,0,0,0,6.21-3l32.93-40.52ZM220,92a12,12,0,1,1,12-12A12,12,0,0,1,220,92Z"/></symbol>
-  <symbol id="ph-user" viewBox="0 0 256 256"><path d="M192,96a64,64,0,1,1-64-64A64,64,0,0,1,192,96Z" opacity="0.2"/><path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"/></symbol>
-  <symbol id="ph-compass" viewBox="0 0 256 256"><path d="M128,32a96,96,0,1,0,96,96A96,96,0,0,0,128,32Zm16,112L80,176l32-64,64-32Z" opacity="0.2"/><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216ZM172.42,72.84l-64,32a8.05,8.05,0,0,0-3.58,3.58l-32,64A8,8,0,0,0,80,184a8.1,8.1,0,0,0,3.58-.84l64-32a8.05,8.05,0,0,0,3.58-3.58l32-64a8,8,0,0,0-10.74-10.74ZM138,138,97.89,158.11,118,118l40.15-20.07Z"/></symbol>
-  <symbol id="ph-chain" viewBox="0 0 256 256"><path d="M104,168a40,40,0,1,1-40-40A40,40,0,0,1,104,168Zm88-40a40,40,0,1,0,40,40A40,40,0,0,0,192,128Z" opacity="0.2"/><path d="M237.2,151.87v0a47.1,47.1,0,0,0-2.35-5.45L193.26,51.8a7.82,7.82,0,0,0-1.66-2.44,32,32,0,0,0-45.26,0A8,8,0,0,0,144,55V80H112V55a8,8,0,0,0-2.34-5.66,32,32,0,0,0-45.26,0,7.82,7.82,0,0,0-1.66,2.44L21.15,146.4a47.1,47.1,0,0,0-2.35,5.45v0A48,48,0,1,0,112,168V96h32v72a48,48,0,1,0,93.2-16.13ZM76.71,59.75a16,16,0,0,1,19.29-1v73.51a47.9,47.9,0,0,0-46.79-9.92ZM64,200a32,32,0,1,1,32-32A32,32,0,0,1,64,200ZM160,58.74a16,16,0,0,1,19.29,1l27.5,62.58A47.9,47.9,0,0,0,160,132.25ZM192,200a32,32,0,1,1,32-32A32,32,0,0,1,192,200Z"/></symbol>
-  <symbol id="ph-rocket" viewBox="0 0 256 256"><path d="M128,48,68.32,70.38a8,8,0,0,0-5.08,6.17L40,216l139.45-23.24a8,8,0,0,0,6.17-5.08L208,128Zm-4,104a20,20,0,1,1,20-20A20,20,0,0,1,124,152Z" opacity="0.2"/><path d="M248,92.68a15.86,15.86,0,0,0-4.69-11.31L174.63,12.68a16,16,0,0,0-22.63,0L123.57,41.11l-58,21.77A16.06,16.06,0,0,0,55.35,75.23L32.11,214.68A8,8,0,0,0,40,224a8.4,8.4,0,0,0,1.32-.11l139.44-23.24a16,16,0,0,0,12.35-10.17l21.77-58L243.31,104A15.87,15.87,0,0,0,248,92.68Zm-69.87,92.19L63.32,204l47.37-47.37a28,28,0,1,0-11.32-11.32L52,192.7,71.13,77.86,126,57.29,198.7,130ZM112,132a12,12,0,1,1,12,12A12,12,0,0,1,112,132Zm96-15.32L139.31,48l24-24L232,92.68Z"/></symbol>
-  <symbol id="ph-monitor" viewBox="0 0 256 256"><path d="M224,64V176a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V64A16,16,0,0,1,48,48H208A16,16,0,0,1,224,64Z" opacity="0.2"/><path d="M208,40H48A24,24,0,0,0,24,64V176a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V64A24,24,0,0,0,208,40Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H208a8,8,0,0,1,8,8Zm-48,48a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,224Z"/></symbol>
-  <symbol id="ph-stack" viewBox="0 0 256 256"><path d="M224,80l-96,56L32,80l96-56Z" opacity="0.2"/><path d="M230.91,172A8,8,0,0,1,228,182.91l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,36,169.09l92,53.65,92-53.65A8,8,0,0,1,230.91,172ZM220,121.09l-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09ZM24,80a8,8,0,0,1,4-6.91l96-56a8,8,0,0,1,8.06,0l96,56a8,8,0,0,1,0,13.82l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,24,80Zm23.88,0L128,126.74,208.12,80,128,33.26Z"/></symbol>
-  <symbol id="ph-shield" viewBox="0 0 256 256"><path d="M216,56v56c0,96-88,120-88,120S40,208,40,112V56a8,8,0,0,1,8-8H208A8,8,0,0,1,216,56Z" opacity="0.2"/><path d="M208,40H48A16,16,0,0,0,32,56v56c0,52.72,25.52,84.67,46.93,102.19,23.06,18.86,46,25.26,47,25.53a8,8,0,0,0,4.2,0c1-.27,23.91-6.67,47-25.53C198.48,196.67,224,164.72,224,112V56A16,16,0,0,0,208,40Zm0,72c0,37.07-13.66,67.16-40.6,89.42A129.3,129.3,0,0,1,128,223.62a128.25,128.25,0,0,1-38.92-21.81C61.82,179.51,48,149.3,48,112l0-56,160,0ZM82.34,141.66a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32l-56,56a8,8,0,0,1-11.32,0Z"/></symbol>
-  <symbol id="ph-devices" viewBox="0 0 256 256"><path d="M200,64V80H176a16,16,0,0,0-16,16v80H40a16,16,0,0,1-16-16V64A16,16,0,0,1,40,48H184A16,16,0,0,1,200,64Z" opacity="0.2"/><path d="M224,72H208V64a24,24,0,0,0-24-24H40A24,24,0,0,0,16,64v96a24,24,0,0,0,24,24H152v8a24,24,0,0,0,24,24h48a24,24,0,0,0,24-24V96A24,24,0,0,0,224,72ZM40,168a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H184a8,8,0,0,1,8,8v8H176a24,24,0,0,0-24,24v72Zm192,24a8,8,0,0,1-8,8H176a8,8,0,0,1-8-8V96a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8Zm-96,16a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h40A8,8,0,0,1,136,208Zm80-96a8,8,0,0,1-8,8H192a8,8,0,0,1,0-16h16A8,8,0,0,1,216,112Z"/></symbol>
-  <symbol id="ph-users" viewBox="0 0 256 256"><path d="M168,144a40,40,0,1,1-40-40A40,40,0,0,1,168,144ZM64,56A32,32,0,1,0,96,88,32,32,0,0,0,64,56Zm128,0a32,32,0,1,0,32,32A32,32,0,0,0,192,56Z" opacity="0.2"/><path d="M244.8,150.4a8,8,0,0,1-11.2-1.6A51.6,51.6,0,0,0,192,128a8,8,0,0,1,0-16,24,24,0,1,0-23.24-30,8,8,0,1,1-15.5-4A40,40,0,1,1,219,117.51a67.94,67.94,0,0,1,27.43,21.68A8,8,0,0,1,244.8,150.4ZM190.92,212a8,8,0,1,1-13.85,8,57,57,0,0,0-98.15,0,8,8,0,1,1-13.84-8,72.06,72.06,0,0,1,33.74-29.92,48,48,0,1,1,58.36,0A72.06,72.06,0,0,1,190.92,212ZM128,176a32,32,0,1,0-32-32A32,32,0,0,0,128,176ZM72,120a8,8,0,0,0-8-8A24,24,0,1,1,87.24,82a8,8,0,1,0,15.5-4A40,40,0,1,0,37,117.51,67.94,67.94,0,0,0,9.6,139.19a8,8,0,1,0,12.8,9.61A51.6,51.6,0,0,1,64,128,8,8,0,0,0,72,120Z"/></symbol>
-  <symbol id="ph-trending-up" viewBox="0 0 256 256"><path d="M232,56v64L168,56Z" opacity="0.2"/><path d="M232,48H168a8,8,0,0,0-5.66,13.66L188.69,88,136,140.69l-34.34-34.35a8,8,0,0,0-11.32,0l-72,72a8,8,0,0,0,11.32,11.32L96,123.31l34.34,34.35a8,8,0,0,0,11.32,0L200,99.31l26.34,26.35A8,8,0,0,0,240,120V56A8,8,0,0,0,232,48Zm-8,52.69L187.31,64H224Z"/></symbol>
-</defs>
-</svg>
-
   <button class="btn-theme" id="themeToggle" aria-label="Switch to light theme"
     style="position:fixed;top:var(--space-4);right:var(--space-4);z-index:100;">
-    <svg class="icon-inline" id="themeIcon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-monitor"></use></svg>
+    <svg class="icon-inline" id="themeIcon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-monitor"></use></svg>
   </button>
 
   <!-- L1: Hero -->
@@ -971,7 +953,7 @@
 
     <div class="cta-group">
       <a href="https://github.com/agentmerlinai/merlin" class="btn-primary" target="_blank" rel="noopener">
-        <svg class="icon-inline" viewBox="0 0 98 96" fill="currentColor" aria-hidden="true"><use href="#gh-logo"></use></svg> Star on GitHub
+        <svg class="icon-inline" viewBox="0 0 98 96" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#gh-logo"></use></svg> Star on GitHub
       </a>
       <p class="star-count" id="starCount" aria-live="polite">
         <noscript>Star us on GitHub to follow along</noscript>
@@ -997,17 +979,17 @@
 
   <!-- L3: Missions + "Expertise as Code" -->
   <section class="concept" aria-label="What is a mission">
-    <p class="section-eyebrow"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-flame"></use></svg> Missions</p>
+    <p class="section-eyebrow"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-flame"></use></svg> Missions</p>
     <h2 class="section-heading">What Is a Mission?</h2>
     <p class="section-sub">Not just guidance for an agent to interpret. A mission is executable control over how the work runs: which model handles each step, how contexts split and pass state, where humans interact, what always gets validated, when the system must stop, and what logic the workflow can express.</p>
 
     <div class="concept-contrast">
       <div class="concept-before">
-        <p class="concept-contrast-label"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-x-circle"></use></svg> Without Merlin</p>
+        <p class="concept-contrast-label"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-x-circle"></use></svg> Without Merlin</p>
         The agent runs. No one decided where to check in. Step&nbsp;12 drifts. Steps&nbsp;13&ndash;20 compound the error. You find out at the end &mdash; if you find it. And nobody on the team makes the same call twice.
       </div>
       <div class="concept-after">
-        <p class="concept-contrast-label"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-check-circle"></use></svg> With Merlin</p>
+        <p class="concept-contrast-label"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-check-circle"></use></svg> With Merlin</p>
         You describe the rules: research runs freely, plan needs approval, execution stays scoped, tests are non-negotiable. Merlin writes that as a mission. It enforces your rules for every engineer, every run, without you watching.
       </div>
     </div>
@@ -1025,7 +1007,7 @@
 
       <div class="persona-pair">
         <div class="persona-card">
-          <p class="persona-label"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-crown"></use></svg> Architect</p>
+          <p class="persona-label"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-crown"></use></svg> Architect</p>
           <p class="persona-title">Senior / Staff Engineer</p>
           <ul class="persona-list">
             <li>Describes the workflow: where to pause, which model, what must never be skipped</li>
@@ -1036,7 +1018,7 @@
           </ul>
         </div>
         <div class="persona-card">
-          <p class="persona-label"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-user"></use></svg> Any Engineer</p>
+          <p class="persona-label"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-user"></use></svg> Any Engineer</p>
           <p class="persona-title">Junior, Mid, Senior &mdash; Everyone Else</p>
           <ul class="persona-list">
             <li>Picks a mission, provides inputs</li>
@@ -1052,14 +1034,14 @@
     </div>
 
     <div class="mission-vs-skill" aria-label="Mission versus skill">
-      <p class="section-eyebrow"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-stack"></use></svg> Mission vs Skill</p>
+      <p class="section-eyebrow"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-stack"></use></svg> Mission vs Skill</p>
       <h3 class="section-heading">Skills are easy to write. Missions are easy to trust.</h3>
       <p class="section-sub">A skill is Markdown: quick to write, easy to tweak, weak on control. A mission is the inverse: more deliberate to author, but backed by full TypeScript and exact execution rules.</p>
 
       <div class="comparison-grid">
         <article class="comparison-card skill-card">
           <p class="comparison-kicker">Easy authoring, weak control</p>
-          <p class="comparison-label"><svg class="icon-inline icon-accent" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-stack"></use></svg> Skill</p>
+          <p class="comparison-label"><svg class="icon-inline icon-accent" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-stack"></use></svg> Skill</p>
           <ul class="comparison-list">
             <li>Written in Markdown</li>
             <li>Fast to write and easy to tweak</li>
@@ -1074,7 +1056,7 @@
 
         <article class="comparison-card mission-card">
           <p class="comparison-kicker">More effort, explicit control</p>
-          <p class="comparison-label"><svg class="icon-inline icon-primary" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-flame"></use></svg> Mission</p>
+          <p class="comparison-label"><svg class="icon-inline icon-primary" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-flame"></use></svg> Mission</p>
           <ul class="comparison-list">
             <li>Written as executable TypeScript workflow</li>
             <li>More deliberate to author and review</li>
@@ -1098,19 +1080,19 @@
       <div class="level-grid">
         <div class="level-card">
           <span class="level-badge">Level 1</span>
-          <svg class="icon-sm icon-muted" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-compass"></use></svg>
+          <svg class="icon-sm icon-muted" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-compass"></use></svg>
           <h4 class="level-heading">Guided</h4>
           <p class="level-desc">Pick a mission. Provide inputs. Wait for results. Approve the plan when it appears. Decide whether to commit when it&rsquo;s done. No AI knowledge required.</p>
         </div>
         <div class="level-card">
           <span class="level-badge">Level 2</span>
-          <svg class="icon-sm icon-accent" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-chain"></use></svg>
+          <svg class="icon-sm icon-accent" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-chain"></use></svg>
           <h4 class="level-heading">Informed</h4>
           <p class="level-desc">Monitor execution in real time. Make decisions at branch points. Override model selection per step. Inspect every agent decision before it becomes code.</p>
         </div>
         <div class="level-card">
           <span class="level-badge">Level 3</span>
-          <svg class="icon-sm icon-primary" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-rocket"></use></svg>
+          <svg class="icon-sm icon-primary" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-rocket"></use></svg>
           <h4 class="level-heading">Architect</h4>
           <p class="level-desc">Design the workflow: research strategies, validation criteria, approval checkpoints, model per step. Ask Merlin to generate the TypeScript. Review it, optionally edit it, commit it.</p>
         </div>
@@ -1122,7 +1104,7 @@
   <!-- L4: Code Example -->
   <section class="code-panel" aria-label="Mission code example">
     <div class="code-panel-inner">
-      <p class="code-label"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-flame"></use></svg> Mission Code</p>
+      <p class="code-label"><svg class="icon-inline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-flame"></use></svg> Mission Code</p>
       <h2 class="code-heading">Your process, as TypeScript.</h2>
       <p class="code-intro">A mission is the same workflow every time: research first, approve the plan, execute only what was approved, validate the result, then stop for a final human call.</p>
       <div class="code-summary">
@@ -1130,26 +1112,31 @@
         <ol class="mission-flow">
           <li class="mission-step">
             <span class="mission-step-index">Step 1</span>
+            <span class="mission-step-icon icon-primary"><svg class="icon-sm" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-list-magnifying-glass"></use></svg></span>
             <p class="mission-step-title">Research</p>
             <p class="mission-step-desc">Read only. Gather context.</p>
           </li>
           <li class="mission-step">
             <span class="mission-step-index">Step 2</span>
+            <span class="mission-step-icon icon-accent"><svg class="icon-sm" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-list-checks"></use></svg></span>
             <p class="mission-step-title">Plan + approve</p>
             <p class="mission-step-desc">Draft the fix. Wait for approval.</p>
           </li>
           <li class="mission-step">
             <span class="mission-step-index">Step 3</span>
+            <span class="mission-step-icon icon-success"><svg class="icon-sm" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-rocket-launch"></use></svg></span>
             <p class="mission-step-title">Execute</p>
             <p class="mission-step-desc">Ship only the approved plan.</p>
           </li>
           <li class="mission-step">
             <span class="mission-step-index">Step 4</span>
+            <span class="mission-step-icon icon-primary"><svg class="icon-sm" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-shield-check"></use></svg></span>
             <p class="mission-step-title">Validate</p>
             <p class="mission-step-desc">Run tests. Review the diff.</p>
           </li>
           <li class="mission-step">
             <span class="mission-step-index">Step 5</span>
+            <span class="mission-step-icon icon-accent"><svg class="icon-sm" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-git-commit"></use></svg></span>
             <p class="mission-step-title">Commit decision</p>
             <p class="mission-step-desc">Human decides what ships.</p>
           </li>
@@ -1200,37 +1187,37 @@
 
     <div class="features-grid">
       <div class="feature-card">
-        <svg class="icon icon-primary" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-monitor"></use></svg>
+        <svg class="icon icon-primary" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-monitor"></use></svg>
         <h3>Control Room</h3>
         <p>The Switchboard shows every mission across every project, sorted by urgency &mdash; input needed, error, running, done. One view, full triage. Live metro map of each run. Get notified when a checkpoint needs you. Nothing to watch until then.</p>
         <span class="feature-enterprise-signal">Full audit trail</span>
       </div>
       <div class="feature-card">
-        <svg class="icon icon-accent" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-stack"></use></svg>
+        <svg class="icon icon-accent" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-stack"></use></svg>
         <h3>Multi-Model</h3>
         <p>Use GPT-5.4-mini or Gemini 2.5 Flash-Lite for research, GPT-5.4 or Gemini 2.5 Pro for planning, Claude Opus 4.7 where rigor matters, then Qwen3 or Gemma 4 locally for focused execution. Mix Anthropic, OpenAI, Gemini, and local models in one mission.</p>
         <span class="feature-enterprise-signal">Per-step budget controls</span>
       </div>
       <div class="feature-card">
-        <svg class="icon icon-success" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-shield"></use></svg>
+        <svg class="icon icon-success" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-shield"></use></svg>
         <h3>Structural Guardrails</h3>
         <p>Can&rsquo;t skip research. Can&rsquo;t bypass approval. Can&rsquo;t commit without review. V8 isolate crash isolation.</p>
         <span class="feature-enterprise-signal">Architecture-enforced constraints</span>
       </div>
       <div class="feature-card">
-        <svg class="icon icon-primary" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-devices"></use></svg>
+        <svg class="icon icon-primary" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-devices"></use></svg>
         <h3>Works Everywhere</h3>
         <p>Fire a mission from your laptop. Approve the plan from your phone on the train. The machine keeps running. Pick up results on any device.</p>
         <span class="feature-enterprise-signal">Cross-timezone handoff</span>
       </div>
       <div class="feature-card">
-        <svg class="icon icon-accent" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-users"></use></svg>
+        <svg class="icon icon-accent" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-users"></use></svg>
         <h3>Round Table</h3>
         <p>For your highest-stakes steps: 3 providers vote, majority wins. The architect places this at the nodes where per-step accuracy matters most.</p>
         <span class="feature-enterprise-signal">Multi-provider validation</span>
       </div>
       <div class="feature-card">
-        <svg class="icon icon-success" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="#ph-trending-up"></use></svg>
+        <svg class="icon icon-success" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-trending-up"></use></svg>
         <h3>Knowledge Compounds</h3>
         <p>Every run audited. Engineers rate missions. Teams see what works. Missions improve with use.</p>
         <span class="feature-enterprise-signal">Institutional knowledge retention</span>
@@ -1262,7 +1249,7 @@
 
     <div class="cta-group" style="margin: 0 auto;">
       <a href="https://github.com/agentmerlinai/merlin" class="btn-primary" target="_blank" rel="noopener">
-        <svg class="icon-inline" viewBox="0 0 98 96" fill="currentColor" aria-hidden="true"><use href="#gh-logo"></use></svg> Star on GitHub
+        <svg class="icon-inline" viewBox="0 0 98 96" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#gh-logo"></use></svg> Star on GitHub
       </a>
     </div>
   </section>
@@ -1277,7 +1264,7 @@
     </p>
     <div class="footer-links">
       <a href="https://github.com/agentmerlinai/merlin" class="footer-link" target="_blank" rel="noopener" aria-label="GitHub repository">
-        <svg class="icon-inline" viewBox="0 0 98 96" fill="currentColor" aria-hidden="true"><use href="#gh-logo"></use></svg> GitHub
+        <svg class="icon-inline" viewBox="0 0 98 96" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#gh-logo"></use></svg> GitHub
       </a>
       <a href="https://github.com/agentmerlinai/merlin/stargazers" class="footer-link" target="_blank" rel="noopener">&#11088; Star us</a>
     </div>
@@ -1290,7 +1277,8 @@
       var btn  = document.getElementById('themeToggle');
       var mq   = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
       var labels = { auto: 'Switch to light theme', light: 'Switch to dark theme', dark: 'Switch to auto theme' };
-      var icons  = { auto: '#ph-monitor', light: '#ph-sun', dark: '#ph-moon' };
+      var iconSprite = 'assets/icons/sprite.svg#';
+      var icons  = { auto: iconSprite + 'ph-monitor', light: iconSprite + 'ph-sun', dark: iconSprite + 'ph-moon' };
       var cycle  = { auto: 'light', light: 'dark', dark: 'auto' };
 
       function applyPref(pref) {
@@ -1298,7 +1286,7 @@
         html.setAttribute('data-theme-pref', pref);
         html.setAttribute('data-theme', resolved);
         btn.setAttribute('aria-label', labels[pref] || 'Toggle theme');
-        document.querySelector('#themeIcon use').setAttribute('href', icons[pref] || '#ph-monitor');
+        document.querySelector('#themeIcon use').setAttribute('href', icons[pref] || iconSprite + 'ph-monitor');
         try { localStorage.setItem('merlin-theme', pref); } catch (e) {}
       }
 
