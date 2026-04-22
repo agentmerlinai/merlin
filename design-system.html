@@ -871,7 +871,7 @@
     font-family: var(--font-code);
     font-size: 13px;
     line-height: 1.8;
-    font-feature-settings: 'calt' 1, 'ss01' 1, 'ss02' 1;
+    font-feature-settings: 'calt' 1, 'liga' 1, 'ss01' 1, 'ss02' 1, 'ss03' 1, 'ss04' 1;
     overflow-x: auto;
     white-space: pre-wrap;
     overflow-wrap: break-word;
@@ -879,9 +879,9 @@
     border: 1px solid var(--border-default);
     color: var(--text-primary);
   }
-  .code-block .kw { font-weight: 600; color: var(--color-primary); }
-  .code-block .str { color: var(--color-success); }
-  .code-block .fn { color: var(--color-accent); }
+  .code-block .kw { font-family: var(--font-agent); font-weight: 600; color: var(--color-primary); }
+  .code-block .str { font-family: var(--font-caption); color: var(--color-success); }
+  .code-block .fn { font-family: var(--font-heading); color: var(--color-accent); }
   .code-block .cm { font-family: var(--font-prose); color: var(--text-muted); }
 
   /* ── Contrast Report ── */

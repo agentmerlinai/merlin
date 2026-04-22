@@ -62,6 +62,26 @@ Font families from the Monaspace superfamily:
 | `--font-agent` | MKrypton | Agent voice, logs |
 | `--font-prose` | MRadon | Long-form reading |
 
+### Code block semantics
+
+Monaspace works best when its metric-compatible families are mixed intentionally inside the same code sample rather than treating the whole block as a single monospace voice.
+
+| Code role | Face | Why |
+|---|---|---|
+| Base syntax, punctuation, layout | `MNeon` | Neutral neo-grotesque default; keeps dense code readable |
+| Keywords, operators, system language | `MKrypton` | Mechanical voice reinforces control flow and machine intent |
+| Function names, call sites, API surfaces | `MXenon` | Slab serif adds structural emphasis without breaking alignment |
+| Strings, labels, human-authored literals | `MArgon` | Humanist shapes soften content-bearing text and improve scan contrast |
+| Comments, narrative explanation | `MRadon` | Handwriting-style voice clearly separates prose from executable syntax |
+
+Recommended OpenType features for code blocks:
+
+- `calt` for Monaspace texture healing
+- `liga` for repeated-character spacing
+- `ss01`-`ss04` for common equality, comparison, arrow, and markup ligatures
+
+Avoid enabling all stylistic sets by default in UI code samples. Prefer the broadly useful sets above and add language-specific sets only when a component is dedicated to that language.
+
 ### Size scale (Major Third 1.25x, base 16 px)
 
 | Token | Value |
