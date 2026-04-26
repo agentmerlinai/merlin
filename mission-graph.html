@@ -250,10 +250,14 @@
                 border: 1px solid var(--border-default);
                 border-radius: var(--radius-xl);
                 padding: var(--space-6);
-                overflow: hidden;
+                overflow-x: auto;
+                overflow-y: hidden;
+                scroll-padding-inline: var(--space-6);
             }
             .metro-map {
-                width: 100%;
+                width: 1312px;
+                max-width: none;
+                min-width: 1312px;
                 height: auto;
                 display: block;
             }
@@ -407,6 +411,12 @@
                 stroke-width: 2;
             }
             .graph-svg .edge-branch {
+                stroke: var(--color-accent);
+                fill: none;
+                stroke-width: 2;
+                stroke-dasharray: 6, 3;
+            }
+            .graph-svg .edge-loop {
                 stroke: var(--color-accent);
                 fill: none;
                 stroke-width: 2;
@@ -731,7 +741,7 @@
             <div class="map-wrap">
                 <svg
                     class="metro-map graph-svg"
-                    viewBox="0 0 960 480"
+                    viewBox="0 0 1312 480"
                     xmlns="http://www.w3.org/2000/svg"
                     aria-label="Merlin Mission Graph Demo"
                 ></svg>
@@ -2213,8 +2223,13 @@
                             document.documentElement,
                         ).getPropertyValue("--space-8"),
                     ) || 32;
-                const W = 30 * G,
-                    H = 15 * G; // 960 × 480
+                const W = 41 * G,
+                    H = 15 * G; // 1312 × 480
+                const STATION_HPAD = G / 2;
+                const STATION_VH = G;
+                const CHIP_PAD_X = G / 4;
+                const CHIP_H = Math.round((G * 3) / 8);
+                const CHIP_GAP = G / 2;
 
                 function gridLines(w, h) {
                     let s = "";
@@ -2235,10 +2250,93 @@
                     );
                 }
 
-                function process(x, y, label) {
+                const textMeasure = document.createElement("canvas").getContext("2d");
+                const rootStyle = getComputedStyle(document.documentElement);
+                const fontCaption =
+                    rootStyle.getPropertyValue("--font-caption").trim() ||
+                    "sans-serif";
+                const fontCode =
+                    rootStyle.getPropertyValue("--font-code").trim() ||
+                    "monospace";
+
+                function measureTextWidth(label, className = "node-label") {
+                    const sizeByClass = {
+                        "chip-text": 8,
+                        "sub-chip-text": 7,
+                        "node-label": 11,
+                    };
+                    const fontSize = sizeByClass[className] ?? 11;
+                    const fontFamily =
+                        className === "chip-text" ||
+                        className === "sub-chip-text"
+                            ? fontCode
+                            : fontCaption;
+                    textMeasure.font = `${fontSize}px ${fontFamily}`;
+                    return textMeasure.measureText(label).width;
+                }
+
+                function snap(value, unit = G / 2) {
+                    return Math.ceil(value / unit) * unit;
+                }
+
+                function stationBox(x, y, label, role = "process") {
+                    const labelWidth = measureTextWidth(label);
+                    const width = snap(labelWidth + STATION_HPAD * 2);
+                    const height = STATION_VH;
+                    const cx = x + width / 2;
+                    const cy = y + height / 2;
+                    const chipOffsetX = G / 4;
+                    return {
+                        x,
+                        y,
+                        label,
+                        role,
+                        width,
+                        height,
+                        cx,
+                        cy,
+                        left: x,
+                        right: x + width,
+                        top: y,
+                        bottom: y + height,
+                        textX: cx,
+                        chipX: x + width - G - chipOffsetX,
+                        chipY: y - G / 4,
+                        markerX: x + chipOffsetX,
+                    };
+                }
+
+                function decisionBox(cx, cy, label) {
+                    const halfWidth = snap((measureTextWidth(label) + G) / 2);
+                    return {
+                        x: cx - halfWidth,
+                        y: cy - G,
+                        label,
+                        role: "decision",
+                        width: halfWidth * 2,
+                        height: 2 * G,
+                        halfWidth,
+                        cx,
+                        cy,
+                        left: cx - halfWidth,
+                        right: cx + halfWidth,
+                        top: cy - G,
+                        bottom: cy + G,
+                        textX: cx,
+                    };
+                }
+
+                function process(box) {
                     return (
-                        `<rect class="node-bg node-primary" x="${x}" y="${y}" width="${3 * G}" height="${G}" rx="4"/>` +
-                        `<text class="node-label" x="${x + 1.5 * G}" y="${y + G / 2}" text-anchor="middle" dominant-baseline="central">${label}</text>`
+                        `<rect class="node-bg node-primary" x="${box.x}" y="${box.y}" width="${box.width}" height="${box.height}" rx="4"/>` +
+                        `<text class="node-label" x="${box.textX}" y="${box.cy}" text-anchor="middle" dominant-baseline="central">${box.label}</text>`
+                    );
+                }
+
+                function loopProcess(box) {
+                    return (
+                        process(box) +
+                        `<text x="${box.right - G / 8}" y="${box.y + (7 * G) / 8}" text-anchor="middle" dominant-baseline="central" fill="var(--graph-stroke)" font-size="14">↺</text>`
                     );
                 }
 
@@ -2247,6 +2345,19 @@
                         `<rect class="chip-bg" x="${x}" y="${y}" width="${G}" height="${G / 2}" rx="2"/>` +
                         `<text class="chip-text" x="${x + G / 2}" y="${y + G / 4}" text-anchor="middle" dominant-baseline="central">${text}</text>`
                     );
+                }
+
+                function chipBox(label, className = "sub-chip-text") {
+                    const paddingX = CHIP_PAD_X;
+                    const width = snap(
+                        measureTextWidth(label, className) + paddingX * 2,
+                        G / 8,
+                    );
+                    return {
+                        label,
+                        width,
+                        textX: width / 2,
+                    };
                 }
 
                 function annoStub(cx, y1, y2, lines, isAbove) {
@@ -2264,18 +2375,17 @@
                     return s;
                 }
 
-                function mission(x, y, label, annotLines, annotDir) {
-                    const cx = x + 1.5 * G;
+                function mission(box, annotLines, annotDir) {
                     let s =
-                        `<rect class="node-bg node-primary-bold" x="${x}" y="${y}" width="${3 * G}" height="${G}" rx="4"/>` +
-                        chipEl(x + 2 * G, y - G / 4, "agent") +
-                        `<text class="node-label" x="${cx}" y="${y + G / 2}" text-anchor="middle" dominant-baseline="central">${label}</text>`;
+                        `<rect class="node-bg node-primary-bold" x="${box.x}" y="${box.y}" width="${box.width}" height="${box.height}" rx="4"/>` +
+                        chipEl(box.chipX, box.chipY, "agent") +
+                        `<text class="node-label" x="${box.textX}" y="${box.cy}" text-anchor="middle" dominant-baseline="central">${box.label}</text>`;
                     if (annotLines) {
                         const below = annotDir === "below";
                         s += annoStub(
-                            cx,
-                            below ? y + G : y,
-                            below ? y + G + G / 2 : y - G / 2,
+                            box.textX,
+                            below ? box.bottom : box.top,
+                            below ? box.bottom + G / 2 : box.top - G / 2,
                             annotLines,
                             !below,
                         );
@@ -2283,29 +2393,27 @@
                     return s;
                 }
 
-                function diamond(cx, cy, label) {
-                    const h = G; // G half-width — leaves G arrow shaft on each side when coords are spaced 4G apart
+                function diamond(box) {
                     return (
-                        `<polygon class="node-bg node-primary" points="${cx},${cy - h} ${cx + h},${cy} ${cx},${cy + h} ${cx - h},${cy}"/>` +
-                        `<text class="node-label" x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central">${label}</text>`
+                        `<polygon class="node-bg node-primary" points="${box.cx},${box.top} ${box.right},${box.cy} ${box.cx},${box.bottom} ${box.left},${box.cy}"/>` +
+                        `<text class="node-label" x="${box.textX}" y="${box.cy}" text-anchor="middle" dominant-baseline="central">${box.label}</text>`
                     );
                 }
 
-                function spawn(x, y, label, annotLines, annotDir) {
-                    const cx = x + (9 * G) / 4; // center of content area [x+G/2, x+4G]
-                    const bx = x + G / 4; // first marker line; second at bx+G/4 = x+G/2
+                function spawn(box, annotLines, annotDir) {
+                    const bx = box.markerX;
                     let s =
-                        `<rect class="node-bg node-primary" x="${x}" y="${y}" width="${4 * G}" height="${G}" rx="4"/>` +
-                        `<line class="spawn-marker" x1="${bx}" y1="${y + 2}" x2="${bx}" y2="${y + G - 2}"/>` +
-                        `<line class="spawn-marker" x1="${bx + G / 4}" y1="${y + 2}" x2="${bx + G / 4}" y2="${y + G - 2}"/>` +
-                        chipEl(x + 3 * G, y - G / 4, "spawn") +
-                        `<text class="node-label" x="${cx}" y="${y + G / 2}" text-anchor="middle" dominant-baseline="central">${label}</text>`;
+                        `<rect class="node-bg node-primary" x="${box.x}" y="${box.y}" width="${box.width}" height="${box.height}" rx="4"/>` +
+                        `<line class="spawn-marker" x1="${bx}" y1="${box.y + 2}" x2="${bx}" y2="${box.y + G - 2}"/>` +
+                        `<line class="spawn-marker" x1="${bx + G / 4}" y1="${box.y + 2}" x2="${bx + G / 4}" y2="${box.y + G - 2}"/>` +
+                        chipEl(box.chipX, box.chipY, "spawn") +
+                        `<text class="node-label" x="${box.textX}" y="${box.cy}" text-anchor="middle" dominant-baseline="central">${box.label}</text>`;
                     if (annotLines) {
                         const below = annotDir === "below";
                         s += annoStub(
-                            cx,
-                            below ? y + G : y,
-                            below ? y + G + G / 2 : y - G / 2,
+                            box.textX,
+                            below ? box.bottom : box.top,
+                            below ? box.bottom + G / 2 : box.top - G / 2,
                             annotLines,
                             !below,
                         );
@@ -2324,15 +2432,20 @@
                         `<line class="sub-sep" x1="${x}" y1="${sepY}" x2="${x + w}" y2="${sepY}"/>` +
                         `<text class="sub-title" x="${x + w / 2}" y="${y + (G * 3) / 8}" text-anchor="middle" dominant-baseline="central">${title}</text>`;
                     if (chips) {
-                        let cx = x + G;
+                        const chipBoxes = chips.map((txt) =>
+                            chipBox(txt, "sub-chip-text"),
+                        );
+                        const totalW =
+                            chipBoxes.reduce((sum, chip) => sum + chip.width, 0) +
+                            CHIP_GAP * (chipBoxes.length - 1);
+                        let cx = x + (w - totalW) / 2;
                         const chipY = y + (G * 5) / 8,
-                            chipH = Math.round((G * 3) / 8);
-                        chips.forEach((txt) => {
-                            const cw = txt.length * 5 + 16;
+                            chipH = CHIP_H;
+                        chipBoxes.forEach((chip) => {
                             s +=
-                                `<rect class="sub-chip-bg" x="${cx}" y="${chipY}" width="${cw}" height="${chipH}" rx="2"/>` +
-                                `<text class="sub-chip-text" x="${cx + cw / 2}" y="${chipY + chipH / 2}" text-anchor="middle" dominant-baseline="central">${txt}</text>`;
-                            cx += cw + G / 2;
+                                `<rect class="sub-chip-bg" x="${cx}" y="${chipY}" width="${chip.width}" height="${chipH}" rx="2"/>` +
+                                `<text class="sub-chip-text" x="${cx + chip.textX}" y="${chipY + chipH / 2}" text-anchor="middle" dominant-baseline="central">${chip.label}</text>`;
+                            cx += chip.width + CHIP_GAP;
                         });
                     }
                     return s;
@@ -2344,6 +2457,7 @@
                     const m = {
                         seq: "arr-seq",
                         branch: "arr-branch",
+                        loop: "arr-branch",
                         spawn: "arr-spawn",
                     };
                     const seg = d.match(
@@ -2364,8 +2478,8 @@
                 }
 
                 // ── Coordinates — all multiples of G ──
-                const sY = 2 * G; // spine top  = 64
-                const cY = 2.5 * G; // spine cy   = 80
+                const sY = 2.5 * G; // spine top  = 80
+                const cY = 3 * G; // spine cy   = 96
 
                 // Parent spine node left edges
                 const startX = 1 * G; // 32
@@ -2373,7 +2487,36 @@
                 const dCX = 9 * G; // 288  diamond cx
                 const anX = 11 * G; // 352  Analyze
                 const spX = 15 * G; // 480  spawn-boundary
-                const endX = 20 * G; // 640  End
+                const gapX = 21 * G; // 672  Gap Review loop
+                const planX = 25 * G; // 800  Plan Fixes
+                const fixX = 29 * G; // 928  fixAgents spawn-boundary
+                const cleanCX = 35 * G; // 1120  consecutive clean reviews?
+                const endX = 38 * G; // 1216  End
+                const loopY = 1 * G;
+
+                const start = {
+                    left: startX,
+                    right: startX + 2 * G,
+                    cx: startX + G,
+                };
+                const loadConfig = stationBox(lcX, sY, "loadConfig");
+                const env = decisionBox(dCX, cY, "env?");
+                const analyze = stationBox(anX, sY, "Analyze", "mission");
+                const analysisMission = stationBox(
+                    spX,
+                    sY,
+                    "analysisMission",
+                    "spawn",
+                );
+                const gapReview = stationBox(gapX, sY, "Gap Review", "loop");
+                const planFixes = stationBox(planX, sY, "Plan Fixes", "mission");
+                const fixAgents = stationBox(fixX, sY, "fixAgents", "spawn");
+                const cleanReview = decisionBox(cleanCX, cY, "clean twice?");
+                const end = {
+                    left: endX,
+                    right: endX + 2 * G,
+                    cx: endX + G,
+                };
 
                 // Sub-mission container  center_x = spawn arrow x (spX + 2G = 17G)
                 const subX = 10 * G,
@@ -2403,26 +2546,32 @@
                     gridLines(W, H),
 
                     // Parent edges (no labels here)
-                    edge(`M ${startX + 2 * G},${cY} H ${lcX}`, "seq"),
-                    edge(`M ${lcX + 3 * G},${cY} H ${dCX - G}`, "seq"),
-                    edge(`M ${dCX + G},${cY} H ${anX}`, "branch"),
-                    edge(`M ${dCX},${cY + G} V ${5 * G}`, "branch"),
-                    edge(`M ${anX + 3 * G},${cY} H ${spX}`, "seq"),
-                    edge(`M ${spX + 4 * G},${cY} H ${endX}`, "seq"),
+                    edge(`M ${start.right},${cY} H ${loadConfig.left}`, "seq"),
+                    edge(`M ${loadConfig.right},${cY} H ${env.left}`, "seq"),
+                    edge(`M ${env.right},${cY} H ${analyze.left}`, "branch"),
+                    edge(`M ${env.cx},${env.bottom} V ${5 * G}`, "branch"),
+                    edge(`M ${analyze.right},${cY} H ${analysisMission.left}`, "seq"),
+                    edge(`M ${analysisMission.right},${cY} H ${gapReview.left}`, "seq"),
+                    edge(`M ${gapReview.right},${cY} H ${planFixes.left}`, "seq"),
+                    edge(`M ${planFixes.right},${cY} H ${fixAgents.left}`, "seq"),
+                    edge(`M ${fixAgents.right},${cY} H ${cleanReview.left}`, "seq"),
+                    edge(`M ${cleanReview.right},${cY} H ${end.left}`, "branch"),
+                    edge(
+                        `M ${cleanReview.cx},${cleanReview.top} V ${loopY} H ${gapReview.cx} V ${gapReview.top}`,
+                        "loop",
+                    ),
                     edge(`M ${subX + subW / 2},${sY + G} V ${subY}`, "spawn"),
 
                     // Parent nodes (rects/polygons only — text comes later)
                     `<rect class="terminal-node" x="${startX}" y="${sY}" width="${2 * G}" height="${G}" rx="${G / 2}"/>`,
-                    `<rect class="node-bg node-primary" x="${lcX}" y="${sY}" width="${3 * G}" height="${G}" rx="4"/>`,
-                    diamond(dCX, cY, ""), // shape only, label painted separately
-                    `<rect class="node-bg node-primary-bold" x="${anX}" y="${sY}" width="${3 * G}" height="${G}" rx="4"/>`,
-                    chipEl(anX + 2 * G, sY - G / 4, "agent"),
-                    `<rect class="node-bg node-primary" x="${spX}" y="${sY}" width="${4 * G}" height="${G}" rx="4"/>`,
-                    (() => {
-                        const bx = spX + G / 4;
-                        return `<line class="spawn-marker" x1="${bx}" y1="${sY + 2}" x2="${bx}" y2="${sY + G - 2}"/><line class="spawn-marker" x1="${bx + G / 4}" y1="${sY + 2}" x2="${bx + G / 4}" y2="${sY + G - 2}"/>`;
-                    })(),
-                    chipEl(spX + 3 * G, sY - G / 4, "spawn"),
+                    process(loadConfig),
+                    diamond(env),
+                    mission(analyze),
+                    spawn(analysisMission),
+                    loopProcess(gapReview),
+                    mission(planFixes),
+                    spawn(fixAgents),
+                    diamond(cleanReview),
                     `<rect class="terminal-node" x="${endX}" y="${sY}" width="${2 * G}" height="${G}" rx="${G / 2}"/>`,
                     `<rect class="terminal-error" x="${8 * G}" y="${5 * G}" width="${2 * G}" height="${G}" rx="${G / 2}"/>`,
 
@@ -2459,29 +2608,50 @@
 
                     // Parent node labels
                     `<text class="terminal-label" x="${startX + G}" y="${sY + G / 2}" text-anchor="middle" dominant-baseline="central">Start</text>`,
-                    `<text class="node-label" x="${lcX + 1.5 * G}" y="${sY + G / 2}" text-anchor="middle" dominant-baseline="central">loadConfig</text>`,
-                    `<text class="node-label" x="${dCX}" y="${cY}" text-anchor="middle" dominant-baseline="central">env?</text>`,
-                    `<text class="node-label" x="${anX + 1.5 * G}" y="${sY + G / 2}" text-anchor="middle" dominant-baseline="central">Analyze</text>`,
-                    `<text class="node-label" x="${spX + (9 * G) / 4}" y="${sY + G / 2}" text-anchor="middle" dominant-baseline="central">analysisMission</text>`,
                     `<text class="terminal-label" x="${endX + G}" y="${sY + G / 2}" text-anchor="middle" dominant-baseline="central">End</text>`,
                     `<text class="node-label" x="${9 * G}" y="${5 * G + G / 2}" text-anchor="middle" dominant-baseline="central">Error</text>`,
+                    `<text class="edge-label" x="${cleanReview.right + G / 8}" y="${cY - G / 4}" text-anchor="start">true</text>`,
+                    `<text class="edge-label" x="${(cleanReview.cx + gapReview.cx) / 2}" y="${loopY - G / 4}" text-anchor="middle">false</text>`,
 
                     // Analyze annotation (below)
                     annoStub(
-                        anX + 1.5 * G,
-                        sY + G,
-                        sY + G + G / 2,
+                        analyze.textX,
+                        analyze.bottom,
+                        analyze.bottom + G / 2,
                         ["Finds circular refs and", "duplicate declarations"],
                         false,
                     ),
 
                     // Spawn annotation (above)
                     annoStub(
-                        spX + 2 * G,
-                        sY,
-                        sY - G / 2,
+                        analysisMission.textX,
+                        analysisMission.top,
+                        analysisMission.top - G / 2,
                         ["inline code ·", "dual-agent run"],
                         true,
+                    ),
+
+                    // Final review loop annotations
+                    annoStub(
+                        gapReview.textX,
+                        gapReview.bottom,
+                        gapReview.bottom + G / 2,
+                        ["Final report gap analysis", "odd Claude · even GPT"],
+                        false,
+                    ),
+                    annoStub(
+                        planFixes.textX,
+                        planFixes.top,
+                        planFixes.top - G / 2,
+                        ["Plan fixes for major gaps"],
+                        true,
+                    ),
+                    annoStub(
+                        fixAgents.textX,
+                        fixAgents.bottom,
+                        fixAgents.bottom + G / 2,
+                        ["Spawn focused fix agents"],
+                        false,
                     ),
 
                     // Child node labels
