@@ -57,7 +57,10 @@ Merlin is designed to:
 - `async run<ToolName>(toolInput:json): Promise<ToolOutput>`
 	- Merlin dynamically injects `run<tool name>` functions at runtime based on the available tools with JSDoc comments for usage instructions
 - `async spawn(missionCode:string): Promise<MissionResult>`
-- `async prompt(reactComponent): Promise<UserInput>`
+- `async prompt(request:{id:string, props?:JsonObject, [key:string]:JsonValue}): Promise<UserInput>`
+	- `request` must be JSON-serializable so it can cross the mission/orchestrator boundary as-is
+	- `id` resolves through the runtime input registry to a React input view
+	- `props` carries view-specific parameters; additional JSON fields can carry behavior and configuration without changing the API shape
 
 ### Mission Sandbox
 Each mission execution is isolated in its own V8 isolate via Deno Workers with capability-based security. The isolate has zero direct access to the host — all interaction is mediated by the orchestrator through message passing.
@@ -97,10 +100,13 @@ Each mission execution is isolated in its own V8 isolate via Deno Workers with c
 ```
 
 - Isolation model: Each mission runs in a Deno `Worker` with `deno: { permissions: "none" }` — a dedicated V8 isolate with zero filesystem, network, env, subprocess, or FFI access
-- TypeScript compilation: Deno's built-in SWC type-stripping handles TS→JS automatically. Mission code is loaded via `Blob` + `URL.createObjectURL()` — no filesystem write needed
+- TypeScript compilation: Deno's built-in SWC type-stripping handles TS→JS automatically. Ad-hoc `spawn()` missions are loaded via `Blob` + `URL.createObjectURL()` — no filesystem write needed
 - Capability injection: The worker's global scope contains only the Mission API functions (`agent`, `run<ToolName>`, `spawn`, `prompt`). These are thin message-passing stubs that `postMessage` to the orchestrator and `await` the response
 - Security boundary: The orchestrator (main thread) mediates every capability request — validates method, enforces concurrency limits, routes tool calls through the Tool Catalog, tracks tokens/cost, updates GoatDB state
-- Import blocking: `permissions: "none"` denies both remote and local `import` — only code in the Blob is available. V8 builtins (`Map`, `Set`, `Promise`, `JSON`, `Math`, `Array`, `String`, `RegExp`) are the only standard library available. No DOM, no IO
+- Import policy:
+	- saved missions may import local code and external TS/JS dependencies
+	- ad-hoc `spawn()` missions are import-disallowed by default, so only the inline mission code and injected Mission API are available
+	- the orchestrator remains the enforcement point for any future policy exceptions
 - Resource limits: Configurable per-mission heap memory limit via V8 isolate options. `worker.terminate()` on timeout. Orchestrator enforces max concurrent agents and max concurrent sub-missions
 - `spawn` nesting: Child mission spawns its own isolate. Orchestrator enforces 1-level nesting limit. Child inherits parent's concurrency budget (does not get additional slots)
 - Crash isolation: `worker.onerror` catches unhandled exceptions. Orchestrator terminates the isolate, records error in GoatDB session, notifies the Engineer. Parent mission is unaffected
@@ -136,7 +142,7 @@ await run('bash', { cmd: 'uv run pytest' });
 await agent(prompt3); // await here is optional
 ```
 ## Mission Code Analysis
-- The analysis's main purpose is observability - efficient visualization for the Engineer
+- The analysis's main purpose is operational observability - efficient supervision, orientation and inspection for the Engineer
 - Parse typescript AST
 - Extract Mission API calls and related metadata
 - Analyze concurrency - what's sequential and what's concurrent
@@ -149,7 +155,8 @@ await agent(prompt3); // await here is optional
 - Optional provider + model, uses default if unspecified
 - Optional tools. Uses default kit if unspecified
 - TS code to execute
-	- The sandbox enforces structurally that only Mission API functions and V8 builtins are available — imports are blocked, no DOM or IO exposed
+	- saved missions can use imports and additional local assets when the orchestrator resolves them from the mission directory
+	- ad-hoc `spawn()` missions default to Mission API functions plus V8 builtins only — no imports, no DOM, no IO
 	- Code must pass clean js transpilation
 	- Comply with other constraints defined above
 - Can either continue an existing context or start a new one
@@ -181,6 +188,7 @@ await agent(prompt3); // await here is optional
 	- Design token based
 	- Pure CSS
 - At a glance view of open hosts / projects with efficient navigation and visualization of which ones need Engineer attention
+- Operational-first UX: the default experience is triage, current state, blocked reason, pending checkpoint, and high-value outputs. Deeper traces and graph semantics are progressive disclosure for Architects and incident/debug scenarios
 - Mission visualization:
 	- Name
 	- Interactivity and accuracy ratings
@@ -188,16 +196,17 @@ await agent(prompt3); // await here is optional
 	- Current step and resolved provider + model used (with ability to override the model per step from the Control Room for the specific run)
 	- Current state
 	- Play/Pause/Rewind
-	- Full context inspection including tool call inputs and outputs
-	- Live context meter showing token composition for the active context
-	- Attention guide driven by required provider/model attention curve data so the Engineer can see where each station lands in the active context window
+	- Default inspect surfaces for the current station, checkpoint evidence, tool call inputs/outputs, and high-value outputs
+	- Advanced inspect surfaces for full context history, trace detail, and replay-oriented analysis when needed
+	- Live context meter showing token composition for the active context in inspect views
+	- Attention guide driven by required provider/model attention curve data so the Engineer can inspect where each station lands in the active context window
 	- Context lineage across steps, including when multiple agent calls continue the same context and when a step starts a new one
-	- Sequence Map visualization generated by parsing the mission AST and adding LLM labeling. Results are cached to save tokens
+	- Sequence Map visualization generated by parsing the mission AST and adding LLM labeling. Results are cached to save tokens. Its primary job is orientation and intervention, with deeper graph understanding available through progressive disclosure
 	- Different visual weights (sizes, etc) for missions > Engineer inputs > agents > tools
 - Visual orientation at a glance: host, project, branch, running mission, which ones need Engineer attention
-- Mission controlled customizable input area as a dynamically loaded react component
+- Mission controlled customizable input area as a registry-backed input view requested by typed JSON
 - Outputs area as a focused view for what the Engineer should pay attention to: files created/modified, high value messages/insights, warnings, etc. Each item in the outputs list links directly to the specific point in the context that it relates to
-- Shows the Sequence Map like a "metro map" or execution map, and live updates the display as execution progresses. Actual execution graph may diverge from the static analysis so the map is always updated dynamically at runtime to reflect the actual run
+- Shows the Sequence Map like a "metro map" or execution map, and live updates the display as execution progresses. Actual execution graph may diverge from the static analysis so the map is always updated dynamically at runtime to reflect the actual run without requiring every Engineer to interpret full debugger-level detail
 
 ## Builtin Mission: Solo (most basic)
 - Single step
@@ -242,7 +251,8 @@ Visualization graph:
 - Runs validation using available tools
 
 ## Input Views
-- Runtime registry maps name > react component so missions are pure ts not tsx
+- Runtime registry maps `id` > React input view so missions stay pure TS and pass only typed JSON requests
+- `prompt()` requests are JSON-serializable envelopes with a required `id`, optional `props`, and optional additional config fields
 - Builtin Input Views
 	- Plain text prompt
 	- Multi select from a list of markdown texts (for nice presentation to the user) + plaintext prompt
@@ -254,7 +264,7 @@ Visualization graph:
 - Mission is a directory with the following files:
 	- `mission.ts` - required
 	- `mission.json` - optional, auto derived from `mission.ts` if not provided
-	- `inputs.tsx` - optional custom input components registration
+	- `inputs.tsx` - optional mission-local input view registry entries for `prompt({ id, ... })`
 	- Additional files and assets
 
 ## Kit Management

@@ -1107,7 +1107,7 @@
           <span class="level-badge">Level 2</span>
           <svg class="icon-sm icon-accent" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-chain"></use></svg>
           <h4 class="level-heading">Informed</h4>
-          <p class="level-desc">Monitor execution in real time. Make decisions at branch points. Override model selection per step. Inspect every agent decision before it becomes code.</p>
+          <p class="level-desc">Monitor execution in real time. Make decisions at branch points. Inspect the current station when needed. Override model selection per step without needing to read the whole mission like a debugger trace.</p>
         </div>
         <div class="level-card">
           <span class="level-badge">Level 3</span>
@@ -1173,10 +1173,13 @@
 <span class="tok-keyword">const</span> <span class="tok-const">plan</span> <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-func">agent</span><span class="tok-punct">(</span>
   <span class="tok-string">"Propose a fix using this research: "</span> <span class="tok-punct">+</span> <span class="tok-const">research</span>
 <span class="tok-punct">);</span>
-<span class="tok-keyword">const</span> <span class="tok-const">approved</span> <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-func">prompt</span><span class="tok-punct">(</span><span class="tok-string">"ApprovalForm"</span><span class="tok-punct">, {</span>
-  <span class="tok-param">title</span><span class="tok-punct">:</span> <span class="tok-string">"Review the proposed plan"</span><span class="tok-punct">,</span>
-  <span class="tok-param">plan</span><span class="tok-punct">:</span> <span class="tok-const">plan</span><span class="tok-punct">,</span>
-  <span class="tok-param">options</span><span class="tok-punct">: [</span><span class="tok-string">"Approve"</span><span class="tok-punct">,</span> <span class="tok-string">"Approve with changes"</span><span class="tok-punct">,</span> <span class="tok-string">"Reject"</span><span class="tok-punct">]</span>
+<span class="tok-keyword">const</span> <span class="tok-const">approved</span> <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-func">prompt</span><span class="tok-punct">({</span>
+  <span class="tok-param">id</span><span class="tok-punct">:</span> <span class="tok-string">"ApprovalForm"</span><span class="tok-punct">,</span>
+  <span class="tok-param">props</span><span class="tok-punct">: {</span>
+    <span class="tok-param">title</span><span class="tok-punct">:</span> <span class="tok-string">"Review the proposed plan"</span><span class="tok-punct">,</span>
+    <span class="tok-param">plan</span><span class="tok-punct">:</span> <span class="tok-const">plan</span><span class="tok-punct">,</span>
+    <span class="tok-param">options</span><span class="tok-punct">: [</span><span class="tok-string">"Approve"</span><span class="tok-punct">,</span> <span class="tok-string">"Approve with changes"</span><span class="tok-punct">,</span> <span class="tok-string">"Reject"</span><span class="tok-punct">]</span>
+  <span class="tok-punct">}</span>
 <span class="tok-punct">});</span>
 
 <span class="tok-comment">// Execute only the approved work</span>
@@ -1187,10 +1190,13 @@
 <span class="tok-keyword">const</span> <span class="tok-const">review</span> <span class="tok-punct">=</span> <span class="tok-keyword">await</span> <span class="tok-func">agent</span><span class="tok-punct">(</span><span class="tok-string">"Review the diff for regressions"</span><span class="tok-punct">);</span>
 
 <span class="tok-comment">// Require a human decision before commit</span>
-<span class="tok-keyword">await</span> <span class="tok-func">prompt</span><span class="tok-punct">(</span><span class="tok-string">"ResultsView"</span><span class="tok-punct">, {</span>
-  <span class="tok-param">title</span><span class="tok-punct">:</span> <span class="tok-string">"Review changes before committing"</span><span class="tok-punct">,</span>
-  <span class="tok-param">diff</span><span class="tok-punct">:</span> <span class="tok-const">review</span><span class="tok-punct">,</span>
-  <span class="tok-param">actions</span><span class="tok-punct">: [</span><span class="tok-string">"Commit"</span><span class="tok-punct">,</span> <span class="tok-string">"Request changes"</span><span class="tok-punct">,</span> <span class="tok-string">"Discard"</span><span class="tok-punct">]</span>
+<span class="tok-keyword">await</span> <span class="tok-func">prompt</span><span class="tok-punct">({</span>
+  <span class="tok-param">id</span><span class="tok-punct">:</span> <span class="tok-string">"ResultsView"</span><span class="tok-punct">,</span>
+  <span class="tok-param">props</span><span class="tok-punct">: {</span>
+    <span class="tok-param">title</span><span class="tok-punct">:</span> <span class="tok-string">"Review changes before committing"</span><span class="tok-punct">,</span>
+    <span class="tok-param">diff</span><span class="tok-punct">:</span> <span class="tok-const">review</span><span class="tok-punct">,</span>
+    <span class="tok-param">actions</span><span class="tok-punct">: [</span><span class="tok-string">"Commit"</span><span class="tok-punct">,</span> <span class="tok-string">"Request changes"</span><span class="tok-punct">,</span> <span class="tok-string">"Discard"</span><span class="tok-punct">]</span>
+  <span class="tok-punct">}</span>
 <span class="tok-punct">});</span></code></pre>
       </div>
       <p class="code-caption">
@@ -1208,7 +1214,7 @@
       <div class="feature-card">
         <svg class="icon icon-primary" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-monitor"></use></svg>
         <h3>Control Room</h3>
-        <p>The Switchboard shows every mission across every project, sorted by urgency &mdash; input needed, error, running, done. One view, full triage. Live metro map of each run. Get notified when a checkpoint needs you. Nothing to watch until then.</p>
+        <p>The Switchboard shows every mission across every project, sorted by urgency &mdash; input needed, error, running, done. One view, full triage. The live metro map shows where a run is, what changed, and why it needs you. Get notified when a checkpoint needs you. Nothing to watch until then.</p>
         <span class="feature-enterprise-signal">Full audit trail</span>
       </div>
       <div class="feature-card">
@@ -1238,7 +1244,7 @@
       <div class="feature-card">
         <svg class="icon icon-success" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><use href="assets/icons/sprite.svg#ph-trending-up"></use></svg>
         <h3>Knowledge Compounds</h3>
-        <p>Every run audited. Engineers rate missions. Teams see what works. Missions improve with use.</p>
+        <p>Every run audited &mdash; approvals, outputs, actions, errors, and costs. Engineers rate missions. Teams see what works. Missions improve with use.</p>
         <span class="feature-enterprise-signal">Institutional knowledge retention</span>
       </div>
     </div>

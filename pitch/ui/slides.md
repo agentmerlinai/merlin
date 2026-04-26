@@ -103,9 +103,10 @@ const research = await agent(
 const plan = await agent(
   "Propose a fix: " + research);
 const approved = await prompt(
-  "ApprovalForm", {
-  plan, options: ["Approve", "Edit", "Reject"]
-});
+  {
+    id: "ApprovalForm",
+    props: { plan, options: ["Approve", "Edit", "Reject"] }
+  });
 
 // Step 3: Execute approved plan
 await agent("Implement: " + approved);
@@ -117,7 +118,10 @@ const review = await agent(
 
 // Step 5: Commit — engineer decides
 await prompt(
-  "ResultsView", { diff: review });
+  {
+    id: "ResultsView",
+    props: { diff: review }
+  });
 ```
 
 </div>

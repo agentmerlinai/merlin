@@ -90,10 +90,13 @@ const research = await agent("Analyze the codebase for related patterns", {
 
 // Step 2: The engineer sees a plan and chooses what to approve
 const plan = await agent("Propose a fix based on this research: " + research);
-const approved = await prompt("ApprovalForm", {
-  title: "Review the proposed plan",
-  plan: plan,
-  options: ["Approve", "Approve with changes", "Reject"]
+const approved = await prompt({
+  id: "ApprovalForm",
+  props: {
+    title: "Review the proposed plan",
+    plan: plan,
+    options: ["Approve", "Approve with changes", "Reject"]
+  }
 });
 
 // Step 3: Execute only what the engineer approved
@@ -104,15 +107,18 @@ await bash("npm run test");
 const review = await agent("Review the diff for regressions");
 
 // Step 5: Engineer sees results, decides whether to commit
-await prompt("ResultsView", {
-  title: "Review changes before committing",
-  diff: review,
-  actions: ["Commit", "Request changes", "Discard"]
+await prompt({
+  id: "ResultsView",
+  props: {
+    title: "Review changes before committing",
+    diff: review,
+    actions: ["Commit", "Request changes", "Discard"]
+  }
 });
 ```
 
 - The engineer **stays in the loop** at every critical decision point
-- Custom UI forms appear on their device — desktop, tablet, or phone
+- Registry-backed input views appear on their device — desktop, tablet, or phone
 - Each step gets a **fresh context window** — no context rot [4]
 - A junior engineer running this **cannot skip research, review, or approval**
 
@@ -139,13 +145,13 @@ await prompt("ResultsView", {
 ## The Control Room
 
 - **Responsive web UI** — desktop, tablet, phone
-- Any engineer can monitor their mission's progress at a glance
-- Live Sequence Map — see which step is running, which model, token spend
-- **Play / Pause / Rewind** — full context inspection of every decision
+- Any engineer can triage runs and understand progress at a glance
+- Live Sequence Map — see where the run is, what is blocked, which model is active, and what needs attention
+- **Play / Pause / Rewind** — inspect the current station, evidence, and run history; deeper traces stay available when needed
 - Visual indicators for **which sessions need human attention**
 - Seamless handoff between engineers across devices and time zones
 
-> *Speaker note: The engineer doesn't need to understand the mission internals. They need to know: is it working, does it need me, and what did it produce.*
+> *Speaker note: The engineer doesn't need to read the mission like a debugger trace. They need to know: is it working, does it need me, what changed, and what decision is required. The deep view is there when they need it, not as table stakes for every run.*
 
 ---
 
@@ -158,7 +164,7 @@ await prompt("ResultsView", {
 
 **Level 2 — Informed Engineer**
 
-- Monitor execution, make decisions at branch points
+- Monitor execution, inspect the current station, make decisions at branch points
 - Override model selection per step when needed
 
 **Level 3 — Architect**
@@ -215,7 +221,7 @@ await prompt("ResultsView", {
 
 ## Knowledge Compounds
 
-- Every run is **audited** — inputs, outputs, agent calls, tool calls, costs
+- Every run is **audited** — inputs, outputs, approvals, agent calls, tool calls, errors, and costs
 - Engineers rate missions after completion
 - Teams see which missions produce the best results and where they fail
 - Missions live in `.merlin/missions` — **code-reviewed like any other code**
@@ -248,7 +254,7 @@ await prompt("ResultsView", {
 | Context management | Window-limited | Fresh context per step |
 | Cost control | Hope and rate limits [5] | Per-step model selection + budgets |
 | Security model | Trust-based | V8 sandbox-enforced |
-| Auditability | Logs | Full execution graph + replay |
+| Auditability | Logs | Operational audit trail + deep graph/replay when needed |
 
 ---
 

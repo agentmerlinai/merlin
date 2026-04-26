@@ -1,0 +1,2527 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Merlin Mission Graph — Shape Vocabulary</title>
+        <meta property="og:title" content="Merlin — Expertise as Code" />
+        <meta
+            property="og:description"
+            content="Agentic coding missions. Multi-provider orchestration. At scale."
+        />
+        <meta
+            property="og:image"
+            content="assets/brand/merlin-social-preview.png"
+        />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Merlin — Expertise as Code" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Merlin — Expertise as Code" />
+        <meta
+            name="twitter:description"
+            content="Agentic coding missions. Multi-provider orchestration. At scale."
+        />
+        <meta
+            name="twitter:image"
+            content="assets/brand/merlin-social-preview.png"
+        />
+        <meta name="twitter:image:alt" content="Merlin — Expertise as Code" />
+        <link rel="stylesheet" href="theme/fonts.css" />
+        <link rel="stylesheet" href="theme/properties.css" />
+        <link rel="stylesheet" href="theme/semantic.css" />
+        <style>
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            @page {
+                size: A4 portrait;
+                margin: 1.5cm 1.5cm 2cm 1.5cm;
+            }
+            @page :first {
+                margin-top: 1cm;
+            }
+
+            @media print {
+                *,
+                *::before,
+                *::after {
+                    print-color-adjust: exact !important;
+                    -webkit-print-color-adjust: exact !important;
+                }
+                :root,
+                [data-theme="dark"] {
+                    color-scheme: light !important;
+                }
+                .ds-theme-toggle,
+                .theme-controls,
+                input {
+                    display: none !important;
+                }
+                body {
+                    background: white !important;
+                    color: #1a1a1a !important;
+                    font-size: 9pt !important;
+                    line-height: 1.4 !important;
+                    padding: 0 !important;
+                    max-width: none !important;
+                    margin: 0 !important;
+                }
+                .ds-section {
+                    break-inside: avoid;
+                    page-break-inside: avoid;
+                    margin-bottom: 12pt !important;
+                }
+                .ds-section-title {
+                    font-size: 11pt !important;
+                    margin-bottom: 4pt !important;
+                    padding-bottom: 2pt !important;
+                    break-after: avoid !important;
+                    page-break-after: avoid !important;
+                }
+                .ds-section-desc {
+                    font-size: 7.5pt !important;
+                    margin-bottom: 6pt !important;
+                }
+                .ds-header {
+                    margin-bottom: 14pt !important;
+                    padding: 0 0 8pt 0 !important;
+                }
+                .ds-title {
+                    font-size: 18pt !important;
+                }
+                .ds-subtitle {
+                    font-size: 7.5pt !important;
+                    margin-top: 2pt !important;
+                }
+                .token-table {
+                    font-size: 7pt !important;
+                }
+                .token-table th {
+                    font-size: 6pt !important;
+                    padding: 3pt 4pt !important;
+                }
+                .token-table td {
+                    padding: 2pt 4pt !important;
+                    font-size: 6.5pt !important;
+                }
+                .token-table .token-swatch {
+                    width: 10pt !important;
+                    height: 10pt !important;
+                    margin-right: 4pt !important;
+                    border: 0.25pt solid #ccc !important;
+                }
+                .token-table tr {
+                    break-inside: avoid !important;
+                    page-break-inside: avoid !important;
+                }
+                .token-table thead {
+                    display: table-header-group !important;
+                }
+                .grid-line {
+                    display: none !important;
+                }
+                *,
+                *::before,
+                *::after {
+                    animation: none !important;
+                    transition: none !important;
+                }
+                p,
+                li,
+                .token-table td {
+                    orphans: 3;
+                    widows: 3;
+                }
+            }
+
+            body {
+                font-family: var(--font-body);
+                font-feature-settings: "calt" 1;
+                background: var(--bg-page);
+                color: var(--text-primary);
+                line-height: var(--leading-normal);
+                font-size: var(--text-base);
+                padding: var(--space-inset-lg);
+                max-width: 1400px;
+                margin: 0 auto;
+            }
+
+            .ds-header {
+                text-align: center;
+                margin-bottom: var(--space-stack-xl);
+                padding: var(--space-inset-lg) 0;
+                border-bottom: 1px solid var(--border-default);
+            }
+            .ds-title {
+                font-family: var(--font-heading);
+                font-size: var(--text-4xl);
+                font-weight: 700;
+                color: var(--color-primary);
+                letter-spacing: var(--tracking-tight);
+            }
+            .ds-subtitle {
+                font-family: var(--font-caption);
+                font-size: var(--text-sm);
+                color: var(--text-secondary);
+                margin-top: var(--space-stack-xs);
+                max-width: 60ch;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .ds-theme-toggle {
+                margin-top: var(--space-stack-md);
+                font-family: var(--font-body);
+                font-size: var(--text-sm);
+                padding: 6px 16px;
+                border-radius: var(--radius-md);
+                border: 1px solid var(--border-default);
+                background: transparent;
+                color: var(--text-primary);
+                cursor: pointer;
+            }
+            .ds-section {
+                margin-bottom: var(--space-stack-xl);
+            }
+            .ds-section-title {
+                font-family: var(--font-heading);
+                font-size: var(--text-lg);
+                font-weight: 700;
+                color: var(--text-primary);
+                text-transform: uppercase;
+                letter-spacing: var(--tracking-wide);
+                margin-bottom: var(--space-stack-sm);
+                padding-bottom: var(--space-stack-xs);
+                border-bottom: 2px solid var(--color-primary);
+                display: inline-block;
+            }
+            .ds-section-desc {
+                font-family: var(--font-caption);
+                font-size: var(--text-sm);
+                color: var(--text-secondary);
+                margin-bottom: var(--space-stack-md);
+            }
+            .token-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: var(--text-sm);
+            }
+            .token-table th {
+                font-family: var(--font-heading);
+                font-weight: 600;
+                text-align: left;
+                padding: 8px 12px;
+                border-bottom: 2px solid var(--border-default);
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: var(--tracking-wide);
+                color: var(--text-secondary);
+            }
+            .token-table td {
+                padding: 6px 12px;
+                border-bottom: 1px solid var(--border-muted);
+                font-family: var(--font-body);
+                vertical-align: middle;
+                font-size: 12px;
+            }
+            .token-table .token-name {
+                font-family: var(--font-code);
+                font-weight: 500;
+                color: var(--color-primary);
+            }
+            .token-table .token-swatch {
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                border-radius: var(--radius-sm);
+                vertical-align: middle;
+                margin-right: 8px;
+                border: 1px solid var(--border-default);
+            }
+
+            .map-wrap {
+                background: transparent;
+                border: 1px solid var(--border-default);
+                border-radius: var(--radius-xl);
+                padding: var(--space-6);
+                overflow: hidden;
+            }
+            .metro-map {
+                width: 100%;
+                height: auto;
+                display: block;
+            }
+
+            .shape-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: var(--space-gap-lg);
+            }
+            .shape-card {
+                background: transparent;
+                border: 1px solid var(--border-default);
+                border-radius: var(--radius-xl);
+                padding: var(--space-6);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: var(--space-gap-md);
+            }
+            .shape-name {
+                font-family: var(--font-heading);
+                font-size: var(--text-sm);
+                font-weight: 700;
+                color: var(--text-primary);
+            }
+            .shape-note {
+                font-family: var(--font-caption);
+                font-size: var(--text-xs);
+                color: var(--text-secondary);
+                text-align: center;
+            }
+
+            .line-color-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: var(--space-gap-lg);
+            }
+            .line-color-card {
+                background: transparent;
+                border: 1px solid var(--border-default);
+                border-radius: var(--radius-xl);
+                padding: var(--space-6);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            .line-color-token {
+                font-family: var(--font-code);
+                font-size: 11px;
+                color: var(--color-primary);
+            }
+            .line-color-meta {
+                font-family: var(--font-caption);
+                font-size: 10px;
+                color: var(--text-muted);
+                text-align: center;
+                line-height: 1.5;
+            }
+            .line-color-meaning {
+                font-family: var(--font-caption);
+                font-size: 11px;
+                color: var(--text-secondary);
+                text-align: center;
+            }
+
+            .type-specimen {
+                display: flex;
+                align-items: baseline;
+                gap: var(--space-gap-lg);
+                padding: var(--space-3) var(--space-4);
+                border-bottom: 1px solid var(--border-muted);
+            }
+            .type-meta {
+                font-family: var(--font-caption);
+                font-size: var(--text-xs);
+                color: var(--text-muted);
+                min-width: 200px;
+                flex-shrink: 0;
+            }
+            .type-example {
+                flex: 1;
+            }
+
+            .map-legend {
+                display: flex;
+                gap: var(--space-gap-lg);
+                margin-top: var(--space-4);
+                flex-wrap: wrap;
+            }
+            .legend-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-family: var(--font-caption);
+                font-size: 12px;
+                color: var(--text-secondary);
+            }
+            .legend-pill {
+                height: 16px;
+                padding: 0 10px;
+                border-radius: 8px;
+                font-family: var(--font-heading);
+                font-size: 10px;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                background: transparent;
+                border: 1.5px solid currentColor;
+            }
+
+            .state-row-title {
+                font-family: var(--font-caption);
+                font-size: var(--text-sm);
+                font-weight: 600;
+                color: var(--text-secondary);
+                margin-top: var(--space-stack-md);
+                margin-bottom: var(--space-stack-sm);
+            }
+
+            @media (max-width: 640px) {
+                .shape-grid {
+                    grid-template-columns: 1fr;
+                }
+                .line-color-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+
+            /* ── Graph stroke token ── */
+            :root {
+                --graph-stroke: var(--color-primary-500);
+                --graph-annotation-text: var(--text-primary);
+            }
+            [data-theme="dark"] {
+                --graph-stroke: var(--color-primary-fg);
+            }
+
+            /* ── Graph SVG shared classes ── */
+            .graph-svg .map-bg {
+                fill: var(--bg-muted);
+            }
+            .graph-svg .grid-line {
+                stroke: var(--border-muted);
+                stroke-opacity: 0.3;
+                fill: none;
+            }
+            .graph-svg .edge-seq {
+                stroke: var(--graph-stroke);
+                fill: none;
+                stroke-width: 2;
+            }
+            .graph-svg .edge-branch {
+                stroke: var(--color-accent);
+                fill: none;
+                stroke-width: 2;
+                stroke-dasharray: 6, 3;
+            }
+            .graph-svg .edge-error {
+                stroke: var(--color-error);
+                fill: none;
+                stroke-width: 2;
+            }
+            .graph-svg .edge-anno {
+                stroke: var(--border-muted);
+                fill: none;
+                stroke-width: 1.5;
+                stroke-dasharray: 4, 3;
+            }
+            .graph-svg .edge-spawn {
+                stroke: var(--graph-stroke);
+                fill: none;
+                stroke-width: 3;
+            }
+            .graph-svg .node-bg {
+                fill: var(--bg-surface);
+            }
+            .graph-svg .node-primary {
+                stroke: var(--graph-stroke);
+                stroke-width: 2;
+            }
+            .graph-svg .node-primary-bold {
+                stroke: var(--graph-stroke);
+                stroke-width: 2.5;
+            }
+            .graph-svg .node-error {
+                stroke: var(--color-error);
+                stroke-width: 2;
+                fill: var(--color-error);
+                fill-opacity: 0.12;
+            }
+            .graph-svg .node-muted {
+                stroke: var(--border-muted);
+                stroke-width: 1.5;
+                fill: var(--bg-muted);
+            }
+            .graph-svg .terminal-node {
+                fill: var(--bg-surface);
+                stroke: var(--graph-stroke);
+                stroke-width: 2.5;
+            }
+            .graph-svg .terminal-error {
+                fill: var(--bg-surface);
+                stroke: var(--color-error);
+                stroke-width: 2.5;
+            }
+            .graph-svg .sub-border {
+                fill: var(--bg-surface);
+                fill-opacity: 0.6;
+                stroke: var(--border-muted);
+                stroke-width: 1.5;
+                stroke-dasharray: 5, 3;
+            }
+            .graph-svg .sub-sep {
+                stroke: var(--border-muted);
+                stroke-width: 1;
+                stroke-dasharray: 5, 3;
+                fill: none;
+            }
+            .graph-svg .sub-chip-bg {
+                fill: var(--bg-muted);
+            }
+            .graph-svg .fork-bar {
+                fill: var(--graph-stroke);
+            }
+            .graph-svg .spawn-marker {
+                stroke: var(--graph-stroke);
+                stroke-width: 1.5;
+                fill: none;
+            }
+            .graph-svg .node-label {
+                fill: var(--text-primary);
+                font-family: var(--font-caption);
+                font-size: 11px;
+            }
+            .graph-svg .chip-bg {
+                fill: var(--color-primary);
+            }
+            .graph-svg .chip-text {
+                fill: var(--on-primary);
+                font-family: var(--font-code);
+                font-size: 8px;
+            }
+            .graph-svg .edge-label {
+                fill: var(--text-secondary);
+                font-family: var(--font-caption);
+                font-size: 9px;
+            }
+            .graph-svg .zone-text {
+                fill: var(--text-secondary);
+                font-family: var(--font-heading);
+                font-size: 8px;
+            }
+            .graph-svg .sub-title {
+                fill: var(--text-secondary);
+                font-family: var(--font-heading);
+                font-size: 8px;
+                font-weight: 700;
+            }
+            .graph-svg .sub-chip-text {
+                fill: var(--text-secondary);
+                font-family: var(--font-code);
+                font-size: 7px;
+            }
+            .graph-svg .inferred-mark {
+                stroke-dasharray: 4, 2;
+            }
+            .graph-svg .terminal-label {
+                fill: var(--text-primary);
+                font-family: var(--font-heading);
+                font-weight: 700;
+                font-size: 11px;
+            }
+
+            /* Intent phrase — second line inside mission-call nodes */
+            .graph-svg .intent-label {
+                fill: var(--graph-annotation-text);
+                font-family: var(--font-prose);
+                font-size: 8px;
+                font-style: italic;
+            }
+
+            /* Intent phrase — comment-sourced (author-controlled, trusted) */
+            .graph-svg .intent-label-comment {
+                fill: var(--text-secondary);
+                font-family: var(--font-prose);
+                font-size: 8px;
+                font-style: italic;
+            }
+
+            /* Three-tier hover demo */
+            .demo-node-wrap {
+                position: relative;
+                display: inline-flex;
+                align-items: center;
+            }
+            .node-popover {
+                position: absolute;
+                left: calc(100% + 14px);
+                top: 50%;
+                transform: translateY(-50%);
+                background: var(--bg-surface);
+                border: 1px solid var(--border-default);
+                border-radius: var(--radius-md);
+                padding: 14px 16px;
+                min-width: 300px;
+                max-width: 360px;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 200ms ease;
+                box-shadow: var(--shadow-md);
+                z-index: 10;
+                font-family: var(--font-caption);
+                font-size: var(--text-xs);
+                color: var(--text-secondary);
+            }
+            .demo-node-wrap:hover .node-popover {
+                opacity: 1;
+            }
+            .popover-title {
+                font-family: var(--font-heading);
+                font-size: var(--text-sm);
+                font-weight: 700;
+                color: var(--text-primary);
+                margin-bottom: 6px;
+            }
+            .popover-desc {
+                line-height: 1.6;
+                margin-bottom: 10px;
+            }
+            .popover-divider {
+                height: 1px;
+                background: var(--border-muted);
+                margin: 10px 0;
+            }
+            .popover-source-label {
+                font-family: var(--font-code);
+                font-size: 10px;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+                margin-bottom: 4px;
+            }
+            .popover-raw {
+                font-family: var(--font-code);
+                font-size: 10px;
+                color: var(--text-secondary);
+                white-space: pre-wrap;
+                word-break: break-all;
+                line-height: 1.5;
+            }
+            .tier-badge {
+                display: inline-block;
+                padding: 1px 7px;
+                border-radius: var(--radius-sm);
+                font-family: var(--font-code);
+                font-size: 10px;
+                background: var(--bg-muted);
+                color: var(--text-muted);
+                margin-left: 8px;
+                vertical-align: middle;
+            }
+
+            @media print {
+                .demo-node-wrap .node-popover {
+                    display: none !important;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Shared SVG marker pool — referenced by all inline SVGs in this document -->
+        <svg
+            width="0"
+            height="0"
+            style="position: absolute; overflow: hidden"
+            aria-hidden="true"
+        >
+            <defs>
+                <marker
+                    id="arr-seq"
+                    markerWidth="8"
+                    markerHeight="6"
+                    refX="7"
+                    refY="3"
+                    orient="auto"
+                >
+                    <path d="M 0,0 L 0,6 L 8,3 Z" fill="var(--graph-stroke)" />
+                </marker>
+                <marker
+                    id="arr-branch"
+                    markerWidth="8"
+                    markerHeight="6"
+                    refX="7"
+                    refY="3"
+                    orient="auto"
+                >
+                    <path d="M 0,0 L 0,6 L 8,3 Z" fill="var(--color-accent)" />
+                </marker>
+                <marker
+                    id="arr-error"
+                    markerWidth="8"
+                    markerHeight="6"
+                    refX="7"
+                    refY="3"
+                    orient="auto"
+                >
+                    <path d="M 0,0 L 0,6 L 8,3 Z" fill="var(--color-error)" />
+                </marker>
+                <marker
+                    id="arr-anno"
+                    markerWidth="8"
+                    markerHeight="6"
+                    refX="7"
+                    refY="3"
+                    orient="auto"
+                >
+                    <path d="M 0,0 L 0,6 L 8,3 Z" fill="var(--border-muted)" />
+                </marker>
+                <marker
+                    id="arr-success"
+                    markerWidth="8"
+                    markerHeight="6"
+                    refX="7"
+                    refY="3"
+                    orient="auto"
+                >
+                    <path d="M 0,0 L 0,6 L 8,3 Z" fill="var(--color-success)" />
+                </marker>
+                <marker
+                    id="arr-spawn"
+                    markerWidth="10"
+                    markerHeight="7"
+                    refX="9"
+                    refY="3.5"
+                    orient="auto"
+                >
+                    <path
+                        d="M 0,0 L 0,7 L 10,3.5 Z"
+                        fill="var(--graph-stroke)"
+                    />
+                </marker>
+            </defs>
+        </svg>
+
+        <!-- ── Header ── -->
+        <div class="ds-header">
+            <div class="ds-title">Mission Graph Style</div>
+            <div class="ds-subtitle">
+                Flowchart shape vocabulary and orthogonal edge grammar for
+                mission execution visualizers. ELK Sugiyama layout with standard
+                engineering semantics, styled through Merlin design tokens.
+            </div>
+            <button class="ds-theme-toggle">Toggle Dark Mode</button>
+        </div>
+
+        <!-- ── Section 1: Demo Mission Graph ── -->
+        <div class="ds-section">
+            <div class="ds-section-title">Demo Mission Graph</div>
+            <div class="ds-section-desc">
+                A hand-authored approximation of ELK orthogonal layout output.
+                Direction: LEFT→RIGHT. All edges are L-shaped or Z-shaped (H/V
+                path commands only — no 45° diagonals). Primary labels are
+                sourced deterministically: string literal first argument (e.g.
+                <code>agent("Analyze", …)</code>) or the identifier name of the
+                spawned argument — no LLM needed for these. LLM synthesizes the
+                intent annotation below each node only when no
+                <code>//</code> comment is present; graph annotations use a
+                readable annotation token stronger than
+                <code>--text-secondary</code> so authored and inferred notes
+                remain legible across themes. Toggle dark mode to see all colors
+                recolor automatically.
+            </div>
+
+            <div class="map-wrap">
+                <svg
+                    class="metro-map graph-svg"
+                    viewBox="0 0 960 480"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-label="Merlin Mission Graph Demo"
+                ></svg>
+
+                <!-- Legend strip -->
+                <div class="map-legend">
+                    <div class="legend-item">
+                        <svg
+                            class="graph-svg"
+                            width="28"
+                            height="18"
+                            viewBox="0 0 28 18"
+                        >
+                            <rect
+                                class="terminal-node"
+                                x="1"
+                                y="2"
+                                width="26"
+                                height="14"
+                                rx="7"
+                            />
+                        </svg>
+                        Start / End
+                    </div>
+                    <div class="legend-item">
+                        <svg
+                            class="graph-svg"
+                            width="28"
+                            height="18"
+                            viewBox="0 0 28 18"
+                        >
+                            <rect
+                                class="node-bg node-primary"
+                                x="1"
+                                y="3"
+                                width="26"
+                                height="12"
+                                rx="4"
+                            />
+                        </svg>
+                        Process
+                    </div>
+                    <div class="legend-item">
+                        <svg
+                            class="graph-svg"
+                            width="28"
+                            height="18"
+                            viewBox="0 0 28 18"
+                        >
+                            <polygon
+                                class="node-bg node-primary"
+                                points="14,1 27,9 14,17 1,9"
+                            />
+                        </svg>
+                        Decision
+                    </div>
+                    <div class="legend-item">
+                        <svg
+                            class="graph-svg"
+                            width="32"
+                            height="18"
+                            viewBox="0 0 32 18"
+                        >
+                            <rect
+                                class="node-bg node-primary-bold"
+                                x="1"
+                                y="3"
+                                width="30"
+                                height="12"
+                                rx="2"
+                            />
+                            <rect
+                                class="chip-bg"
+                                x="19"
+                                y="0"
+                                width="12"
+                                height="8"
+                                rx="1"
+                            />
+                        </svg>
+                        Mission Call
+                    </div>
+                    <div class="legend-item">
+                        <svg
+                            class="graph-svg"
+                            width="32"
+                            height="18"
+                            viewBox="0 0 32 18"
+                        >
+                            <rect
+                                class="node-bg node-primary"
+                                x="1"
+                                y="3"
+                                width="30"
+                                height="12"
+                                rx="2"
+                            />
+                            <line
+                                class="spawn-marker"
+                                x1="7"
+                                y1="4"
+                                x2="7"
+                                y2="14"
+                            />
+                            <line
+                                class="spawn-marker"
+                                x1="14"
+                                y1="4"
+                                x2="14"
+                                y2="14"
+                            />
+                        </svg>
+                        Spawn Boundary
+                    </div>
+                    <div class="legend-item">
+                        <svg
+                            class="graph-svg"
+                            width="32"
+                            height="18"
+                            viewBox="0 0 32 18"
+                        >
+                            <rect
+                                class="sub-border"
+                                x="1"
+                                y="1"
+                                width="30"
+                                height="16"
+                                rx="2"
+                            />
+                        </svg>
+                        Sub-Mission
+                    </div>
+                    <div class="legend-item">
+                        <svg
+                            class="graph-svg"
+                            width="14"
+                            height="18"
+                            viewBox="0 0 14 18"
+                        >
+                            <rect
+                                class="fork-bar"
+                                x="4"
+                                y="1"
+                                width="6"
+                                height="16"
+                                rx="3"
+                            />
+                        </svg>
+                        Concurrency Fork/Join
+                    </div>
+                    <div class="legend-item">
+                        <svg
+                            class="graph-svg"
+                            width="32"
+                            height="18"
+                            viewBox="0 0 32 18"
+                        >
+                            <line
+                                x1="16"
+                                y1="1"
+                                x2="16"
+                                y2="17"
+                                class="edge-spawn"
+                            />
+                        </svg>
+                        Spawn
+                    </div>
+                    <div class="legend-item">
+                        <svg
+                            class="graph-svg"
+                            width="32"
+                            height="18"
+                            viewBox="0 0 32 18"
+                        >
+                            <rect
+                                class="terminal-error"
+                                x="1"
+                                y="3"
+                                width="30"
+                                height="12"
+                                rx="6"
+                            />
+                        </svg>
+                        Error
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Section 2: Node Shape Vocabulary ── -->
+        <div class="ds-section">
+            <div class="ds-section-title">Node Shape Vocabulary</div>
+            <div class="ds-section-desc">
+                Every node kind in the mission graph grammar. Shape carries
+                control-flow class; label carries exact semantic meaning. Color
+                reinforces — never defines — semantics alone.
+            </div>
+
+            <div class="shape-grid">
+                <!-- start / end -->
+                <div class="shape-card">
+                    <svg
+                        class="graph-svg"
+                        width="120"
+                        height="100"
+                        viewBox="0 0 120 100"
+                    >
+                        <rect
+                            class="terminal-node"
+                            x="20"
+                            y="39"
+                            width="80"
+                            height="22"
+                            rx="11"
+                        />
+                        <text
+                            class="terminal-label"
+                            x="60"
+                            y="50"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                        >
+                            Start
+                        </text>
+                    </svg>
+                    <div class="shape-name">start / end</div>
+                    <div class="shape-note">
+                        Terminal pill (rx = h/2). Outlined in --color-primary.
+                        Marks mission entry and exit points.
+                    </div>
+                </div>
+
+                <!-- process -->
+                <div class="shape-card">
+                    <svg
+                        class="graph-svg"
+                        width="120"
+                        height="100"
+                        viewBox="0 0 120 100"
+                    >
+                        <rect
+                            class="node-bg node-primary"
+                            x="20"
+                            y="37"
+                            width="80"
+                            height="26"
+                            rx="4"
+                        />
+                        <text
+                            class="node-label"
+                            x="60"
+                            y="50"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                        >
+                            loadConfig
+                        </text>
+                    </svg>
+                    <div class="shape-name">process</div>
+                    <div class="shape-note">
+                        Rounded rectangle rx=4. General root-level statements,
+                        declarations, and sequential steps.
+                    </div>
+                </div>
+
+                <!-- mission-call -->
+                <div class="shape-card">
+                    <svg
+                        class="graph-svg"
+                        width="120"
+                        height="150"
+                        viewBox="0 0 120 150"
+                    >
+                        <rect
+                            class="node-bg node-primary-bold"
+                            x="10"
+                            y="10"
+                            width="100"
+                            height="40"
+                            rx="4"
+                        />
+                        <rect
+                            class="chip-bg"
+                            x="72"
+                            y="3"
+                            width="32"
+                            height="12"
+                            rx="2"
+                        />
+                        <text
+                            class="chip-text"
+                            x="88"
+                            y="9"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                        >
+                            agent
+                        </text>
+                        <text
+                            class="node-label"
+                            x="60"
+                            y="30"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                        >
+                            Analyze
+                        </text>
+                        <!-- Comment annotation — BOTTOM -->
+                        <line
+                            class="edge-anno"
+                            x1="60"
+                            y1="52"
+                            x2="60"
+                            y2="60"
+                        />
+                        <text class="intent-label-comment" text-anchor="middle">
+                            <tspan x="60" y="72">Finds circular refs and</tspan>
+                            <tspan x="60" dy="12">duplicate declarations</tspan>
+                            <tspan x="60" dy="12">
+                                across the full dep tree
+                            </tspan>
+                            <tspan x="60" dy="12">authored comment</tspan>
+                        </text>
+                    </svg>
+                    <div class="shape-name">mission-call</div>
+                    <div class="shape-note">
+                        Bold-stroke rect + type chip (top-right).
+                        <strong>Primary label</strong>: string literal first
+                        argument (deterministic), or LLM when the argument is
+                        opaque (MArgon 11px).
+                        <strong>Comment annotation</strong>: attached below the
+                        node via a short dashed stub — the author's
+                        <code>//</code> comment shown verbatim, or an
+                        LLM-synthesized intent when no comment is present. Both
+                        use readable graph annotation text. The annotation is
+                        unconstrained by node width and can show a full comment
+                        paragraph.
+                    </div>
+                </div>
+
+                <!-- opaque-declaration -->
+                <div class="shape-card">
+                    <svg
+                        class="graph-svg"
+                        width="120"
+                        height="100"
+                        viewBox="0 0 120 100"
+                    >
+                        <rect
+                            class="node-muted"
+                            x="20"
+                            y="37"
+                            width="80"
+                            height="26"
+                            rx="4"
+                        />
+                        <text
+                            class="node-label"
+                            x="60"
+                            y="50"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                            fill="var(--text-muted)"
+                        >
+                            const helper
+                        </text>
+                    </svg>
+                    <div class="shape-name">opaque-declaration</div>
+                    <div class="shape-note">
+                        Dim rect in --bg-muted / --border-muted. Functions,
+                        classes, and helpers whose body is not expanded.
+                    </div>
+                </div>
+
+                <!-- decision -->
+                <div class="shape-card">
+                    <svg
+                        class="graph-svg"
+                        width="120"
+                        height="100"
+                        viewBox="0 0 120 100"
+                    >
+                        <polygon
+                            class="node-bg node-primary"
+                            points="60,14 100,50 60,86 20,50"
+                        />
+                        <text
+                            class="node-label"
+                            x="60"
+                            y="50"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                        >
+                            env?
+                        </text>
+                    </svg>
+                    <div class="shape-name">decision</div>
+                    <div class="shape-note">
+                        Diamond. if/else, switch, ternary. Two or more outgoing
+                        branch edges labeled true/false/case.
+                    </div>
+                </div>
+
+                <!-- loop -->
+                <div class="shape-card">
+                    <svg
+                        class="graph-svg"
+                        width="120"
+                        height="100"
+                        viewBox="0 0 120 100"
+                    >
+                        <rect
+                            class="node-bg node-primary"
+                            x="20"
+                            y="37"
+                            width="80"
+                            height="26"
+                            rx="4"
+                        />
+                        <text
+                            class="node-label"
+                            x="52"
+                            y="50"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                        >
+                            forEach
+                        </text>
+                        <text
+                            x="93"
+                            y="60"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                            fill="var(--graph-stroke)"
+                            font-size="14"
+                        >
+                            ↺
+                        </text>
+                    </svg>
+                    <div class="shape-name">loop</div>
+                    <div class="shape-note">
+                        Process rect + ↺ marker (bottom-right).
+                        for/while/do-while. Loop-back edge routes above the node
+                        row.
+                    </div>
+                </div>
+
+                <!-- concurrency -->
+                <div class="shape-card">
+                    <svg
+                        class="graph-svg"
+                        width="120"
+                        height="100"
+                        viewBox="0 0 120 100"
+                    >
+                        <!-- entry -->
+                        <line
+                            class="spawn-marker"
+                            x1="60"
+                            y1="10"
+                            x2="60"
+                            y2="30"
+                        />
+                        <!-- fork bar -->
+                        <rect
+                            class="fork-bar"
+                            x="10"
+                            y="28"
+                            width="100"
+                            height="6"
+                            rx="3"
+                        />
+                        <!-- branches -->
+                        <line
+                            class="spawn-marker"
+                            x1="30"
+                            y1="34"
+                            x2="30"
+                            y2="58"
+                        />
+                        <line
+                            class="spawn-marker"
+                            x1="60"
+                            y1="34"
+                            x2="60"
+                            y2="58"
+                        />
+                        <line
+                            class="spawn-marker"
+                            x1="90"
+                            y1="34"
+                            x2="90"
+                            y2="58"
+                        />
+                        <!-- join bar -->
+                        <rect
+                            class="fork-bar"
+                            x="10"
+                            y="58"
+                            width="100"
+                            height="6"
+                            rx="3"
+                        />
+                        <!-- exit -->
+                        <line
+                            class="spawn-marker"
+                            x1="60"
+                            y1="64"
+                            x2="60"
+                            y2="84"
+                        />
+                    </svg>
+                    <div class="shape-name">concurrency</div>
+                    <div class="shape-note">
+                        Fork/join bar — thick rect (height=6, rx=3) spanning the
+                        parallel region. Promise.all / parallel branches.
+                    </div>
+                </div>
+
+                <!-- spawn-boundary -->
+                <div class="shape-card">
+                    <svg
+                        class="graph-svg"
+                        width="120"
+                        height="150"
+                        viewBox="0 0 120 150"
+                    >
+                        <rect
+                            class="node-bg node-primary"
+                            x="10"
+                            y="56"
+                            width="100"
+                            height="40"
+                            rx="4"
+                        />
+                        <line
+                            class="spawn-marker"
+                            x1="22"
+                            y1="58"
+                            x2="22"
+                            y2="94"
+                        />
+                        <line
+                            class="spawn-marker"
+                            x1="29"
+                            y1="58"
+                            x2="29"
+                            y2="94"
+                        />
+                        <rect
+                            class="chip-bg"
+                            x="74"
+                            y="49"
+                            width="36"
+                            height="12"
+                            rx="2"
+                        />
+                        <text
+                            class="chip-text"
+                            x="92"
+                            y="55"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                        >
+                            spawn
+                        </text>
+                        <text
+                            class="node-label"
+                            x="70"
+                            y="76"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                        >
+                            Child Mission
+                        </text>
+                        <!-- Comment annotation — TOP -->
+                        <line
+                            class="edge-anno"
+                            x1="60"
+                            y1="54"
+                            x2="60"
+                            y2="42"
+                        />
+                        <text class="intent-label" text-anchor="middle">
+                            <tspan x="60" y="22">inline code ·</tspan>
+                            <tspan x="60" dy="12">dual-agent run</tspan>
+                        </text>
+                    </svg>
+                    <div class="shape-name">spawn-boundary</div>
+                    <div class="shape-note">
+                        Rect + double-bar markers (BPMN call-activity).
+                        <strong>Primary label</strong>: identifier name of the
+                        spawned mission argument or
+                        <code>options.id</code> (deterministic), or LLM fallback
+                        for opaque call sites.
+                        <strong>Comment annotation</strong>: attached above the
+                        node via a short dashed stub (placed above when a child
+                        container expands below) — the author's
+                        <code>//</code> comment shown verbatim, or an
+                        LLM-synthesized intent when no comment is present. Both
+                        use readable graph annotation text. The annotation is
+                        unconstrained by node width and can show a full comment
+                        paragraph.
+                    </div>
+                </div>
+
+                <!-- sub-mission-container -->
+                <div class="shape-card">
+                    <svg
+                        class="graph-svg"
+                        width="120"
+                        height="100"
+                        viewBox="0 0 120 100"
+                    >
+                        <rect
+                            class="sub-border"
+                            x="8"
+                            y="8"
+                            width="104"
+                            height="84"
+                            rx="4"
+                        />
+                        <line class="sub-sep" x1="8" y1="24" x2="112" y2="24" />
+                        <text
+                            class="sub-title"
+                            x="60"
+                            y="15"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                        >
+                            AUDIT
+                        </text>
+                        <rect
+                            class="sub-chip-bg"
+                            x="14"
+                            y="27"
+                            width="42"
+                            height="9"
+                            rx="2"
+                        />
+                        <text
+                            class="sub-chip-text"
+                            x="35"
+                            y="31.5"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                            style="font-size: 5px"
+                        >
+                            Inline code
+                        </text>
+                        <rect
+                            class="sub-chip-bg"
+                            x="62"
+                            y="27"
+                            width="44"
+                            height="9"
+                            rx="2"
+                        />
+                        <text
+                            class="sub-chip-text"
+                            x="84"
+                            y="31.5"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                            style="font-size: 5px"
+                        >
+                            Static graph
+                        </text>
+                        <rect
+                            x="12"
+                            y="46"
+                            width="96"
+                            height="36"
+                            rx="2"
+                            fill="var(--bg-muted)"
+                            fill-opacity="0.5"
+                        />
+                        <text
+                            class="sub-chip-text"
+                            x="60"
+                            y="64"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                            style="
+                                font-family: var(--font-caption);
+                                font-size: 9px;
+                            "
+                        >
+                            expanded child graph
+                        </text>
+                    </svg>
+                    <div class="shape-name">sub-mission-container</div>
+                    <div class="shape-note">
+                        Dashed rect (zone boundary style). Header carries the
+                        child mission label plus compact source and
+                        materialization metadata. Runtime state appears only
+                        when the graph represents a live run.
+                    </div>
+                </div>
+
+                <!-- error -->
+                <div class="shape-card">
+                    <svg
+                        class="graph-svg"
+                        width="120"
+                        height="100"
+                        viewBox="0 0 120 100"
+                    >
+                        <rect
+                            class="terminal-error"
+                            x="20"
+                            y="39"
+                            width="80"
+                            height="22"
+                            rx="11"
+                        />
+                        <text
+                            class="node-label"
+                            x="60"
+                            y="50"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                        >
+                            ConfigError
+                        </text>
+                    </svg>
+                    <div class="shape-name">error</div>
+                    <div class="shape-note">
+                        Rounded terminator with --color-error stroke and subtle
+                        error fill tint. ThrowStmt / catch boundary.
+                    </div>
+                </div>
+
+                <!-- comment -->
+                <div class="shape-card">
+                    <svg
+                        class="graph-svg"
+                        width="120"
+                        height="100"
+                        viewBox="0 0 120 100"
+                    >
+                        <!-- note box with folded top-right corner -->
+                        <path
+                            d="M 18,18 H 88 L 108,38 V 84 H 18 Z"
+                            fill="var(--bg-surface)"
+                            stroke="var(--border-muted)"
+                            stroke-width="1.5"
+                            stroke-dasharray="4,3"
+                        />
+                        <path
+                            d="M 88,18 L 88,38 H 108"
+                            fill="var(--bg-muted)"
+                            stroke="var(--border-muted)"
+                            stroke-width="1"
+                        />
+                        <text
+                            x="62"
+                            y="58"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                            fill="var(--text-muted)"
+                            font-family="var(--font-prose)"
+                            font-size="9"
+                            font-style="italic"
+                        >
+                            // note text
+                        </text>
+                    </svg>
+                    <div class="shape-name">comment</div>
+                    <div class="shape-note">
+                        Note box with folded top-right corner, dashed
+                        --border-muted stroke. Connects to owning node via
+                        annotation edge.
+                    </div>
+                </div>
+
+                <!-- inferred station -->
+                <div class="shape-card">
+                    <svg
+                        class="graph-svg"
+                        width="120"
+                        height="100"
+                        viewBox="0 0 120 100"
+                    >
+                        <rect
+                            class="node-bg node-primary inferred-mark"
+                            x="20"
+                            y="37"
+                            width="80"
+                            height="26"
+                            rx="4"
+                        />
+                        <text
+                            class="node-label"
+                            x="60"
+                            y="46"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                        >
+                            inferredFn
+                        </text>
+                        <text
+                            class="node-label"
+                            x="60"
+                            y="60"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                            fill="var(--text-muted)"
+                            style="font-size: 9px"
+                        >
+                            ~ inferred
+                        </text>
+                    </svg>
+                    <div class="shape-name">inferred station</div>
+                    <div class="shape-note">
+                        Any shape with dashed stroke (stroke-dasharray: 4,2).
+                        Marks nodes promoted from opaque boundaries — never
+                        implies static expansion.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Section: Station Label Architecture ── -->
+        <div class="ds-section">
+            <div class="ds-section-title">Station Label Architecture</div>
+            <div class="ds-section-desc">
+                Each station's label has two tiers. The
+                <strong>primary label</strong> (1–4 words, bold) follows a
+                deterministic priority chain: a <code>//</code> or
+                <code>/** */</code> comment above the call wins first; then a
+                string literal first argument (e.g.
+                <code>agent("Analyze", …)</code>); then
+                <code>options.id</code> / <code>.label</code> /
+                <code>.name</code>; then the identifier name of a code/mission
+                argument (camelCase-split); and finally LLM synthesis only when
+                all deterministic sources fail or produce noise. The
+                <strong>comment annotation</strong> (attached below the node via
+                a dashed stub) follows the same source rule: author
+                <code>//</code> comment verbatim, or LLM-synthesized intent when
+                no comment exists. LLM results are cached per mission content
+                hash; zero LLM overhead at render time. The annotation is not
+                constrained by node width — it extends into the available space
+                below the node and wraps naturally.
+            </div>
+
+            <table
+                class="token-table"
+                style="margin-bottom: var(--space-stack-lg)"
+            >
+                <thead>
+                    <tr>
+                        <th>Tier</th>
+                        <th>Surface</th>
+                        <th>Content</th>
+                        <th>Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="token-name">1 — Glance</span></td>
+                        <td>On-node + below-node annotation</td>
+                        <td>
+                            Primary (1–4 words) + comment annotation (full text)
+                        </td>
+                        <td>
+                            Primary: string literal arg or LLM fallback ·
+                            Annotation: <code>//</code> comment or LLM cached
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="token-name">2 — Hover</span></td>
+                        <td>Popover (≥400ms)</td>
+                        <td>
+                            LLM 2–3 sentence description + annotation provenance
+                            (comment line or "LLM-inferred")
+                        </td>
+                        <td>LLM desc cached · provenance from parse</td>
+                    </tr>
+                    <tr>
+                        <td><span class="token-name">3 — Inspect</span></td>
+                        <td>Context Panel</td>
+                        <td>Full LLM description + full raw source</td>
+                        <td>Both cached/live</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Interactive hover demo -->
+            <div style="margin-bottom: var(--space-stack-md)">
+                <div class="demo-node-wrap">
+                    <svg
+                        class="graph-svg"
+                        width="220"
+                        height="60"
+                        viewBox="0 0 220 60"
+                        style="display: block"
+                    >
+                        <rect
+                            class="node-bg node-primary-bold"
+                            x="10"
+                            y="10"
+                            width="200"
+                            height="40"
+                            rx="4"
+                        />
+                        <rect
+                            class="chip-bg"
+                            x="162"
+                            y="3"
+                            width="42"
+                            height="14"
+                            rx="2"
+                        />
+                        <text
+                            class="chip-text"
+                            x="183"
+                            y="10"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                        >
+                            agent
+                        </text>
+                        <text
+                            class="node-label"
+                            x="106"
+                            y="26"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                        >
+                            Analyze
+                        </text>
+                        <text
+                            class="intent-label-comment"
+                            x="106"
+                            y="40"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                        >
+                            Find circular refs, map deps
+                        </text>
+                    </svg>
+
+                    <div class="node-popover">
+                        <div class="popover-title">
+                            Analyze <span class="tier-badge">Tier 1</span>
+                        </div>
+                        <div
+                            style="
+                                font-family: var(--font-code);
+                                font-size: 10px;
+                                color: var(--text-muted);
+                                text-transform: uppercase;
+                                letter-spacing: 0.06em;
+                                margin-bottom: 4px;
+                            "
+                        >
+                            // comment — line 4
+                            <span class="tier-badge">source</span>
+                        </div>
+                        <div class="popover-raw" style="margin-bottom: 10px">
+                            // Finds circular refs and duplicate declarations
+                            across the full dependency tree
+                        </div>
+                        <div
+                            style="
+                                font-family: var(--font-caption);
+                                font-size: 10px;
+                                color: var(--text-muted);
+                                text-transform: uppercase;
+                                letter-spacing: 0.06em;
+                                margin-bottom: 4px;
+                            "
+                        >
+                            LLM Description
+                            <span class="tier-badge">Tier 2</span>
+                        </div>
+                        <div class="popover-desc">
+                            This step invokes the dependency analyzer agent with
+                            the full project graph. It is expected to return a
+                            structured report listing all circular references
+                            and duplicate package declarations. Output feeds
+                            directly into the Synthesize step.
+                        </div>
+                        <div class="popover-divider"></div>
+                        <div class="popover-source-label">
+                            raw agent() argument
+                        </div>
+                        <div class="popover-raw">
+                            You are a senior software architect. Analyze the
+                            full project dependency tree and identify circular
+                            references, duplicate package declarations, and
+                            version conflicts. Return a structured JSON report
+                            with…
+                        </div>
+                    </div>
+                </div>
+                <p
+                    style="
+                        font-family: var(--font-caption);
+                        font-size: var(--text-xs);
+                        color: var(--text-muted);
+                        margin-top: 10px;
+                    "
+                >
+                    Hover the node above to preview Tier 2. Tap/click in the
+                    real Control Room opens the full Context Panel (Tier 3).
+                </p>
+            </div>
+
+            <div
+                style="
+                    font-family: var(--font-caption);
+                    font-size: var(--text-xs);
+                    color: var(--text-secondary);
+                    border-left: 2px solid var(--border-muted);
+                    padding-left: 12px;
+                    line-height: 1.6;
+                "
+            >
+                The annotation below each station is the author's
+                <code>//</code> comment when one exists — shown verbatim, in
+                full, as long as the author wrote it. When no comment is present
+                the LLM synthesizes an intent phrase from the full argument
+                context. Both cases use readable graph annotation text;
+                provenance is exposed through Tier 2 hover as either a comment
+                line number or "LLM-inferred".
+            </div>
+        </div>
+
+        <!-- ── Section 3: Edge Semantics ── -->
+        <div class="ds-section">
+            <div class="ds-section-title">Edge Semantics</div>
+            <div class="ds-section-desc">
+                Each edge kind maps to a semantic color token and stroke style.
+                Color reinforces meaning; shape and label must be sufficient
+                without color.
+            </div>
+
+            <div class="line-color-grid">
+                <!-- sequential / parallel -->
+                <div class="line-color-card">
+                    <svg width="120" height="48" viewBox="0 0 120 48">
+                        <line
+                            x1="10"
+                            y1="24"
+                            x2="104"
+                            y2="24"
+                            stroke="var(--color-primary)"
+                            stroke-width="2"
+                            marker-end="url(#arr-seq)"
+                        />
+                    </svg>
+                    <div class="line-color-token">--color-primary</div>
+                    <div class="line-color-meta">Solid 2px</div>
+                    <div class="line-color-meaning">
+                        sequential / parallel<br />Main execution flow
+                    </div>
+                </div>
+
+                <!-- branch -->
+                <div class="line-color-card">
+                    <svg width="120" height="48" viewBox="0 0 120 48">
+                        <line
+                            x1="10"
+                            y1="24"
+                            x2="104"
+                            y2="24"
+                            stroke="var(--color-accent)"
+                            stroke-width="2"
+                            stroke-dasharray="6,3"
+                            marker-end="url(#arr-branch)"
+                        />
+                    </svg>
+                    <div class="line-color-token">--color-accent</div>
+                    <div class="line-color-meta">Dashed 2px · 6,3</div>
+                    <div class="line-color-meaning">
+                        branch-true / false / case<br />Conditional path choices
+                    </div>
+                </div>
+
+                <!-- error -->
+                <div class="line-color-card">
+                    <svg width="120" height="48" viewBox="0 0 120 48">
+                        <line
+                            x1="10"
+                            y1="24"
+                            x2="104"
+                            y2="24"
+                            stroke="var(--color-error)"
+                            stroke-width="2"
+                            marker-end="url(#arr-error)"
+                        />
+                    </svg>
+                    <div class="line-color-token">--color-error</div>
+                    <div class="line-color-meta">Solid 2px</div>
+                    <div class="line-color-meaning">
+                        error<br />Catch / throw / failure paths
+                    </div>
+                </div>
+
+                <!-- annotation -->
+                <div class="line-color-card">
+                    <svg width="120" height="48" viewBox="0 0 120 48">
+                        <line
+                            x1="10"
+                            y1="24"
+                            x2="104"
+                            y2="24"
+                            stroke="var(--border-muted)"
+                            stroke-width="1.5"
+                            stroke-dasharray="4,3"
+                            marker-end="url(#arr-anno)"
+                        />
+                    </svg>
+                    <div class="line-color-token">--border-muted</div>
+                    <div class="line-color-meta">Dashed 1.5px · 4,3</div>
+                    <div class="line-color-meaning">
+                        annotation<br />Comment anchors
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress State Overlays -->
+            <div class="state-row-title">Progress State Overlays</div>
+            <div class="line-color-grid">
+                <!-- pending -->
+                <div class="line-color-card">
+                    <svg width="120" height="48" viewBox="0 0 120 48">
+                        <rect
+                            x="20"
+                            y="11"
+                            width="80"
+                            height="26"
+                            rx="4"
+                            fill="var(--bg-surface)"
+                            fill-opacity="0.4"
+                            stroke="var(--border-muted)"
+                            stroke-width="1.5"
+                            stroke-dasharray="5,3"
+                        />
+                        <text
+                            x="60"
+                            y="24"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                            fill="var(--text-muted)"
+                            font-family="var(--font-caption)"
+                            font-size="10"
+                        >
+                            process
+                        </text>
+                    </svg>
+                    <div
+                        class="line-color-token"
+                        style="color: var(--text-muted)"
+                    >
+                        pending
+                    </div>
+                    <div class="line-color-meaning">
+                        40% opacity fill<br />Dashed node stroke
+                    </div>
+                </div>
+
+                <!-- active -->
+                <div class="line-color-card">
+                    <svg width="120" height="48" viewBox="0 0 120 48">
+                        <rect
+                            x="16"
+                            y="7"
+                            width="88"
+                            height="34"
+                            rx="6"
+                            fill="var(--color-primary)"
+                            fill-opacity="0.15"
+                            stroke="var(--color-primary)"
+                            stroke-width="1.5"
+                        />
+                        <rect
+                            x="20"
+                            y="11"
+                            width="80"
+                            height="26"
+                            rx="4"
+                            fill="var(--bg-surface)"
+                            stroke="var(--color-primary)"
+                            stroke-width="2.5"
+                        />
+                        <text
+                            x="60"
+                            y="24"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                            fill="var(--text-primary)"
+                            font-family="var(--font-caption)"
+                            font-size="10"
+                        >
+                            process
+                        </text>
+                    </svg>
+                    <div class="line-color-token">active</div>
+                    <div class="line-color-meaning">
+                        --color-primary glow ring<br />Bold stroke
+                    </div>
+                </div>
+
+                <!-- done -->
+                <div class="line-color-card">
+                    <svg width="120" height="48" viewBox="0 0 120 48">
+                        <rect
+                            x="20"
+                            y="11"
+                            width="80"
+                            height="26"
+                            rx="4"
+                            fill="var(--bg-surface)"
+                            stroke="var(--color-success)"
+                            stroke-width="2"
+                        />
+                        <text
+                            x="60"
+                            y="24"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                            fill="var(--text-primary)"
+                            font-family="var(--font-caption)"
+                            font-size="10"
+                        >
+                            process
+                        </text>
+                    </svg>
+                    <div
+                        class="line-color-token"
+                        style="color: var(--color-success)"
+                    >
+                        done
+                    </div>
+                    <div class="line-color-meaning">
+                        --color-success stroke<br />Normal fill
+                    </div>
+                </div>
+
+                <!-- error state -->
+                <div class="line-color-card">
+                    <svg width="120" height="48" viewBox="0 0 120 48">
+                        <rect
+                            x="20"
+                            y="11"
+                            width="80"
+                            height="26"
+                            rx="4"
+                            fill="var(--color-error)"
+                            fill-opacity="0.12"
+                            stroke="var(--color-error)"
+                            stroke-width="2"
+                        />
+                        <text
+                            x="60"
+                            y="24"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                            fill="var(--color-error)"
+                            font-family="var(--font-caption)"
+                            font-size="10"
+                        >
+                            process
+                        </text>
+                    </svg>
+                    <div
+                        class="line-color-token"
+                        style="color: var(--color-error)"
+                    >
+                        error
+                    </div>
+                    <div class="line-color-meaning">
+                        --color-error stroke + fill tint<br />Error label color
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Section 4: Typography in Context ── -->
+        <div class="ds-section">
+            <div class="ds-section-title">Typography in Context</div>
+            <div class="ds-section-desc">
+                How Monaspace faces are applied within a mission graph rendering
+                context. Each specimen is live text — inspect and copy values
+                directly.
+            </div>
+
+            <div
+                style="
+                    border: 1px solid var(--border-default);
+                    border-radius: var(--radius-xl);
+                    overflow: hidden;
+                "
+            >
+                <!-- Mission boundary header -->
+                <div class="type-specimen">
+                    <div class="type-meta">
+                        MXenon · 18px · uppercase<br />Role: container / zone
+                        header
+                    </div>
+                    <div class="type-example">
+                        <span
+                            style="
+                                font-family: var(--font-heading);
+                                font-size: 18px;
+                                text-transform: uppercase;
+                                letter-spacing: 0.08em;
+                                color: var(--text-primary);
+                            "
+                            >CHILD MISSION · ACTIVE</span
+                        >
+                    </div>
+                </div>
+
+                <!-- Station primary label -->
+                <div class="type-specimen">
+                    <div class="type-meta">
+                        MArgon · 12.8px<br />Role: node primary label
+                    </div>
+                    <div class="type-example">
+                        <span
+                            style="
+                                font-family: var(--font-caption);
+                                font-size: 12.8px;
+                                color: var(--text-primary);
+                            "
+                            >agent("Analyze dependencies")</span
+                        >
+                    </div>
+                </div>
+
+                <!-- API type chip -->
+                <div class="type-specimen">
+                    <div class="type-meta">
+                        MNeon · 9px · bold<br />Role: raw API type chip
+                    </div>
+                    <div class="type-example">
+                        <span
+                            style="
+                                display: inline-flex;
+                                align-items: center;
+                                gap: 6px;
+                            "
+                        >
+                            <span
+                                style="
+                                    display: inline-flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    padding: 2px 8px;
+                                    border-radius: 3px;
+                                    background: var(--color-primary);
+                                    font-family: var(--font-code);
+                                    font-size: 9px;
+                                    font-weight: 700;
+                                    color: var(--on-primary);
+                                "
+                                >agent</span
+                            >
+                            <span
+                                style="
+                                    display: inline-flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    padding: 2px 8px;
+                                    border-radius: 3px;
+                                    background: var(--color-primary);
+                                    font-family: var(--font-code);
+                                    font-size: 9px;
+                                    font-weight: 700;
+                                    color: var(--on-primary);
+                                "
+                                >spawn</span
+                            >
+                            <span
+                                style="
+                                    display: inline-flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    padding: 2px 8px;
+                                    border-radius: 3px;
+                                    background: var(--color-primary);
+                                    font-family: var(--font-code);
+                                    font-size: 9px;
+                                    font-weight: 700;
+                                    color: var(--on-primary);
+                                "
+                                >prompt</span
+                            >
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Status annotation -->
+                <div class="type-specimen">
+                    <div class="type-meta">
+                        MKrypton · 11px<br />Role: elapsed time, run state
+                    </div>
+                    <div class="type-example">
+                        <span
+                            style="
+                                font-family: var(--font-agent);
+                                font-size: 11px;
+                                color: var(--text-muted);
+                            "
+                            >2.4s · running</span
+                        >
+                    </div>
+                </div>
+
+                <!-- Comment / note -->
+                <div class="type-specimen">
+                    <div class="type-meta">
+                        MRadon · 12px · italic<br />Role: comment box content
+                    </div>
+                    <div class="type-example">
+                        <span
+                            style="
+                                font-family: var(--font-prose);
+                                font-size: 12px;
+                                font-style: italic;
+                                color: var(--text-secondary);
+                            "
+                            >// fallback when env not found</span
+                        >
+                    </div>
+                </div>
+
+                <!-- Comment annotation — authored -->
+                <div class="type-specimen">
+                    <div class="type-meta">
+                        MRadon · 8px · italic<br />Role: comment annotation
+                        (authored)
+                    </div>
+                    <div class="type-example">
+                        <span
+                            style="
+                                font-family: var(--font-prose);
+                                font-size: 8px;
+                                font-style: italic;
+                                color: var(--text-secondary);
+                            "
+                            >// Finds circular refs and duplicate declarations
+                            across the full dep tree</span
+                        >
+                    </div>
+                </div>
+
+                <!-- Comment annotation — LLM-inferred -->
+                <div class="type-specimen" style="border-bottom: none">
+                    <div class="type-meta">
+                        MRadon · 8px · italic<br />Role: comment annotation
+                        (LLM-inferred)
+                    </div>
+                    <div class="type-example">
+                        <span
+                            style="
+                                font-family: var(--font-prose);
+                                font-size: 8px;
+                                font-style: italic;
+                                color: var(--text-muted);
+                            "
+                            >// inline code · dual-agent run · spawns child
+                            mission</span
+                        >
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function buildGraph() {
+                const G =
+                    parseInt(
+                        getComputedStyle(
+                            document.documentElement,
+                        ).getPropertyValue("--space-8"),
+                    ) || 32;
+                const W = 30 * G,
+                    H = 15 * G; // 960 × 480
+
+                function gridLines(w, h) {
+                    let s = "";
+                    for (let x = G; x < w; x += G)
+                        s += `<line x1="${x}" y1="0" x2="${x}" y2="${h}"/>`;
+                    for (let y = G; y < h; y += G)
+                        s += `<line x1="0" y1="${y}" x2="${w}" y2="${y}"/>`;
+                    return `<g class="grid-line">${s}</g>`;
+                }
+
+                function terminal(x, y, label, isError, w) {
+                    const width = w !== undefined ? w : 2 * G;
+                    const cls = isError ? "terminal-error" : "terminal-node";
+                    const tCls = isError ? "node-label" : "terminal-label";
+                    return (
+                        `<rect class="${cls}" x="${x}" y="${y}" width="${width}" height="${G}" rx="${G / 2}"/>` +
+                        `<text class="${tCls}" x="${x + width / 2}" y="${y + G / 2}" text-anchor="middle" dominant-baseline="central">${label}</text>`
+                    );
+                }
+
+                function process(x, y, label) {
+                    return (
+                        `<rect class="node-bg node-primary" x="${x}" y="${y}" width="${3 * G}" height="${G}" rx="4"/>` +
+                        `<text class="node-label" x="${x + 1.5 * G}" y="${y + G / 2}" text-anchor="middle" dominant-baseline="central">${label}</text>`
+                    );
+                }
+
+                function chipEl(x, y, text) {
+                    return (
+                        `<rect class="chip-bg" x="${x}" y="${y}" width="${G}" height="${G / 2}" rx="2"/>` +
+                        `<text class="chip-text" x="${x + G / 2}" y="${y + G / 4}" text-anchor="middle" dominant-baseline="central">${text}</text>`
+                    );
+                }
+
+                function annoStub(cx, y1, y2, lines, isAbove) {
+                    const gap = G / 4;
+                    const lineH = Math.round((G * 3) / 8);
+                    let s = `<line class="edge-anno" x1="${cx}" y1="${y1}" x2="${cx}" y2="${y2}"/>`;
+                    const startY = isAbove
+                        ? y2 - gap - (lines.length - 1) * lineH
+                        : y2 + gap;
+                    s += `<text class="intent-label" text-anchor="middle">`;
+                    lines.forEach((l, i) => {
+                        s += `<tspan x="${cx}" ${i === 0 ? `y="${startY}"` : `dy="${lineH}"`}>${l}</tspan>`;
+                    });
+                    s += `</text>`;
+                    return s;
+                }
+
+                function mission(x, y, label, annotLines, annotDir) {
+                    const cx = x + 1.5 * G;
+                    let s =
+                        `<rect class="node-bg node-primary-bold" x="${x}" y="${y}" width="${3 * G}" height="${G}" rx="4"/>` +
+                        chipEl(x + 2 * G, y - G / 4, "agent") +
+                        `<text class="node-label" x="${cx}" y="${y + G / 2}" text-anchor="middle" dominant-baseline="central">${label}</text>`;
+                    if (annotLines) {
+                        const below = annotDir === "below";
+                        s += annoStub(
+                            cx,
+                            below ? y + G : y,
+                            below ? y + G + G / 2 : y - G / 2,
+                            annotLines,
+                            !below,
+                        );
+                    }
+                    return s;
+                }
+
+                function diamond(cx, cy, label) {
+                    const h = G; // G half-width — leaves G arrow shaft on each side when coords are spaced 4G apart
+                    return (
+                        `<polygon class="node-bg node-primary" points="${cx},${cy - h} ${cx + h},${cy} ${cx},${cy + h} ${cx - h},${cy}"/>` +
+                        `<text class="node-label" x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central">${label}</text>`
+                    );
+                }
+
+                function spawn(x, y, label, annotLines, annotDir) {
+                    const cx = x + (9 * G) / 4; // center of content area [x+G/2, x+4G]
+                    const bx = x + G / 4; // first marker line; second at bx+G/4 = x+G/2
+                    let s =
+                        `<rect class="node-bg node-primary" x="${x}" y="${y}" width="${4 * G}" height="${G}" rx="4"/>` +
+                        `<line class="spawn-marker" x1="${bx}" y1="${y + 2}" x2="${bx}" y2="${y + G - 2}"/>` +
+                        `<line class="spawn-marker" x1="${bx + G / 4}" y1="${y + 2}" x2="${bx + G / 4}" y2="${y + G - 2}"/>` +
+                        chipEl(x + 3 * G, y - G / 4, "spawn") +
+                        `<text class="node-label" x="${cx}" y="${y + G / 2}" text-anchor="middle" dominant-baseline="central">${label}</text>`;
+                    if (annotLines) {
+                        const below = annotDir === "below";
+                        s += annoStub(
+                            cx,
+                            below ? y + G : y,
+                            below ? y + G + G / 2 : y - G / 2,
+                            annotLines,
+                            !below,
+                        );
+                    }
+                    return s;
+                }
+
+                function forkBar(x, y, h) {
+                    return `<rect class="fork-bar" x="${x}" y="${y}" width="${G / 4}" height="${h}" rx="${G / 8}"/>`;
+                }
+
+                function container(x, y, w, h, title, chips) {
+                    const sepY = y + G;
+                    let s =
+                        `<rect class="sub-border" x="${x}" y="${y}" width="${w}" height="${h}" rx="4"/>` +
+                        `<line class="sub-sep" x1="${x}" y1="${sepY}" x2="${x + w}" y2="${sepY}"/>` +
+                        `<text class="sub-title" x="${x + w / 2}" y="${y + (G * 3) / 8}" text-anchor="middle" dominant-baseline="central">${title}</text>`;
+                    if (chips) {
+                        let cx = x + G;
+                        const chipY = y + (G * 5) / 8,
+                            chipH = Math.round((G * 3) / 8);
+                        chips.forEach((txt) => {
+                            const cw = txt.length * 5 + 16;
+                            s +=
+                                `<rect class="sub-chip-bg" x="${cx}" y="${chipY}" width="${cw}" height="${chipH}" rx="2"/>` +
+                                `<text class="sub-chip-text" x="${cx + cw / 2}" y="${chipY + chipH / 2}" text-anchor="middle" dominant-baseline="central">${txt}</text>`;
+                            cx += cw + G / 2;
+                        });
+                    }
+                    return s;
+                }
+
+                const MIN_EDGE = G; // --space-8 = 32px: minimum shaft length before arrowhead
+
+                function edge(d, type) {
+                    const m = {
+                        seq: "arr-seq",
+                        branch: "arr-branch",
+                        spawn: "arr-spawn",
+                    };
+                    const seg = d.match(
+                        /^M\s*([\d.]+),([\d.]+)\s+([HV])\s*([\d.]+)/,
+                    );
+                    if (seg) {
+                        const len = Math.abs(
+                            seg[3] === "H"
+                                ? +seg[4] - +seg[1]
+                                : +seg[4] - +seg[2],
+                        );
+                        if (len < MIN_EDGE)
+                            console.warn(
+                                `edge too short: ${len}px < MIN_EDGE(${MIN_EDGE}px) in: ${d}`,
+                            );
+                    }
+                    return `<path class="edge-${type}" d="${d}" marker-end="url(#${m[type]})"/>`;
+                }
+
+                // ── Coordinates — all multiples of G ──
+                const sY = 2 * G; // spine top  = 64
+                const cY = 2.5 * G; // spine cy   = 80
+
+                // Parent spine node left edges
+                const startX = 1 * G; // 32
+                const lcX = 4 * G; // 128  loadConfig
+                const dCX = 9 * G; // 288  diamond cx
+                const anX = 11 * G; // 352  Analyze
+                const spX = 15 * G; // 480  spawn-boundary
+                const endX = 20 * G; // 640  End
+
+                // Sub-mission container  center_x = spawn arrow x (spX + 2G = 17G)
+                const subX = 10 * G,
+                    subY = 7 * G,
+                    subW = 14 * G,
+                    subH = 7 * G;
+
+                // Child nodes — all relative to container origin so they reflow with subX/subY
+                const cStartX = subX + G; // 1G left padding
+                const forkX = subX + 4 * G;
+                const cmX = subX + 5 * G;
+                const joinX = subX + 10 * G;
+                const cEndX = subX + 11 * G; // right edge = subX+13G, 1G right padding
+
+                const resY = subY + 2 * G; // 1G header + 1G padding
+                const resCY = subY + 2.5 * G;
+                const synY = subY + 4 * G;
+                const synCY = subY + 4.5 * G;
+                const csY = subY + 3 * G; // child spine (between res and syn rows)
+                const csCY = subY + 3.5 * G;
+                const fbY = subY + 2 * G; // fork/join bar top (aligns with resY)
+                const fbH = 3 * G; // spans res→synEnd (rows +2G..+5G)
+
+                // ── Geometry (painted first, labels painted on top) ──
+                const geo = [
+                    `<rect class="map-bg" x="0" y="0" width="${W}" height="${H}" rx="12"/>`,
+                    gridLines(W, H),
+
+                    // Parent edges (no labels here)
+                    edge(`M ${startX + 2 * G},${cY} H ${lcX}`, "seq"),
+                    edge(`M ${lcX + 3 * G},${cY} H ${dCX - G}`, "seq"),
+                    edge(`M ${dCX + G},${cY} H ${anX}`, "branch"),
+                    edge(`M ${dCX},${cY + G} V ${5 * G}`, "branch"),
+                    edge(`M ${anX + 3 * G},${cY} H ${spX}`, "seq"),
+                    edge(`M ${spX + 4 * G},${cY} H ${endX}`, "seq"),
+                    edge(`M ${subX + subW / 2},${sY + G} V ${subY}`, "spawn"),
+
+                    // Parent nodes (rects/polygons only — text comes later)
+                    `<rect class="terminal-node" x="${startX}" y="${sY}" width="${2 * G}" height="${G}" rx="${G / 2}"/>`,
+                    `<rect class="node-bg node-primary" x="${lcX}" y="${sY}" width="${3 * G}" height="${G}" rx="4"/>`,
+                    diamond(dCX, cY, ""), // shape only, label painted separately
+                    `<rect class="node-bg node-primary-bold" x="${anX}" y="${sY}" width="${3 * G}" height="${G}" rx="4"/>`,
+                    chipEl(anX + 2 * G, sY - G / 4, "agent"),
+                    `<rect class="node-bg node-primary" x="${spX}" y="${sY}" width="${4 * G}" height="${G}" rx="4"/>`,
+                    (() => {
+                        const bx = spX + G / 4;
+                        return `<line class="spawn-marker" x1="${bx}" y1="${sY + 2}" x2="${bx}" y2="${sY + G - 2}"/><line class="spawn-marker" x1="${bx + G / 4}" y1="${sY + 2}" x2="${bx + G / 4}" y2="${sY + G - 2}"/>`;
+                    })(),
+                    chipEl(spX + 3 * G, sY - G / 4, "spawn"),
+                    `<rect class="terminal-node" x="${endX}" y="${sY}" width="${2 * G}" height="${G}" rx="${G / 2}"/>`,
+                    `<rect class="terminal-error" x="${8 * G}" y="${5 * G}" width="${2 * G}" height="${G}" rx="${G / 2}"/>`,
+
+                    // Sub-mission container
+                    container(subX, subY, subW, subH, "DEPENDENCY AUDIT", [
+                        "Inline code",
+                        "Static graph",
+                    ]),
+
+                    // Child edges
+                    edge(`M ${cStartX + 2 * G},${csCY} H ${forkX}`, "seq"),
+                    edge(`M ${forkX + G / 4},${resCY} H ${cmX}`, "seq"),
+                    edge(`M ${forkX + G / 4},${synCY} H ${cmX}`, "seq"),
+                    edge(`M ${cmX + 3 * G},${resCY} H ${joinX}`, "seq"),
+                    edge(`M ${cmX + 3 * G},${synCY} H ${joinX}`, "seq"),
+                    edge(`M ${joinX + G / 4},${csCY} H ${cEndX}`, "seq"),
+
+                    // Child node shapes
+                    forkBar(forkX, fbY, fbH),
+                    `<rect class="terminal-node" x="${cStartX}" y="${csY}" width="${2 * G}" height="${G}" rx="${G / 2}"/>`,
+                    `<rect class="node-bg node-primary-bold" x="${cmX}" y="${resY}" width="${3 * G}" height="${G}" rx="4"/>`,
+                    chipEl(cmX + 2 * G, resY - G / 4, "agent"),
+                    `<rect class="node-bg node-primary-bold" x="${cmX}" y="${synY}" width="${3 * G}" height="${G}" rx="4"/>`,
+                    chipEl(cmX + 2 * G, synY - G / 4, "agent"),
+                    forkBar(joinX, fbY, fbH),
+                    `<rect class="terminal-node" x="${cEndX}" y="${csY}" width="${2 * G}" height="${G}" rx="${G / 2}"/>`,
+                ];
+
+                // ── Labels (painted on top of all geometry) ──
+                const labels = [
+                    // Edge labels
+                    `<text class="edge-label" x="${dCX + G + G / 8}" y="${cY - G / 4}" text-anchor="start">true</text>`,
+                    `<text class="edge-label" x="${dCX - G}" y="${(cY + G + 5 * G) / 2}" text-anchor="end">false</text>`,
+
+                    // Parent node labels
+                    `<text class="terminal-label" x="${startX + G}" y="${sY + G / 2}" text-anchor="middle" dominant-baseline="central">Start</text>`,
+                    `<text class="node-label" x="${lcX + 1.5 * G}" y="${sY + G / 2}" text-anchor="middle" dominant-baseline="central">loadConfig</text>`,
+                    `<text class="node-label" x="${dCX}" y="${cY}" text-anchor="middle" dominant-baseline="central">env?</text>`,
+                    `<text class="node-label" x="${anX + 1.5 * G}" y="${sY + G / 2}" text-anchor="middle" dominant-baseline="central">Analyze</text>`,
+                    `<text class="node-label" x="${spX + (9 * G) / 4}" y="${sY + G / 2}" text-anchor="middle" dominant-baseline="central">analysisMission</text>`,
+                    `<text class="terminal-label" x="${endX + G}" y="${sY + G / 2}" text-anchor="middle" dominant-baseline="central">End</text>`,
+                    `<text class="node-label" x="${9 * G}" y="${5 * G + G / 2}" text-anchor="middle" dominant-baseline="central">Error</text>`,
+
+                    // Analyze annotation (below)
+                    annoStub(
+                        anX + 1.5 * G,
+                        sY + G,
+                        sY + G + G / 2,
+                        ["Finds circular refs and", "duplicate declarations"],
+                        false,
+                    ),
+
+                    // Spawn annotation (above)
+                    annoStub(
+                        spX + 2 * G,
+                        sY,
+                        sY - G / 2,
+                        ["inline code ·", "dual-agent run"],
+                        true,
+                    ),
+
+                    // Child node labels
+                    `<text class="terminal-label" x="${cStartX + G}" y="${csY + G / 2}" text-anchor="middle" dominant-baseline="central">Start</text>`,
+                    `<text class="node-label" x="${cmX + 1.5 * G}" y="${resY + G / 2}" text-anchor="middle" dominant-baseline="central">Research</text>`,
+                    `<text class="node-label" x="${cmX + 1.5 * G}" y="${synY + G / 2}" text-anchor="middle" dominant-baseline="central">Synthesize</text>`,
+
+                    // Synthesize annotation (below)
+                    annoStub(
+                        cmX + 1.5 * G,
+                        synY + G,
+                        synY + G + G / 2,
+                        ["Compile findings · MD report"],
+                        false,
+                    ),
+
+                    `<text class="terminal-label" x="${cEndX + G}" y="${csY + G / 2}" text-anchor="middle" dominant-baseline="central">End</text>`,
+                ];
+
+                const parts = [...geo, ...labels];
+
+                document.querySelector(".metro-map").innerHTML =
+                    parts.join("\n");
+            }
+
+            document.addEventListener("DOMContentLoaded", buildGraph);
+
+            const btn = document.querySelector(".ds-theme-toggle");
+            btn.addEventListener("click", () => {
+                const isDark =
+                    document.documentElement.getAttribute("data-theme") ===
+                    "dark";
+                document.documentElement.setAttribute(
+                    "data-theme",
+                    isDark ? "light" : "dark",
+                );
+                btn.textContent = isDark
+                    ? "Toggle Dark Mode"
+                    : "Toggle Light Mode";
+            });
+        </script>
+    </body>
+</html>

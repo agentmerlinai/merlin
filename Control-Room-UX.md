@@ -11,6 +11,8 @@ The Engineer's primary questions are:
 
 Every layout decision flows from answering these three questions with minimal interaction.
 
+Operational clarity takes priority over deep introspection. The default Control Room experience is for triage, current-state understanding, blocked-reason visibility, checkpoint review, and decisive intervention. Structural understanding comes second. Deep diagnostics and replay-grade inspection are progressive disclosure for Engineers who need them, not table stakes for every run.
+
 ---
 
 ## Layout Zones
@@ -76,54 +78,62 @@ The primary canvas. Fills all remaining space. A read-only visualization of the 
 2. LLM-generated labels for each station (cached per mission content hash)
 3. Live execution state from GoatDB (status of each station at runtime, dynamic tool calls, mission runtime flows (will be different than static preview), etc)
 
+The map's primary job is operational orientation: show where the run is, what changed, why it is blocked, what needs human input, and which path the run is taking. It must be legible to an Engineer who is supervising work, not studying a compiler artifact. Rich graph semantics remain available and visible, but they must enter through progressive disclosure rather than dominating the default reading mode.
+
 The map is not editable. Node positions are computed automatically from the mission structure. The Engineer cannot drag, connect, or rearrange stations. Interaction is limited to:
 - Pan and zoom
 - Tap a station to inspect it
 - Tap an active input prompt anchored to its station
 - Interact with individual stations (revert file edit, override default provider/model, rewind, etc)
 
-The map includes an **Attention Lane** rendered into the background behind the stations and edges. The Attention Lane unifies what would otherwise be two separate visualizations — context window usage and attention weighting — into a single element. This is justified because position bias in transformer models is content-independent and parameterized by position-in-window: token-budget fill and attention-weight position share the same x-axis and are the same chart viewed from two angles.
+The map includes a **Context Ruler** rendered subtly into the background behind the stations and edges. The Context Ruler is not an attention visualization. It is an advanced context-position and reliability cue that helps the Engineer see where each station lands within the active context window and how trustworthy model behavior is expected to be across that range. It should educate and reassure less informed users without requiring them to parse it in order to complete ordinary supervision tasks.
 
-The Attention Lane is driven by required provider-supplied attention curve data for the exact resolved model used by each agent station. The lane must render the provider's actual curve shape for that model. Some models may be U-shaped, some may be J-shaped, and others may use another provider-defined profile. The UI must not assume symmetry.
+The Context Ruler is driven by empirical model-specific context profiles for the exact resolved provider/model used by each agent station. These profiles describe usable window size plus reliability bands, not internal attention truth. The UI must present the ruler as an operational cue, not as a rendering of the model's real internal weighting.
 
-The lane is grouped by actual runtime context lineage, not by static graph shape. Stations that continue the same context share the same Attention Lane. A station that starts a new context starts a new lane. Each station is projected onto its lane as a marker at the position its contribution lands within the active context window for that exact provider/model.
+The ruler is grouped by actual runtime context lineage, not by static graph shape. Stations that continue the same context share the same Context Ruler. A station that starts a new context starts a new ruler. Each station is projected onto its ruler at the position its contribution lands within the active context window for that exact provider/model.
 
-Attention Lane composition:
+Context Ruler composition:
 - **X-axis** — position in the active context window (0 → max for the resolved provider/model).
-- **Background curve** — the provider-supplied attention curve for the resolved model.
+- **Reliability bands** — subtle good/warning/poor regions derived from the resolved model's context profile.
 - **Stacked color bands** — token composition by category (system prompt, user content, assistant output, tool results) projected onto the same x-axis.
 - **Station markers** — each station appears at the position its contribution lands.
 
-Numeric token counts and percentages are intentionally absent from the primary glance. They are inspect-only and exposed when a station is selected (see Attention Lane Inspector in the Full Detail Panel).
+Numeric token counts and percentages are intentionally absent from the primary glance. They are inspect-only and exposed when a station is selected (see Context Ruler Inspector in the Full Detail Panel). Default comprehension of the run must not depend on reading raw context telemetry.
 
-#### Attention Lane Data Contract
+#### Context Ruler Data Contract
 
-**Provider curve schema:**
+Only behavior-changing data belongs in the profile. Window size, reliability bands, and optional notes affect rendering or inspect behavior. Confidence is allowed because it can change band strength or warning emphasis. Explanatory metadata that does not change runtime UI behavior does not belong in the profile.
 
 ```ts
-interface AttentionCurve {
-  provider: string;      // e.g. "anthropic", "openai"
-  model: string;         // exact model ID
-  shape: "U" | "J";     // only shapes observed in production models today
-  points: Array<{ position: number; weight: number }>; // position 0–1, weight 0–1, normalized
-}
+type ContextProfile = {
+  provider: string;
+  model: string;
+  window: number;
+  reliabilityBands: Array<{
+    start: number;
+    end: number;
+    level: "good" | "warning" | "poor";
+    confidence: "high" | "medium" | "low";
+  }>;
+  notes?: string[];
+};
 ```
 
-**Semantics:** `position` is input-prompt position (not output generation position). Curves are static per-model metadata — shipped with provider adapters, not fetched at runtime.
+**Semantics:** `window` is the active context size for the resolved provider/model. `reliabilityBands` are position ranges within that window used to render subtle strength and caution cues on the ruler. `notes` are optional short explanations surfaced only in inspect contexts when they help interpret the cues.
 
-**Fallback:** When a provider does not supply curve data, use U-shape as the default (the most common transformer attention pattern). The UI must never leave the Attention Lane blank.
+**Fallback:** When a model-specific profile is unavailable, the UI should still render a basic ruler using the resolved context window and a conservative trailing warning/poor treatment rather than leaving the Context Ruler blank.
 
-**Responsibility:** The Agent Provider implementation (not the Control Room UI) is responsible for supplying this data. The UI accepts and validates the schema but never derives the curve itself.
+**Responsibility:** Runtime/provider integration supplies the profile. The UI accepts and validates the schema, then renders only the position and reliability cues implied by it.
 
 #### Map Header
 
 A lightweight bar at the top of the map canvas showing run-level contextual info: running mission name, step progress (e.g. 3/5), and accumulated cost. This is not a separate zone — it is part of the map and scrolls with it on mobile.
 
-The Map Header keeps run identity and urgent state persistently visible while staying visually subordinate to the map. It may remain sticky within the map container when needed for orientation, but it must not obscure stations, prompts, or the Attention Lane.
+The Map Header keeps run identity and urgent state persistently visible while staying visually subordinate to the map. It may remain sticky within the map container when needed for orientation, but it must not obscure stations, prompts, or the Context Ruler.
 
 #### Stations
 
-Each station represents a unit of execution: an `agent()` call, a `bash()` call, a `prompt()` call, or a `spawn()` boundary.
+Each station represents a unit of execution: an `agent()` call, a `bash()` call, a `prompt()` call, a `spawn()` boundary, or an inferred station promoted from an opaque boundary when a known mission type crosses through arguments or return types.
 
 Station labels use a two-layer system to bridge generated code and human comprehension:
 - **Primary label** — an LLM-generated semantic label cached per mission content hash. This is what the Engineer reads at a glance.
@@ -142,7 +152,7 @@ Station states:
 | Pending | Not yet reached        | Low prominence   | Inspect only              |
 | Skipped | Condition not met      | Lowest prominence| Inspect reason            |
 
-When a station enters the Waiting state, the input component animates into view without any explicit action from the Engineer. The motion sequence is normative:
+When a station enters the Waiting state, the registered input view requested by the prompt object animates into view without any explicit action from the Engineer. The motion sequence is normative:
 
 1. **t = 0 ms** — Map auto-pans to center the waiting station.
 2. **t = 100 ms** — Station elevation/glow animates up, signaling urgency via the design system's highest-priority attention affordance.
@@ -163,7 +173,7 @@ All stations must meet minimum touch target accessibility guidelines regardless 
 
 Pending stations expose previewable execution controls in inspect surfaces, including changing the provider/model for that station and capping the number of loop iterations or recursion depth. These controls are contextual to the selected station and affect only the current run unless explicitly promoted by an Architect into the mission code. See Per-Station Actions for the full list.
 
-Flow control is part of the map grammar. Conditions render as labeled decision junctions. Function or mission boundaries render as grouped containers. Loops render with explicit loop affordances and iteration state. Recursion and other re-entry paths must be visually distinguished from ordinary sequential flow.
+Flow control is part of the map grammar. Conditions render as labeled decision junctions. Function or mission boundaries render as grouped containers. Loops render as loop-marked process nodes with iteration state. Recursion and other re-entry paths must be visually distinguished from ordinary sequential flow.
 
 Iteration counts and per-iteration values are tracked by AST instrumentation at mission load time, not by runtime engine introspection. The instrumentation must do double duty: it both *measures* iteration counts for live UI display and *enforces* the per-station iteration cap that the Engineer can set via the inspect surface (see Per-Station Actions, "limiting loop iterations").
 
@@ -194,11 +204,11 @@ Edges connect stations and communicate execution flow:
 | ---------- | --------------------------------------- | --------------------------------------------------------- |
 | Sequential | `await agent()` — serial dependency     | Primary weight                                            |
 | Concurrent | `agent(); agent();` — parallel branches | Primary weight, must be visually distinct from sequential |
-| Spawn      | `spawn(code)` — sub-mission boundary   | Lighter weight, conveys indirection                       |
+| Spawn      | `spawn(code)` — subprocess / child mission boundary | Higher-order boundary, heavier than a regular edge |
 
 Edges encode three progress states: completed, active, and pending. The visual treatment must make these three states distinguishable at a glance.
 
-`spawn()` is heavier than a regular agent or tool edge because it creates a sub-mission with its own internal execution graph. It must therefore render as a higher-order boundary transition rather than as a lightweight indirection.
+`spawn()` is heavier than a regular agent or tool edge because it creates a sub-mission with its own internal execution graph. It must therefore render using standard subprocess semantics: a call-style boundary when only the child reference is known, and an expanded subprocess container when child graph structure is available.
 
 The map grammar must produce a deterministic visual treatment for every JavaScript and TypeScript control-flow construct that can appear in mission code. The required coverage:
 
@@ -206,13 +216,14 @@ The map grammar must produce a deterministic visual treatment for every JavaScri
 | --------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------- |
 | Sequential      | statements; `await` chains                                                                                | Sequential edge                     |
 | Conditional     | `if`/`else`, `switch`, ternary, `&&` / `\|\|` / `??` short-circuits                                       | Decision junction                   |
-| Loops           | `for`, `for-of`, `for-await-of`, `while`, `do-while`, recursion                                           | Loop affordance + iteration count   |
-| Array iteration | `forEach`, `map`, `filter`, `reduce`, `flatMap`, `some`, `every`, `find`                                  | Loop affordance (collapsed default) |
-| Concurrent      | `Promise.all`, `Promise.allSettled`, `Promise.race`, `Promise.any`, bare unawaited calls                  | Concurrent edges                    |
-| Async streams   | `for-await-of` over async iterables, ReadableStream consumers                                             | Loop with stream marker             |
-| Generators      | `function*`, `yield`, `yield*`, async generators                                                          | Pull-based loop affordance          |
+| Loops           | `for`, `for-of`, `for-await-of`, `while`, `do-while`, recursion                                           | Loop-marked process node + iteration count |
+| Array iteration | `forEach`, `map`, `filter`, `reduce`, `flatMap`, `some`, `every`, `find`                                  | Loop-marked process node (collapsed default) |
+| Concurrent      | `Promise.all`, `Promise.allSettled`, `Promise.race`, `Promise.any`, bare unawaited calls                  | Fork/join concurrency bar           |
+| Async streams   | `for-await-of` over async iterables, ReadableStream consumers                                             | Loop-marked process node + stream marker |
+| Generators      | `function*`, `yield`, `yield*`, async generators                                                          | Loop-marked process node + pull marker |
 | Error flow      | `try`/`catch`/`finally`, `throw`, Promise `.catch`                                                        | Error edge variant                  |
-| Indirection     | `spawn()`, dynamic `import()`                                                                             | Spawn boundary (heavy weight)       |
+| Indirection     | `spawn()`                                                                                                 | Call-style boundary or expanded subprocess container |
+| Dependencies    | static and dynamic imports                                                                                | Dependency metadata / async process annotation |
 | Cancellation    | `AbortSignal`, `AbortController`                                                                          | Edge annotation                     |
 
 Each row is normative. Implementations must not silently fall back to "sequential edge" for unrecognized constructs; unhandled constructs must surface as a build-time warning so the grammar stays exhaustive.
@@ -220,11 +231,11 @@ Each row is normative. Implementations must not silently fall back to "sequentia
 
 The static AST analysis produces the initial map structure. At runtime, `spawn()` may produce sub-missions with their own station graphs not known at parse time. When this happens, new stations and edges are inserted into the map with an animated transition and the layout recomputes incrementally. Tool call stations are also by definition dynamic and known only at runtime.
 
-Static analysis is only the starting point. Runtime execution is authoritative. When actual execution diverges from the static preview, the map must update to reflect the real graph, the real context lineage, and the real provider/model used at each station. These transitions must preserve orientation and make it clear which parts were known from static analysis versus materialized at runtime.
+Static analysis is only the starting point. Runtime execution is authoritative. When actual execution diverges from the static preview, the map must update to reflect the real graph, the real context lineage, and the real provider/model used at each station. These transitions must preserve orientation and make it clear which parts were known from static analysis, which parts were inferred from opaque boundaries, and which parts materialized only at runtime.
 
 #### Map Orientation
 
-On wide containers the map flows left to right. On narrow containers it flows top to bottom. This adapts to the map's own available space, not the viewport.
+On wide containers the map flows with reading direction: left to right for LTR locales and right to left for RTL locales. On narrow containers it flows top to bottom. This adapts to the map's own available space, not the viewport.
 
 ### Context Panel
 
@@ -239,7 +250,7 @@ Tapping a station opens a popover anchored to that station on the map canvas. It
 - Elapsed time
 - One-line output preview
 
-The popover contains a "Details" action to expand to the full panel, and station-contextual actions (see Execution Controls). Dismissed by tapping elsewhere or pressing Escape.
+The popover contains a "Details" action to expand to the full panel, and station-contextual actions (see Execution Controls). Dismissed by tapping elsewhere or pressing Escape. This quick-inspect layer is the default inspection mode for Level 1-2 supervision.
 
 On devices that match `@media (hover: hover) and (pointer: fine)`, the quick-inspect popover appears on hover and the full Context Panel opens on click. Touch-only devices keep the existing tap-to-popover behavior.
 
@@ -250,7 +261,7 @@ On devices that match `@media (hover: hover) and (pointer: fine)`, the quick-ins
 
 #### Full Detail Panel
 
-A panel slides in from the right edge, maintaining a visual link to the selected station on the map. Contains:
+A panel slides in from the right edge, maintaining a visual link to the selected station on the map. This is the advanced inspection layer: powerful enough for Architects and incident/debug work, but entered deliberately rather than forced into the default supervision flow. Contains:
 
 **Header**
 - Station label (LLM-generated, cached)
@@ -262,7 +273,7 @@ A panel slides in from the right edge, maintaining a visual link to the selected
 
 **Tools** — List of tool calls made during this station's execution. Each row shows tool name and a one-line summary. Expanding a row reveals full input and output. Tool calls are listed in execution order.
 
-**Attention Lane Inspector** — A focused fragment of the map's Attention Lane for this station, with numeric values exposed: token budget consumption broken down by system prompt, user content, assistant output, and tool results; total tokens and percentage of the active context window; and whether this station continues an existing context lineage or starts a new one. This is the same visualization as the map-layer Attention Lane, scoped to the selected station and annotated with raw numbers.
+**Context Ruler Inspector** — A focused fragment of the map's Context Ruler for this station, with numeric values exposed: token budget consumption broken down by system prompt, user content, assistant output, and tool results; total tokens and percentage of the active context window; the active provider/model window; the station's position within that window; and whether this station continues an existing context lineage or starts a new one. This is the same visualization as the map-layer Context Ruler, scoped to the selected station and annotated with raw numbers plus any applicable profile notes.
 
 #### Linked Navigation
 
@@ -287,7 +298,7 @@ These actions appear in the quick-inspect popover or full Context Panel when a s
 - **Rewind to here** — Available on completed or errored stations. Resets execution state to the point just before this station ran using GoatDB's version history. Requires confirmation (destructive action).
 - **Re-run from here** — Available on completed or errored stations. Re-executes from this point forward with current inputs.
 - **Pause after this** — Available on running or pending stations. Sets a breakpoint: the orchestrator halts after this station completes.
-- **Override provider/model** — Available on pending, running, completed or errored agent stations. Changes the resolved provider/model for this station on the current run and updates the Attention Lane accordingly.
+- **Override provider/model** — Available on pending, running, completed or errored agent stations. Changes the resolved provider/model for this station on the current run and updates the Context Ruler accordingly.
 - **Limit iterations** — Available on any station containing an instrumented loop or recursion (see the control-flow coverage table under Stations). Sets an `iterationCap` for this station on the current run. Enforced at runtime by the SWC-injected helper, which converts the cap into a clean `break` for loops or an early return for recursion. Caps are scoped to the current run and cleared at run completion unless an Architect promotes them into mission code.
 
 ### Global Run State
@@ -302,7 +313,7 @@ The Activity Bar shows the current run state: Running, Paused, Completed, or Err
 
 ## Input Prompts
 
-When a station enters the waiting state, the mission's registered input component renders anchored to that station on the metro map. The input appears as a card visually tethered to the waiting station.
+When a station enters the waiting state, the input view resolved from the mission's prompt request `id` renders anchored to that station on the metro map. The input appears as a card visually tethered to the waiting station.
 
 The map auto-pans to center the waiting station and its input prompt when attention is needed.
 
@@ -486,5 +497,5 @@ Three taps to provide input. No log reading. No navigation.
 5. Click Plan:Execution — see a spawn edge leading to a dynamic sub-mission with 3 runtime-added stations
 6. Outputs Bar shows 2 files modified and 1 flagged insight
 7. Click the insight — map jumps to its source station, Context Panel shows the relevant agent output
-8. As the Architect editing the mission, inspect how multiple agent stations share one Attention Lane while a later station starts a fresh context on a new Attention Lane shaped by a different provider/model curve
+8. As the Architect editing the mission, inspect how multiple agent stations share one Context Ruler while a later station starts a fresh context on a new Context Ruler with a different provider/model profile
 9. Mission completes — rate it via the run rating control in the Outputs Bar

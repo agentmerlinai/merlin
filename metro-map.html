@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Merlin Metro-Map Style</title>
+<!-- Open Graph -->
+<meta property="og:title" content="Merlin — Expertise as Code">
+<meta property="og:description" content="Agentic coding missions. Multi-provider orchestration. At scale.">
+<meta property="og:image" content="assets/brand/merlin-social-preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Merlin — Expertise as Code">
+<meta property="og:type" content="website">
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Merlin — Expertise as Code">
+<meta name="twitter:description" content="Agentic coding missions. Multi-provider orchestration. At scale.">
+<meta name="twitter:image" content="assets/brand/merlin-social-preview.png">
+<meta name="twitter:image:alt" content="Merlin — Expertise as Code">
+<link rel="stylesheet" href="theme/fonts.css">
+<link rel="stylesheet" href="theme/properties.css">
+<link rel="stylesheet" href="theme/semantic.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+  /* ═══════════════════════════════════════════════════════════
+     PRINT STYLESHEET — optimized for Chrome "Save as PDF"
+     ═══════════════════════════════════════════════════════════ */
+  @page {
+    size: A4 portrait;
+    margin: 1.5cm 1.5cm 2cm 1.5cm;
+  }
+  @page :first {
+    margin-top: 1cm;
+  }
+
+  @media print {
+    *, *::before, *::after {
+      print-color-adjust: exact !important;
+      -webkit-print-color-adjust: exact !important;
+    }
+    :root, [data-theme="dark"] {
+      color-scheme: light !important;
+    }
+    .ds-theme-toggle,
+    .theme-controls,
+    input {
+      display: none !important;
+    }
+    body {
+      background: white !important;
+      color: #1a1a1a !important;
+      font-size: 9pt !important;
+      line-height: 1.4 !important;
+      padding: 0 !important;
+      max-width: none !important;
+      margin: 0 !important;
+    }
+    .ds-section {
+      break-inside: avoid;
+      page-break-inside: avoid;
+      margin-bottom: 12pt !important;
+    }
+    .ds-section-title {
+      font-size: 11pt !important;
+      margin-bottom: 4pt !important;
+      padding-bottom: 2pt !important;
+      break-after: avoid !important;
+      page-break-after: avoid !important;
+    }
+    .ds-section-desc {
+      font-size: 7.5pt !important;
+      margin-bottom: 6pt !important;
+    }
+    .ds-header {
+      margin-bottom: 14pt !important;
+      padding: 0 0 8pt 0 !important;
+    }
+    .ds-title {
+      font-size: 18pt !important;
+    }
+    .ds-subtitle {
+      font-size: 7.5pt !important;
+      margin-top: 2pt !important;
+    }
+    .token-table {
+      font-size: 7pt !important;
+    }
+    .token-table th {
+      font-size: 6pt !important;
+      padding: 3pt 4pt !important;
+    }
+    .token-table td {
+      padding: 2pt 4pt !important;
+      font-size: 6.5pt !important;
+    }
+    .token-table .token-swatch {
+      width: 10pt !important;
+      height: 10pt !important;
+      margin-right: 4pt !important;
+      border: 0.25pt solid #ccc !important;
+    }
+    .token-table tr {
+      break-inside: avoid !important;
+      page-break-inside: avoid !important;
+    }
+    .token-table thead {
+      display: table-header-group !important;
+    }
+    .grid-line { display: none !important; }
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+    p, li, .token-table td {
+      orphans: 3;
+      widows: 3;
+    }
+  }
+
+  /* ── Base Styles ── */
+  body {
+    font-family: var(--font-body);
+    font-feature-settings: 'calt' 1;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    line-height: var(--leading-normal);
+    font-size: var(--text-base);
+    padding: var(--space-inset-lg);
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* ── Showcase Layout ── */
+  .ds-header {
+    text-align: center;
+    margin-bottom: var(--space-stack-xl);
+    padding: var(--space-inset-lg) 0;
+    border-bottom: 1px solid var(--border-default);
+  }
+  .ds-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-4xl);
+    font-weight: 700;
+    color: var(--color-primary);
+    letter-spacing: var(--tracking-tight);
+  }
+  .ds-subtitle {
+    font-family: var(--font-caption);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin-top: var(--space-stack-xs);
+    max-width: 60ch;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .ds-theme-toggle {
+    margin-top: var(--space-stack-md);
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    padding: 6px 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-default);
+    background: transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+  }
+  .ds-section {
+    margin-bottom: var(--space-stack-xl);
+  }
+  .ds-section-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+    margin-bottom: var(--space-stack-sm);
+    padding-bottom: var(--space-stack-xs);
+    border-bottom: 2px solid var(--color-primary);
+    display: inline-block;
+  }
+  .ds-section-desc {
+    font-family: var(--font-caption);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-stack-md);
+  }
+  .token-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+  }
+  .token-table th {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 2px solid var(--border-default);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+    color: var(--text-secondary);
+  }
+  .token-table td {
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--border-muted);
+    font-family: var(--font-body);
+    vertical-align: middle;
+    font-size: 12px;
+  }
+  .token-table .token-name {
+    font-family: var(--font-code);
+    font-weight: 500;
+    color: var(--color-primary);
+  }
+  .token-table .token-swatch {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: var(--radius-sm);
+    vertical-align: middle;
+    margin-right: 8px;
+    border: 1px solid var(--border-default);
+  }
+
+  /* ── Map Container ── */
+  .map-wrap {
+    background: transparent;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    overflow: hidden;
+  }
+  .metro-map {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* ── Shape Grid ── */
+  .shape-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-gap-lg);
+  }
+  .shape-card {
+    background: transparent;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-gap-md);
+  }
+  .shape-name {
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .shape-note {
+    font-family: var(--font-caption);
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    text-align: center;
+  }
+
+  /* ── Line Color Grid ── */
+  .line-color-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-gap-lg);
+  }
+  .line-color-card {
+    background: transparent;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .line-color-swatch {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-size: 18px;
+    font-weight: 700;
+    background: transparent;
+    border: 3px solid;
+  }
+  .line-color-token {
+    font-family: var(--font-code);
+    font-size: 11px;
+    color: var(--color-primary);
+  }
+  .line-color-meta {
+    font-family: var(--font-caption);
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.5;
+  }
+  .line-color-meaning {
+    font-family: var(--font-caption);
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-align: center;
+  }
+
+  /* ── Typography Specimens ── */
+  .type-specimen {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-gap-lg);
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--border-muted);
+  }
+  .type-meta {
+    font-family: var(--font-caption);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    min-width: 200px;
+    flex-shrink: 0;
+  }
+  .type-example {
+    flex: 1;
+  }
+
+  /* ── Legend ── */
+  .map-legend {
+    display: flex;
+    gap: var(--space-gap-lg);
+    margin-top: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-caption);
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .legend-pill {
+    height: 16px;
+    padding: 0 10px;
+    border-radius: 8px;
+    font-family: var(--font-heading);
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border: 1.5px solid currentColor;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    .shape-grid { grid-template-columns: 1fr; }
+    .line-color-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<div class="ds-header">
+  <div class="ds-title">Metro-Map Style</div>
+  <div class="ds-subtitle">Shape vocabulary and visual grammar for pipeline visualizers, mission graphs, and agent state machines.</div>
+  <button class="ds-theme-toggle">Toggle Dark Mode</button>
+</div>
+
+<!-- ── Section 1: Full Demo Map ── -->
+<div class="ds-section">
+  <div class="ds-section-title">Full Demo Map</div>
+  <div class="ds-section-desc">A complete metro map rendered with Merlin brand tokens. All colors resolve from CSS variables — toggle the theme above to see them recolor automatically.</div>
+
+  <div class="map-wrap">
+    <svg class="metro-map" viewBox="0 0 700 480" xmlns="http://www.w3.org/2000/svg" aria-label="Merlin Metro Map Demo">
+      <style>
+        /* SVG-scoped styles — vars resolve from document :root */
+        .line-a { stroke: var(--color-primary); fill: none; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+        .line-b { stroke: var(--color-accent); fill: none; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+        .line-c { stroke: var(--color-success); fill: none; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+        .line-d { stroke: var(--color-error); fill: none; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+        .station { fill: var(--bg-surface); stroke-width: 2.5; }
+        .station-a { stroke: var(--color-primary); }
+        .station-b { stroke: var(--color-accent); }
+        .station-c { stroke: var(--color-success); }
+        .station-d { stroke: var(--color-error); }
+        .station-label { fill: var(--text-primary); font-family: var(--font-caption); font-size: 11px; }
+        .interchange { fill: var(--bg-surface); stroke: var(--text-primary); stroke-width: 2.5; }
+        .interchange-ring-a { fill: none; stroke: var(--color-primary); stroke-width: 2; }
+        .interchange-ring-b { fill: none; stroke: var(--color-accent); stroke-width: 2; }
+        .interchange-ring-c { fill: none; stroke: var(--color-success); stroke-width: 2; }
+        .interchange-ring-d { fill: none; stroke: var(--color-error); stroke-width: 2; }
+        .zone-label { fill: var(--text-secondary); font-family: var(--font-heading); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; }
+        .grid-line { stroke: var(--border-muted); stroke-opacity: 0.3; }
+        .map-bg { fill: var(--bg-muted); }
+        .terminal-a { fill: none; stroke: var(--color-primary); stroke-width: 2.5; }
+        .terminal-b { fill: none; stroke: var(--color-accent); stroke-width: 2.5; }
+        .terminal-c { fill: none; stroke: var(--color-success); stroke-width: 2.5; }
+        .terminal-d { fill: none; stroke: var(--color-error); stroke-width: 2.5; }
+        .terminal-label { fill: var(--text-primary); font-family: var(--font-heading); font-size: 10px; font-weight: 700; }
+        .terminal-label-on-accent { fill: var(--text-primary); font-family: var(--font-heading); font-size: 10px; font-weight: 700; }
+      </style>
+
+      <!-- Map background -->
+      <rect class="map-bg" x="0" y="0" width="700" height="480" rx="12"/>
+
+      <!-- Grid lines (32px) -->
+      <g class="grid-line">
+        <line x1="32" y1="0" x2="32" y2="480"/><line x1="64" y1="0" x2="64" y2="480"/>
+        <line x1="96" y1="0" x2="96" y2="480"/><line x1="128" y1="0" x2="128" y2="480"/>
+        <line x1="160" y1="0" x2="160" y2="480"/><line x1="192" y1="0" x2="192" y2="480"/>
+        <line x1="224" y1="0" x2="224" y2="480"/><line x1="256" y1="0" x2="256" y2="480"/>
+        <line x1="288" y1="0" x2="288" y2="480"/><line x1="320" y1="0" x2="320" y2="480"/>
+        <line x1="352" y1="0" x2="352" y2="480"/><line x1="384" y1="0" x2="384" y2="480"/>
+        <line x1="416" y1="0" x2="416" y2="480"/><line x1="448" y1="0" x2="448" y2="480"/>
+        <line x1="480" y1="0" x2="480" y2="480"/><line x1="512" y1="0" x2="512" y2="480"/>
+        <line x1="544" y1="0" x2="544" y2="480"/><line x1="576" y1="0" x2="576" y2="480"/>
+        <line x1="608" y1="0" x2="608" y2="480"/><line x1="640" y1="0" x2="640" y2="480"/>
+        <line x1="672" y1="0" x2="672" y2="480"/>
+        <line x1="0" y1="32" x2="700" y2="32"/><line x1="0" y1="64" x2="700" y2="64"/>
+        <line x1="0" y1="96" x2="700" y2="96"/><line x1="0" y1="128" x2="700" y2="128"/>
+        <line x1="0" y1="160" x2="700" y2="160"/><line x1="0" y1="192" x2="700" y2="192"/>
+        <line x1="0" y1="224" x2="700" y2="224"/><line x1="0" y1="256" x2="700" y2="256"/>
+        <line x1="0" y1="288" x2="700" y2="288"/><line x1="0" y1="320" x2="700" y2="320"/>
+        <line x1="0" y1="352" x2="700" y2="352"/><line x1="0" y1="384" x2="700" y2="384"/>
+        <line x1="0" y1="416" x2="700" y2="416"/><line x1="0" y1="448" x2="700" y2="448"/>
+      </g>
+
+      <!-- Zone labels -->
+      <text class="zone-label" x="24" y="52">Zone A · Core</text>
+      <text class="zone-label" x="400" y="52">Zone B · Edge</text>
+
+      <!-- ── Line A (primary/indigo) — horizontal main spine ── -->
+      <!-- Terminal Merlin → Archon (horizontal, 45° up-right → horizontal to Hub → 45° down-right) -->
+      <polyline class="line-a" points="68,240 160,240 192,208 480,208 512,240 620,240"/>
+
+      <!-- ── Line B (accent/yellow) — vertical cross ── -->
+      <!-- Terminal Beacon (top) → 45° bend → horizontal → Hub → vertical down → Terminal Forge (bottom) -->
+      <polyline class="line-b" points="288,60 288,160 320,192 352,192 352,160 352,80"/>
+      <polyline class="line-b" points="352,80 480,80 512,112 512,240"/>
+      <polyline class="line-b" points="288,160 288,272 352,272 416,336 448,336 448,388"/>
+
+      <!-- ── Line C (success/green) — diagonal connector ── -->
+      <!-- Terminal Source → diagonal → Nexus → horizontal → Hub → 45° → Terminal Sink -->
+      <polyline class="line-c" points="96,400 160,336 256,336 320,272 480,272 544,336 608,400"/>
+
+      <!-- ── Line D (error/red) — outer ring segment ── -->
+      <!-- Terminal Alpha → up → 45° → horizontal high → 45° → down → Terminal Omega -->
+      <polyline class="line-d" points="108,320 108,208 140,176 352,176 352,208 384,208 620,208"/>
+
+      <!-- ═══ Stations ═══ -->
+
+      <!-- Line A stations -->
+      <!-- Terminal: Merlin (start) -->
+      <rect class="terminal-a" x="28" y="228" width="40" height="24" rx="12"/>
+      <text class="terminal-label" x="48" y="244" text-anchor="middle">Merlin</text>
+
+      <!-- Archon (Line A only) -->
+      <circle class="station station-a" cx="256" cy="208" r="6"/>
+      <text class="station-label" x="256" y="224" text-anchor="middle">Archon</text>
+
+      <!-- Hub — interchange A+D -->
+      <circle class="interchange" cx="352" cy="208" r="10"/>
+      <circle class="interchange-ring-a" cx="352" cy="208" r="6"/>
+      <text class="station-label" x="352" y="230" text-anchor="middle" style="font-weight:700">Hub</text>
+
+      <!-- Terminal: Archgate (end) -->
+      <rect class="terminal-a" x="620" y="228" width="52" height="24" rx="12"/>
+      <text class="terminal-label" x="646" y="244" text-anchor="middle">Archgate</text>
+
+      <!-- Line B stations -->
+      <!-- Terminal: Beacon (top) -->
+      <rect class="terminal-b" x="264" y="36" width="48" height="24" rx="12"/>
+      <text class="terminal-label-on-accent" x="288" y="52" text-anchor="middle">Beacon</text>
+
+      <!-- Pivot (B bend) -->
+      <circle class="station station-b" cx="352" cy="128" r="6"/>
+      <text class="station-label" x="370" y="132" text-anchor="start">Pivot</text>
+
+      <!-- Span (B horizontal) -->
+      <circle class="station station-b" cx="416" cy="80" r="6"/>
+      <text class="station-label" x="416" y="70" text-anchor="middle">Span</text>
+
+      <!-- Nexus — interchange B+C -->
+      <circle class="interchange-ring-b" cx="352" cy="272" r="14"/>
+      <circle class="interchange" cx="352" cy="272" r="10"/>
+      <circle class="interchange-ring-c" cx="352" cy="272" r="6"/>
+      <text class="station-label" x="352" y="294" text-anchor="middle" style="font-weight:700">Nexus</text>
+
+      <!-- Terminal: Forge (bottom) -->
+      <rect class="terminal-b" x="428" y="388" width="40" height="24" rx="12"/>
+      <text class="terminal-label-on-accent" x="448" y="404" text-anchor="middle">Forge</text>
+
+      <!-- Line C stations -->
+      <!-- Terminal: Source (left) -->
+      <rect class="terminal-c" x="48" y="388" width="48" height="24" rx="12"/>
+      <text class="terminal-label" x="72" y="404" text-anchor="middle">Source</text>
+
+      <!-- Vertex (C diagonal point) -->
+      <circle class="station station-c" cx="192" cy="336" r="6"/>
+      <text class="station-label" x="192" y="354" text-anchor="middle">Vertex</text>
+
+      <!-- Crossway (C+D interchange) — note: C passes through 336 region -->
+      <circle class="station station-c" cx="416" cy="272" r="6"/>
+      <text class="station-label" x="416" y="290" text-anchor="middle">Waypoint</text>
+
+      <!-- Terminal: Sink (right) -->
+      <rect class="terminal-c" x="608" y="388" width="40" height="24" rx="12"/>
+      <text class="terminal-label" x="628" y="404" text-anchor="middle">Sink</text>
+
+      <!-- Line D stations -->
+      <!-- Terminal: Alpha (left) -->
+      <rect class="terminal-d" x="68" y="308" width="40" height="24" rx="12"/>
+      <text class="terminal-label" x="88" y="324" text-anchor="middle">Alpha</text>
+
+      <!-- Chord (D intermediate) -->
+      <circle class="station station-d" cx="224" cy="176" r="6"/>
+      <text class="station-label" x="224" y="168" text-anchor="middle">Chord</text>
+
+      <!-- Hub D ring (Hub interchange) -->
+      <circle class="interchange-ring-d" cx="352" cy="208" r="14"/>
+
+      <!-- Transit — interchange A+D -->
+      <circle class="interchange-ring-d" cx="480" cy="208" r="14"/>
+      <circle class="interchange" cx="480" cy="208" r="10"/>
+      <circle class="interchange-ring-a" cx="480" cy="208" r="6"/>
+      <text class="station-label" x="480" y="230" text-anchor="middle" style="font-weight:700">Transit</text>
+
+      <!-- Terminal: Omega (right) -->
+      <rect class="terminal-d" x="620" y="196" width="52" height="24" rx="12"/>
+      <text class="terminal-label" x="646" y="212" text-anchor="middle">Omega</text>
+
+    </svg>
+
+    <!-- Legend strip -->
+    <div class="map-legend">
+      <div class="legend-item">
+        <div class="legend-pill" style="color:var(--color-primary)">A</div>
+        Line A — Primary
+      </div>
+      <div class="legend-item">
+        <div class="legend-pill" style="color:var(--color-accent)">B</div>
+        Line B — Accent
+      </div>
+      <div class="legend-item">
+        <div class="legend-pill" style="color:var(--color-success)">C</div>
+        Line C — Success
+      </div>
+      <div class="legend-item">
+        <div class="legend-pill" style="color:var(--color-error)">D</div>
+        Line D — Error
+      </div>
+      <div class="legend-item" style="margin-left:auto">
+        <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="var(--bg-surface)" stroke="var(--text-primary)" stroke-width="2.5"/><circle cx="12" cy="12" r="5" fill="none" stroke="var(--color-primary)" stroke-width="2"/></svg>
+        Interchange
+      </div>
+      <div class="legend-item">
+        <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="var(--bg-surface)" stroke="var(--color-primary)" stroke-width="2.5"/></svg>
+        Station
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 2: Shape Vocabulary ── -->
+<div class="ds-section">
+  <div class="ds-section-title">Shape Vocabulary</div>
+  <div class="ds-section-desc">Every primitive used to construct metro-map style UIs. Each specimen is rendered with Merlin design tokens.</div>
+
+  <div class="shape-grid">
+
+    <!-- Simple station -->
+    <div class="shape-card">
+      <svg width="120" height="80" viewBox="0 0 120 80">
+        <style>.sv-a{stroke:var(--color-primary)} .sv-bg{fill:var(--bg-surface)}</style>
+        <line x1="10" y1="40" x2="110" y2="40" stroke="var(--color-primary)" stroke-width="3.5" stroke-linecap="round"/>
+        <circle class="sv-bg sv-a" cx="60" cy="40" r="6" stroke-width="2.5"/>
+      </svg>
+      <div class="shape-name">Station Dot</div>
+      <div class="shape-note">Circle r=6, line-color stroke, surface fill. Marks a stop on a single line.</div>
+    </div>
+
+    <!-- Labeled station -->
+    <div class="shape-card">
+      <svg width="120" height="80" viewBox="0 0 120 80">
+        <line x1="10" y1="36" x2="110" y2="36" stroke="var(--color-success)" stroke-width="3.5" stroke-linecap="round"/>
+        <circle cx="60" cy="36" r="6" fill="var(--bg-surface)" stroke="var(--color-success)" stroke-width="2.5"/>
+        <text x="60" y="56" text-anchor="middle" fill="var(--text-primary)" font-family="var(--font-caption)" font-size="11">Station</text>
+      </svg>
+      <div class="shape-name">Station + Label</div>
+      <div class="shape-note">Station dot with text below in MArgon 11px. Label fill = --text-primary.</div>
+    </div>
+
+    <!-- Interchange 2-line -->
+    <div class="shape-card">
+      <svg width="120" height="80" viewBox="0 0 120 80">
+        <line x1="10" y1="40" x2="110" y2="40" stroke="var(--color-primary)" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="60" y1="5" x2="60" y2="75" stroke="var(--color-accent)" stroke-width="3.5" stroke-linecap="round"/>
+        <circle cx="60" cy="40" r="10" fill="var(--bg-surface)" stroke="var(--text-primary)" stroke-width="2.5"/>
+        <circle cx="60" cy="40" r="5" fill="none" stroke="var(--color-primary)" stroke-width="2"/>
+      </svg>
+      <div class="shape-name">Interchange (2-line)</div>
+      <div class="shape-note">Outer ring r=10, inner ring r=5 per intersecting line. Bold outline signals transfer point.</div>
+    </div>
+
+    <!-- Interchange 3-line -->
+    <div class="shape-card">
+      <svg width="120" height="80" viewBox="0 0 120 80">
+        <line x1="10" y1="40" x2="110" y2="40" stroke="var(--color-primary)" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="60" y1="5" x2="60" y2="75" stroke="var(--color-accent)" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="10" y1="10" x2="110" y2="70" stroke="var(--color-error)" stroke-width="3.5" stroke-linecap="round"/>
+        <circle cx="60" cy="40" r="12" fill="var(--bg-surface)" stroke="var(--text-primary)" stroke-width="2.5"/>
+        <circle cx="60" cy="40" r="7" fill="none" stroke="var(--color-primary)" stroke-width="1.5"/>
+        <circle cx="60" cy="40" r="4" fill="none" stroke="var(--color-error)" stroke-width="1.5"/>
+      </svg>
+      <div class="shape-name">Multi-line Interchange</div>
+      <div class="shape-note">Stacked rings, each colored per intersecting line. Outer r scales +2 per line.</div>
+    </div>
+
+    <!-- Terminal node -->
+    <div class="shape-card">
+      <svg width="120" height="80" viewBox="0 0 120 80">
+        <line x1="10" y1="40" x2="70" y2="40" stroke="var(--color-primary)" stroke-width="3.5" stroke-linecap="round"/>
+        <rect x="68" y="28" width="44" height="24" rx="12" fill="none" stroke="var(--color-primary)" stroke-width="2.5"/>
+        <text x="90" y="44" text-anchor="middle" fill="var(--color-primary)" font-family="var(--font-heading)" font-size="11" font-weight="700">Term</text>
+      </svg>
+      <div class="shape-name">Terminal Node</div>
+      <div class="shape-note">Outlined pill (rx = h/2), stroke in line color. Label text in line color. Marks line start/end.</div>
+    </div>
+
+    <!-- Straight segment -->
+    <div class="shape-card">
+      <svg width="120" height="80" viewBox="0 0 120 80">
+        <line x1="12" y1="40" x2="108" y2="40" stroke="var(--color-success)" stroke-width="3.5" stroke-linecap="round"/>
+        <text x="60" y="62" text-anchor="middle" fill="var(--text-muted)" font-family="var(--font-caption)" font-size="9">H segment</text>
+      </svg>
+      <div class="shape-name">H/V Segment</div>
+      <div class="shape-note">Pure horizontal or vertical polyline segment. The backbone of all routes.</div>
+    </div>
+
+    <!-- 45° diagonal -->
+    <div class="shape-card">
+      <svg width="120" height="80" viewBox="0 0 120 80">
+        <polyline points="12,70 48,34 108,34" fill="none" stroke="var(--color-accent)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="60" y="74" text-anchor="middle" fill="var(--text-muted)" font-family="var(--font-caption)" font-size="9">45° diagonal</text>
+      </svg>
+      <div class="shape-name">45° Diagonal</div>
+      <div class="shape-note">Route transition segment at exactly 45°. No bezier — only M H V L path commands.</div>
+    </div>
+
+    <!-- 90° bend -->
+    <div class="shape-card">
+      <svg width="120" height="80" viewBox="0 0 120 80">
+        <polyline points="20,68 20,20 100,20" fill="none" stroke="var(--color-error)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="60" y="74" text-anchor="middle" fill="var(--text-muted)" font-family="var(--font-caption)" font-size="9">L-shaped</text>
+      </svg>
+      <div class="shape-name">Orthogonal Bend</div>
+      <div class="shape-note">L-shaped polyline joining two perpendicular segments. Sharp 90° corner.</div>
+    </div>
+
+    <!-- Zone boundary -->
+    <div class="shape-card">
+      <svg width="120" height="80" viewBox="0 0 120 80">
+        <rect x="12" y="12" width="96" height="56" rx="4" fill="none" stroke="var(--border-muted)" stroke-width="1.5" stroke-dasharray="5,3"/>
+        <text x="60" y="42" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-heading)" font-size="9" text-transform="uppercase" letter-spacing="0.08em">ZONE A</text>
+      </svg>
+      <div class="shape-name">Zone Boundary</div>
+      <div class="shape-note">Dashed rect in --border-muted. Groups related stations. Label in MXenon uppercase.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Section 3: Line Color System ── -->
+<div class="ds-section">
+  <div class="ds-section-title">Line Color System</div>
+  <div class="ds-section-desc">Each line maps to a Merlin semantic color token. Foreground tokens ensure WCAG-safe contrast on filled backgrounds.</div>
+
+  <div class="line-color-grid">
+
+    <!-- Line A — Primary -->
+    <div class="line-color-card">
+      <div class="line-color-swatch" style="border-color:var(--color-primary); color:var(--color-primary)">A</div>
+      <div class="line-color-token">--color-primary</div>
+      <div class="line-color-meta">
+        Light: oklch(40% 0.18 280)<br>
+        Dark: oklch(65% 0.18 280)
+      </div>
+      <div class="line-color-meaning">Primary · Indigo<br>Main orchestration flow</div>
+    </div>
+
+    <!-- Line B — Accent -->
+    <div class="line-color-card">
+      <div class="line-color-swatch" style="border-color:var(--color-accent); color:var(--color-accent)">B</div>
+      <div class="line-color-token">--color-accent</div>
+      <div class="line-color-meta">
+        Light: oklch(70% 0.20 85)<br>
+        Dark: oklch(75% 0.20 85)
+      </div>
+      <div class="line-color-meaning">Accent · Gold<br>User decisions &amp; actions</div>
+    </div>
+
+    <!-- Line C — Success -->
+    <div class="line-color-card">
+      <div class="line-color-swatch" style="border-color:var(--color-success); color:var(--color-success)">C</div>
+      <div class="line-color-token">--color-success</div>
+      <div class="line-color-meta">
+        Light: oklch(42% 0.15 145)<br>
+        Dark: oklch(62% 0.15 145)
+      </div>
+      <div class="line-color-meaning">Success · Green<br>Completed / healthy paths</div>
+    </div>
+
+    <!-- Line D — Error -->
+    <div class="line-color-card">
+      <div class="line-color-swatch" style="border-color:var(--color-error); color:var(--color-error)">D</div>
+      <div class="line-color-token">--color-error</div>
+      <div class="line-color-meta">
+        Light: oklch(40% 0.22 25)<br>
+        Dark: oklch(62% 0.22 25)
+      </div>
+      <div class="line-color-meaning">Error · Red<br>Failed / blocked paths</div>
+    </div>
+
+  </div>
+
+  <!-- Accessibility note -->
+  <p style="margin-top:var(--space-4);font-family:var(--font-caption);font-size:12px;color:var(--text-muted)">
+    Foreground tokens (<code style="font-family:var(--font-code);font-size:11px">--on-primary</code>, <code style="font-family:var(--font-code);font-size:11px">--on-accent</code>, etc.) are selected per-theme to meet WCAG AA (4.5:1) contrast against their respective background tokens.
+  </p>
+</div>
+
+<!-- ── Section 4: Typography in Context ── -->
+<div class="ds-section">
+  <div class="ds-section-title">Typography in Context</div>
+  <div class="ds-section-desc">How Monaspace faces are used within a metro-map rendering context. Each specimen is live text — you can inspect and copy values directly.</div>
+
+  <div style="border: 1px solid var(--border-default); border-radius: var(--radius-xl); overflow:hidden;">
+
+    <!-- Zone header -->
+    <div class="type-specimen">
+      <div class="type-meta">MXenon · 20px · uppercase<br>Role: zone header</div>
+      <div class="type-example">
+        <span style="font-family:var(--font-heading);font-size:20px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-primary)">ZONE A · CENTRAL</span>
+      </div>
+    </div>
+
+    <!-- Station name -->
+    <div class="type-specimen">
+      <div class="type-meta">MArgon · 12.8px<br>Role: station label</div>
+      <div class="type-example">
+        <span style="font-family:var(--font-caption);font-size:12.8px;color:var(--text-primary)">Merlin Central</span>
+      </div>
+    </div>
+
+    <!-- Line code badge -->
+    <div class="type-specimen">
+      <div class="type-meta">MNeon · 10.2px · bold<br>Role: line code badge</div>
+      <div class="type-example">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:12px;border:1.5px solid var(--color-primary);font-family:var(--font-ui,monospace);font-size:10.2px;font-weight:700;color:var(--color-primary)">A</span>
+      </div>
+    </div>
+
+    <!-- Status annotation -->
+    <div class="type-specimen">
+      <div class="type-meta">MKrypton · 11px<br>Role: status annotation</div>
+      <div class="type-example">
+        <span style="font-family:var(--font-body);font-size:11px;color:var(--text-muted)">Last updated 12:04</span>
+      </div>
+    </div>
+
+    <!-- Map commentary -->
+    <div class="type-specimen" style="border-bottom:none">
+      <div class="type-meta">MRadon · 12.8px · italic<br>Role: map commentary</div>
+      <div class="type-example">
+        <span style="font-family:var(--font-body);font-size:12.8px;font-style:italic;color:var(--text-secondary)">Interchange: transfer between lines</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const btn = document.querySelector('.ds-theme-toggle');
+btn.addEventListener('click', () => {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  btn.textContent = isDark ? 'Toggle Dark Mode' : 'Toggle Light Mode';
+});
+</script>
+</body>
+</html>
