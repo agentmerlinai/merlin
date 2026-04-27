@@ -147,3 +147,6 @@ vite.config.ts.timestamp-*
 
 # Reveal.js vendored source (pitch/ui/dist/) must not be excluded by the `dist` rule above
 !pitch/ui/dist/
+
+# OpenCode
+opencode.json
