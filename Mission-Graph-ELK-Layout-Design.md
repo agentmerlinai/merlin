@@ -373,7 +373,9 @@ Represent the sub-mission as an ELK compound node, but keep custom rendering.
 - The root mission has no header, boundary, or container background.
 - Child content starts after the header plus padding for non-root containers; root content starts at the graph content origin.
 - Child coordinates are relative to the owning container content origin after layout, recursively.
-- Hydrated child graphs participate in the composed hierarchy by default at every depth. A nested sub-sub-mission must render as a container inside its parent container in the acceptance fixture.
+- Mission hierarchy and layout hierarchy are distinct. `parentMissionId` records semantic ownership; `layoutParentMissionId` selects the visual/ELK compound parent.
+- Hydrated child graphs participate in the composed hierarchy by default at every depth. A nested sub-sub-mission renders inside its semantic parent only when its layout parent also points at that parent.
+- A nested mission path may render as a separate root lane when `layoutParentMissionId` is set to `root`; the acceptance fixture uses this for `dependencyAudit/researchDeepDive`.
 - The parent execution spine remains the visual anchor for each local scope.
 - Spawn edges connect to the target non-root container entry port, not to a child node inside that container.
 - Provide computed container dimensions, header offset, child padding, entry-port side/position, and child content constraints before the ELK run.
@@ -454,7 +456,8 @@ Use separate work streams only if implementation context grows large enough to j
 - All rendered graph edges use only `M`, `H`, and `V` commands.
 - The `clean twice?` loop arrow remains above the spine.
 - The `analysisMission` comment remains above the node and does not collide with the sub-mission container.
-- Hydrated child graph data renders recursively by default, so the nested sub-sub-mission appears inside the first sub-mission unless an explicit collapse rule is part of the fixture.
+- Hydrated child graph data renders recursively by default, so a nested sub-sub-mission appears inside the first sub-mission unless `layoutParentMissionId` intentionally selects a different visual parent.
+- The `dependencyAudit/researchDeepDive` fixture remains semantically nested under `dependencyAudit`, but renders as a root-lane sibling because its `layoutParentMissionId` is `root`.
 - Each child graph remains inside its owning content box.
 - Spawn edges target computed entry ports on non-root containers.
 - Container dimensions, padding, reserved tracks, and entry ports are derived from Merlin tokens and measured content, not fixture-specific constants.

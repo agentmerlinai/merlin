@@ -51,6 +51,12 @@ export function createMissionGraphFixture({
         measureTextWidth,
     }));
 
+    // Missions carry two parent relationships:
+    // - parentMissionId is the semantic mission tree.
+    // - layoutParentMissionId is the visual/ELK compound hierarchy.
+    // researchDeepDive is semantically owned by dependencyAudit, but it is a
+    // root layout lane so the deep-dive container is not drawn inside the audit
+    // container.
     const containers = [{
         id: "dependencyAudit",
         title: "DEPENDENCY AUDIT",
@@ -212,8 +218,18 @@ export function buildMissionGraphGeometry(fixture, elkResult) {
         nodes: nestedAligned.nodes,
         containers: nestedResizedContainers,
     });
-    const finalNodes = realigned.nodes;
-    const finalContainers = realigned.containers;
+    const contentCentered = centerSubMissionContents({
+        fixture,
+        nodes: realigned.nodes,
+        containers: realigned.containers,
+    });
+    const finalNodes = contentCentered.nodes;
+    const finalContainers = containersFromSubMissionEnvelopes({
+        fixture,
+        containers: contentCentered.containers,
+        nodes: finalNodes,
+        annotations: placeAnnotations({ fixture, nodes: finalNodes }),
+    });
     const initialViewBox = initialViewBoxFor({
         fixture,
         nodes: finalNodes,
@@ -737,6 +753,7 @@ function nodesInMission(fixture, missionId) {
 }
 
 function childContainers(fixture, missionId) {
+    // Layout children, not necessarily semantic mission children.
     return fixture.containers.filter((container) => layoutParentMissionId(container) === missionId);
 }
 
@@ -851,7 +868,7 @@ function computePorts({ fixture, nodes, containers }) {
     }
     for (const container of Object.values(containers)) {
         ports[container.inputPort] = {
-            x: snapUp(container.cx, fixture.columnGrid),
+            x: container.cx,
             y: container.top,
             side: "NORTH",
             ownerId: container.id,
@@ -1401,17 +1418,128 @@ function containersFromSubMissionEnvelopes({ fixture, containers, nodes, annotat
 function containerFromSubMissionEnvelope({ fixture, container, containers, nodes, annotations }) {
     const envelope = subMissionEnvelope({ fixture, nodes, containers, annotations, missionId: container.id });
     const padding = 2 * fixture.minArrowLength;
-    const left = snapDown(envelope.left - padding, fixture.columnGrid);
-    const right = snapUp(envelope.right + padding, fixture.columnGrid);
+    const center = snapToNearest((envelope.left + envelope.right) / 2, fixture.columnGrid);
+    const halfWidth = Math.max(
+        center - (envelope.left - padding),
+        envelope.right + padding - center,
+    );
+    const width = snapUp(2 * halfWidth, 2 * fixture.columnGrid);
+    const left = center - width / 2;
     const top = snapDown(envelope.top - container.headerHeight - padding, fixture.trackGrid);
     const bottom = snapUp(envelope.bottom + padding, fixture.trackGrid);
     return withBounds({
         ...container,
         x: left,
         y: top,
-        width: right - left,
+        width,
         height: bottom - top,
     }, fixture);
+}
+
+function centerSubMissionContents({ fixture, nodes, containers }) {
+    let centeredNodes = nodes;
+    let centeredContainers = containers;
+    for (const containerFixture of [...fixture.containers].sort((a, b) => b.depth - a.depth)) {
+        const container = centeredContainers[containerFixture.id];
+        let annotations = placeAnnotations({ fixture, nodes: centeredNodes });
+        let envelope = subMissionEnvelope({
+            fixture,
+            nodes: centeredNodes,
+            containers: centeredContainers,
+            annotations,
+            missionId: container.id,
+        });
+        const dx = Math.round((container.cx - (envelope.left + envelope.right) / 2) / fixture.columnGrid) *
+            fixture.columnGrid;
+        if (Math.abs(dx) >= 1e-3) {
+            const shifted = translateSubMissionContents({
+                fixture,
+                nodes: centeredNodes,
+                containers: centeredContainers,
+                missionId: container.id,
+                dx,
+            });
+            centeredNodes = shifted.nodes;
+            centeredContainers = shifted.containers;
+        }
+
+        annotations = placeAnnotations({ fixture, nodes: centeredNodes });
+        envelope = subMissionEnvelope({
+            fixture,
+            nodes: centeredNodes,
+            containers: centeredContainers,
+            annotations,
+            missionId: container.id,
+        });
+        const residual = container.cx - (envelope.left + envelope.right) / 2;
+        if (Math.abs(residual) < 1e-3) continue;
+        const stretch = 2 * residual;
+        if (!isValueOnGrid(stretch, fixture.columnGrid)) continue;
+        const boundaryIds = subMissionBoundaryItemIds({
+            fixture,
+            nodes: centeredNodes,
+            containers: centeredContainers,
+            missionId: container.id,
+            envelope,
+            side: stretch > 0 ? "right" : "left",
+        });
+        centeredNodes = Object.fromEntries(
+            Object.entries(centeredNodes).map(([id, node]) => [
+                id,
+                boundaryIds.nodeIds.has(id) ? translateBox(node, stretch, 0, fixture) : node,
+            ]),
+        );
+        centeredContainers = Object.fromEntries(
+            Object.entries(centeredContainers).map(([id, item]) => [
+                id,
+                boundaryIds.containerIds.has(id) ? translateBox(item, stretch, 0, fixture) : item,
+            ]),
+        );
+    }
+    return { nodes: centeredNodes, containers: centeredContainers };
+}
+
+function translateSubMissionContents({ fixture, nodes, containers, missionId, dx }) {
+    const shiftedNodeIds = descendantNodeIds(fixture, missionId);
+    const shiftedContainerIds = containerIdsForMission(fixture, missionId);
+    return {
+        nodes: Object.fromEntries(
+            Object.entries(nodes).map(([id, node]) => [
+                id,
+                shiftedNodeIds.has(id) ? translateBox(node, dx, 0, fixture) : node,
+            ]),
+        ),
+        containers: Object.fromEntries(
+            Object.entries(containers).map(([id, item]) => [
+                id,
+                shiftedContainerIds.has(id) ? translateBox(item, dx, 0, fixture) : item,
+            ]),
+        ),
+    };
+}
+
+function subMissionBoundaryItemIds({ fixture, nodes, containers, missionId, envelope, side }) {
+    const nodeIds = new Set();
+    const containerIds = new Set();
+    const boundaryKey = side === "right" ? "right" : "left";
+    const boundary = envelope[boundaryKey];
+    for (const node of nodesInMission(fixture, missionId)) {
+        if (Math.abs(nodes[node.id][boundaryKey] - boundary) < 1e-3) nodeIds.add(node.id);
+    }
+    for (const container of childContainers(fixture, missionId)) {
+        if (Math.abs(containers[container.id][boundaryKey] - boundary) < 1e-3) {
+            containerIds.add(container.id);
+            for (const id of descendantNodeIds(fixture, container.id)) nodeIds.add(id);
+            for (const id of containerIdsForMission(fixture, container.id)) containerIds.add(id);
+        }
+    }
+    if (nodeIds.size === 0 && containerIds.size === 0) {
+        const annotations = placeAnnotations({ fixture, nodes });
+        for (const annotation of missionOwnedAnnotations(fixture, annotations, missionId)) {
+            if (Math.abs(annotation.box[boundaryKey] - boundary) < 1e-3) nodeIds.add(annotation.ownerId);
+        }
+    }
+    return { nodeIds, containerIds };
 }
 
 function initialViewBoxFor({ fixture, nodes, containers, annotations }) {

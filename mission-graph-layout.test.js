@@ -127,6 +127,15 @@ function childContainers(fixture, missionId) {
     return fixture.containers.filter((container) => (container.layoutParentMissionId ?? container.parentMissionId) === missionId);
 }
 
+function chipGroupBounds(container) {
+    const width = container.chips.reduce((sum, chip) => sum + chip.width, 0) +
+        container.chipGap * (container.chips.length - 1);
+    return {
+        left: container.cx - width / 2,
+        right: container.cx + width / 2,
+    };
+}
+
 function descendantNodeIds(fixture, missionId) {
     const ids = new Set(nodesInMission(fixture, missionId).map((node) => node.id));
     for (const container of childContainers(fixture, missionId)) {
@@ -153,6 +162,17 @@ function missionItemBoxes(fixture, geometry, missionId) {
         ...nodesInMission(fixture, missionId).map((node) => geometry.nodes[node.id]),
         ...childContainers(fixture, missionId).map((container) => geometry.containers[container.id]),
     ];
+}
+
+function subMissionGraphEnvelope(fixture, geometry, missionId) {
+    const childIds = descendantNodeIds(fixture, missionId);
+    return boundsOf([
+        ...nodesInMission(fixture, missionId).map((node) => boxOf(geometry.nodes[node.id])),
+        ...childContainers(fixture, missionId).map((container) => boxOf(geometry.containers[container.id])),
+        ...geometry.annotations
+            .filter((annotation) => childIds.has(annotation.ownerId))
+            .map((annotation) => annotation.box),
+    ]);
 }
 
 function containerContentBounds(container, fixture) {
@@ -419,6 +439,33 @@ describe("mission graph geometry", () => {
         assert.equal(elkGraph.children.includes(nestedContainer), true);
     });
 
+    it("keeps semantic nesting separate from visual containment when layout parent overrides parent", async () => {
+        const { fixture, geometry } = await buildGeometry();
+        const researchFixture = fixture.containerMap.researchDeepDive;
+        const dependencyAudit = geometry.containers.dependencyAudit;
+        const researchDeepDive = geometry.containers.researchDeepDive;
+
+        assert.equal(researchFixture.parentMissionId, "dependencyAudit");
+        assert.equal(researchFixture.layoutParentMissionId, "root");
+        assert.deepEqual(
+            childContainers(fixture, "dependencyAudit").map((container) => container.id),
+            [],
+        );
+        assert.deepEqual(
+            childContainers(fixture, "root").map((container) => container.id),
+            ["dependencyAudit", "researchDeepDive"],
+        );
+        assert.equal(
+            boxWithinBounds(researchDeepDive, boxOf(dependencyAudit)),
+            false,
+            "semantic parentMissionId must not imply visual containment",
+        );
+        assert.ok(
+            researchDeepDive.top >= dependencyAudit.bottom + fixture.laneGap,
+            "layoutParentMissionId root places researchDeepDive in a root lane below dependencyAudit",
+        );
+    });
+
     it("produces validation-clean geometry from live ELK output", async () => {
         const { geometry } = await buildGeometry();
         assert.equal(geometry.ok, true);
@@ -486,7 +533,7 @@ describe("mission graph geometry", () => {
     });
 
     it("renders sub-mission containers as root lanes without nesting non-root containers", async () => {
-        const { geometry } = await buildGeometry();
+        const { fixture, geometry } = await buildGeometry();
         const dependencyAudit = geometry.containers.dependencyAudit;
         const researchDeepDive = geometry.containers.researchDeepDive;
 
@@ -496,7 +543,7 @@ describe("mission graph geometry", () => {
             "researchDeepDive should not be rendered inside dependencyAudit",
         );
         assert.ok(
-            researchDeepDive.top >= dependencyAudit.bottom + 48,
+            researchDeepDive.top >= dependencyAudit.bottom + fixture.laneGap,
             "researchDeepDive should be in its own lane below dependencyAudit",
         );
         for (const outer of Object.values(geometry.containers)) {
@@ -507,35 +554,67 @@ describe("mission graph geometry", () => {
         }
     });
 
+    it("centers each sub-mission header title and chip group within its own container", async () => {
+        const { geometry } = await buildGeometry();
+
+        for (const container of [
+            geometry.containers.dependencyAudit,
+            geometry.containers.researchDeepDive,
+        ]) {
+            const containerCenter = (container.left + container.right) / 2;
+            const chips = chipGroupBounds(container);
+            const chipGroupCenter = (chips.left + chips.right) / 2;
+
+            assert.equal(container.cx, containerCenter, `${container.id} title center`);
+            assert.equal(chipGroupCenter, containerCenter, `${container.id} chip group center`);
+        }
+    });
+
     it("sizes every container from its padded mission envelope", async () => {
         const { fixture, geometry } = await buildGeometry();
         const padding = 2 * fixture.minArrowLength;
 
         for (const containerFixture of [...fixture.containers].sort((a, b) => b.depth - a.depth)) {
-            const childIds = descendantNodeIds(fixture, containerFixture.id);
-            const childEnvelope = boundsOf([
-                ...nodesInMission(fixture, containerFixture.id).map((node) => boxOf(geometry.nodes[node.id])),
-                ...childContainers(fixture, containerFixture.id).map((container) => boxOf(geometry.containers[container.id])),
-                ...geometry.annotations
-                    .filter((annotation) => childIds.has(annotation.ownerId))
-                    .map((annotation) => annotation.box),
-            ]);
+            const container = geometry.containers[containerFixture.id];
+            const childEnvelope = subMissionGraphEnvelope(fixture, geometry, containerFixture.id);
+            const paddedEnvelope = {
+                left: childEnvelope.left - padding,
+                right: childEnvelope.right + padding,
+                top: childEnvelope.top - containerFixture.headerHeight - padding,
+                bottom: childEnvelope.bottom + padding,
+            };
+            const contentBounds = containerContentBounds(container, fixture);
 
-            assert.deepEqual(boxOf(geometry.containers[containerFixture.id]), {
-                left: snapDown(childEnvelope.left - padding, fixture.columnGrid),
-                right: snapUp(childEnvelope.right + padding, fixture.columnGrid),
-                top: snapDown(
-                    childEnvelope.top - containerFixture.headerHeight - padding,
-                    fixture.trackGrid,
-                ),
-                bottom: snapUp(childEnvelope.bottom + padding, fixture.trackGrid),
+            assert.ok(onGrid(container.cx, fixture.columnGrid), `${containerFixture.id}.cx`);
+            assert.ok(onGrid(container.width, 2 * fixture.columnGrid), `${containerFixture.id}.width`);
+            assert.ok(boxWithinBounds(childEnvelope, contentBounds), `${containerFixture.id}.content`);
+            assert.deepEqual(boxOf(container), {
+                left: container.cx - container.width / 2,
+                right: container.cx + container.width / 2,
+                top: snapDown(paddedEnvelope.top, fixture.trackGrid),
+                bottom: snapUp(paddedEnvelope.bottom, fixture.trackGrid),
             }, containerFixture.id);
+            assert.ok(
+                boxWithinBounds(paddedEnvelope, boxOf(container)),
+                `${containerFixture.id}.paddedEnvelope`,
+            );
         }
 
         const synthesizeAnnotation = geometry.annotations.find(
             (annotation) => annotation.id === "anno.synthesize",
         );
         assert.ok(boxWithinBounds(synthesizeAnnotation.box, boxOf(geometry.container)));
+    });
+
+    it("centers each rendered sub-mission graph envelope inside its container", async () => {
+        const { fixture, geometry } = await buildGeometry();
+
+        for (const id of ["dependencyAudit", "researchDeepDive"]) {
+            const container = geometry.containers[id];
+            const envelope = subMissionGraphEnvelope(fixture, geometry, id);
+
+            assert.equal((envelope.left + envelope.right) / 2, container.cx, id);
+        }
     });
 
     it("derives container dimensions from rendered children instead of raw ELK compound size", async () => {
@@ -742,6 +821,9 @@ describe("mission graph geometry", () => {
 
     it("keeps spawn routes anchored to computed entry ports", async () => {
         const { fixture, geometry } = await buildGeometry();
+        for (const container of Object.values(geometry.containers)) {
+            assert.equal(geometry.portAnchors[container.inputPort].x, container.cx, `${container.id}.inputPort.x`);
+        }
         for (const edgeId of ["edge.analysisMission.dependencyAudit", "edge.researchDeepDiveSpawn.deepDive"]) {
             const spawnRoute = geometry.routes.find((route) => route.id === edgeId);
             const sourcePort = geometry.portAnchors[spawnRoute.sourcePort];
@@ -759,6 +841,10 @@ describe("mission graph geometry", () => {
                 `${edgeId}.exitPoint`,
             );
         }
+        assert.equal(
+            geometry.routes.find((route) => route.id === "edge.researchDeepDiveSpawn.deepDive").endAnchor.x,
+            geometry.containers.researchDeepDive.cx,
+        );
     });
 
     it("keeps research deep-dive spawn routing off the join route", async () => {
