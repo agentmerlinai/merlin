@@ -112,6 +112,7 @@ Normalize the SWC AST into a small graph-first model:
 ```ts
 type MissionGraph = {
   file: string;
+  rootMissionId: string;
   imports: ImportNode[];
   nodes: GraphNode[];
   edges: GraphEdge[];
@@ -128,7 +129,10 @@ type SubMissionContainer = {
   callsiteId: string;
   executionId?: string;
   parentExecutionId?: string;
+  parentContainerId?: string;
   missionRef?: string;
+  isRoot: boolean;
+  chrome: "none" | "container";
   sourceKind: "spawn-inline" | "persisted-child";
   materialization: "static-known" | "runtime-materialized" | "inferred";
   depth: number;
@@ -224,9 +228,12 @@ Mapping:
 
 Sub-mission expansion rules:
 - the static parser stays single-file and never recursively analyzes imported files just because a sub-mission exists
-- first-level sub-missions render as open containers by default when their child graph is available from the same file, cached visualization metadata, or runtime hydration
+- the root mission is the canvas scope and does not render container chrome
+- every non-root sub-mission renders with container chrome when visible, including nested sub-sub-missions
+- sub-missions render as open containers by default when their child graph is available from the same file, cached visualization metadata, or runtime hydration
 - persisted/imported child missions without available child graph metadata still render as sub-mission containers, but begin as deferred placeholders rather than fake-expanded graphs
-- second-level and deeper sub-missions default to summarized containers unless the Engineer explicitly expands them
+- hydrated child graph data renders recursively by default; a hydrated child that spawns another hydrated child appears as a nested non-root container unless collapsed by an explicit readability rule
+- collapse rules may summarize lower-priority recursive branches when depth, repetition, or viewport size makes full expansion unreadable, but collapse must be an explicit rendering decision rather than the default hydration behavior
 - recursive or repeated self-similar child executions are grouped into instance summaries and never expanded infinitely
 
 Argument summarization rules:
@@ -268,12 +275,14 @@ Sub-mission visualization rules:
 - `spawn()` is rendered as a higher-order boundary transition using standard subprocess semantics, not as a plain heavy node
 - inline or hydrated child execution renders as an expanded subprocess container attached to the callsite
 - imported or persisted child execution without hydrated graph data renders first as a call-activity style boundary with a deferred child container placeholder
-- first-level sub-missions are open by default on desktop/tablet and participate directly in the main layout
+- the root mission renders directly on the graph canvas without container chrome
+- every non-root sub-mission renders with container chrome: boundary, header, child execution region, state/source chips, and entry port
+- hydrated sub-missions are open by default on desktop/tablet and participate directly in the composed layout, recursively
 - narrow/mobile containers may auto-collapse sub-mission containers to preserve readability while keeping inspect/drill-in access
 - a sub-mission container header must expose label, state, source kind, and whether the child graph is static-known, runtime-materialized, or inferred
 - multiple child executions from the same callsite should group under one container when rendering every instance separately would destabilize the map
 - repeated or recursive child executions must render as grouped summaries or counted recurrences, never as infinitely expanding nested diagrams
-- deeper-than-first-level nesting should collapse by default behind explicit expand affordances and instance counts
+- nested sub-sub-missions are normal non-root containers, not special cases. The acceptance fixture must include one hydrated nested sub-sub-mission so recursive rendering is tested.
 
 ## ELK Layout
 
@@ -303,10 +312,12 @@ Layout rules:
 - imports occupy a dependency band outside the execution spine
 - comments never displace the main execution spine more than necessary
 - preserve stable ordering between rerenders so runtime updates do not destroy the Engineer’s mental map
-- first-level open sub-mission containers participate in the same composed layout pass as the parent graph
+- open hydrated sub-mission containers participate recursively in the same composed layout pass as the parent graph
 - preserve the parent execution spine as the anchor and expand child execution regions orthogonally into the available second dimension
 - on wide containers, prefer opening child containers sideways off the parent spine; on narrow containers, prefer stacking them downward
 - use ELK compound/hierarchy handling so child regions behave as real containers rather than flattened sibling nodes
+- layout uses derived design-token geometry for container header height, padding, spacing, reserved tracks, and entry ports; do not encode fixture-specific constants
+- spawn edges target computed entry ports on non-root containers, not child nodes inside those containers
 - runtime-added child graphs should reflow incrementally, preserving existing node and container positions unless the changed subtree requires movement
 - when sibling count, depth, or container size makes full expansion unreadable, collapse lower-priority child containers automatically before collapsing the parent spine
 
@@ -319,10 +330,12 @@ Rules:
 - when runtime child graph data arrives, hydrate the container in place instead of replacing it with unrelated nodes
 - child executions must retain stable `callsiteId` and `executionId` values across rerenders so selections, animations, and inspect panels do not jump
 - runtime hydration may enrich a child from call-activity boundary to expanded subprocess container, but must not change the underlying semantic identity of the callsite
-- if a persisted mission directly invokes multiple child missions, each first-level child gets its own open container when space permits
-- if nested child missions continue beyond one level, summarize deeper descendants by default and expose them through explicit expansion or inspect navigation
+- runtime hydration renders recursively by default: if a hydrated child mission invokes another hydrated child mission, the descendant renders as a nested non-root container with chrome
+- if a persisted mission directly invokes multiple child missions, each child gets its own open non-root container when space permits
+- nested descendants are summarized only by explicit readability, repetition, or viewport collapse rules; depth alone is not a reason to hide hydrated data
 - imported or external child missions may render open only when cached or runtime graph metadata is available; the parser still does not drill into imported files on its own
 - inferred child mission boundaries must remain visibly inferred even after runtime hydration fills in the real child graph
+- the acceptance fixture must include root -> sub-mission -> sub-sub-mission hydration and assert that root chrome is absent, both non-root containers have chrome, and both spawn edges terminate at computed non-root entry ports
 
 ## Design System Application
 

@@ -250,8 +250,7 @@
                 border: 1px solid var(--border-default);
                 border-radius: var(--radius-xl);
                 padding: var(--space-6);
-                overflow-x: auto;
-                overflow-y: hidden;
+                overflow: auto;
                 scroll-padding-inline: var(--space-6);
             }
             .metro-map {
@@ -724,10 +723,11 @@
         <div class="ds-section">
             <div class="ds-section-title">Demo Mission Graph</div>
             <div class="ds-section-desc">
-                A hand-authored approximation of ELK orthogonal layout output.
-                Direction: LEFT→RIGHT. All edges are L-shaped or Z-shaped (H/V
-                path commands only — no 45° diagonals). Primary labels are
-                sourced deterministically: string literal first argument (e.g.
+                ELK-backed orthogonal layout with Merlin grid snapping and
+                deterministic SVG routing. Direction: LEFT→RIGHT. All edges are
+                L-shaped or Z-shaped (H/V path commands only — no 45° diagonals).
+                Primary labels are sourced deterministically: string literal
+                first argument (e.g.
                 <code>agent("Analyze", …)</code>) or the identifier name of the
                 spawned argument — no LLM needed for these. LLM synthesizes the
                 intent annotation below each node only when no
@@ -741,6 +741,7 @@
             <div class="map-wrap">
                 <svg
                     class="metro-map graph-svg"
+                    data-renderer="shared-layout"
                     viewBox="0 0 1312 480"
                     xmlns="http://www.w3.org/2000/svg"
                     aria-label="Merlin Mission Graph Demo"
@@ -2215,483 +2216,340 @@
             </div>
         </div>
 
+        <script src="./mission-graph-layout.browser.js"></script>
         <script>
-            function buildGraph() {
-                const G =
-                    parseInt(
-                        getComputedStyle(
-                            document.documentElement,
-                        ).getPropertyValue("--space-8"),
-                    ) || 32;
-                const W = 41 * G,
-                    H = 15 * G; // 1312 × 480
-                const STATION_HPAD = G / 2;
-                const STATION_VH = G;
-                const CHIP_PAD_X = G / 4;
-                const CHIP_H = Math.round((G * 3) / 8);
-                const CHIP_GAP = G / 2;
+            (() => {
+            const ELK_BUNDLE_URL =
+                "https://cdn.jsdelivr.net/npm/elkjs@0.11.1/lib/elk.bundled.js";
+            const {
+                buildElkGraph,
+                buildMissionGraphGeometry,
+                createMissionGraphFixture,
+            } = window.MissionGraphLayout || {};
+            const svg = document.querySelector(".metro-map");
+            let elkLoaderPromise = null;
 
-                function gridLines(w, h) {
-                    let s = "";
-                    for (let x = G; x < w; x += G)
-                        s += `<line x1="${x}" y1="0" x2="${x}" y2="${h}"/>`;
-                    for (let y = G; y < h; y += G)
-                        s += `<line x1="0" y1="${y}" x2="${w}" y2="${y}"/>`;
-                    return `<g class="grid-line">${s}</g>`;
-                }
-
-                function terminal(x, y, label, isError, w) {
-                    const width = w !== undefined ? w : 2 * G;
-                    const cls = isError ? "terminal-error" : "terminal-node";
-                    const tCls = isError ? "node-label" : "terminal-label";
-                    return (
-                        `<rect class="${cls}" x="${x}" y="${y}" width="${width}" height="${G}" rx="${G / 2}"/>` +
-                        `<text class="${tCls}" x="${x + width / 2}" y="${y + G / 2}" text-anchor="middle" dominant-baseline="central">${label}</text>`
-                    );
-                }
-
-                const textMeasure = document.createElement("canvas").getContext("2d");
+            function themeFonts() {
                 const rootStyle = getComputedStyle(document.documentElement);
-                const fontCaption =
-                    rootStyle.getPropertyValue("--font-caption").trim() ||
-                    "sans-serif";
-                const fontCode =
-                    rootStyle.getPropertyValue("--font-code").trim() ||
-                    "monospace";
+                return {
+                    fontCaption:
+                        rootStyle.getPropertyValue("--font-caption").trim() ||
+                        "sans-serif",
+                    fontCode:
+                        rootStyle.getPropertyValue("--font-code").trim() ||
+                        "monospace",
+                };
+            }
 
-                function measureTextWidth(label, className = "node-label") {
+            function makeMeasureTextWidth() {
+                const textMeasure = document.createElement("canvas").getContext("2d");
+                const { fontCaption, fontCode } = themeFonts();
+                return (label, className = "node-label") => {
                     const sizeByClass = {
                         "chip-text": 8,
                         "sub-chip-text": 7,
+                        "terminal-label": 11,
                         "node-label": 11,
                     };
                     const fontSize = sizeByClass[className] ?? 11;
                     const fontFamily =
-                        className === "chip-text" ||
-                        className === "sub-chip-text"
+                        className === "chip-text" || className === "sub-chip-text"
                             ? fontCode
                             : fontCaption;
                     textMeasure.font = `${fontSize}px ${fontFamily}`;
                     return textMeasure.measureText(label).width;
-                }
-
-                function snap(value, unit = G / 2) {
-                    return Math.ceil(value / unit) * unit;
-                }
-
-                function stationBox(x, y, label, role = "process") {
-                    const labelWidth = measureTextWidth(label);
-                    const width = snap(labelWidth + STATION_HPAD * 2);
-                    const height = STATION_VH;
-                    const cx = x + width / 2;
-                    const cy = y + height / 2;
-                    const chipOffsetX = G / 4;
-                    return {
-                        x,
-                        y,
-                        label,
-                        role,
-                        width,
-                        height,
-                        cx,
-                        cy,
-                        left: x,
-                        right: x + width,
-                        top: y,
-                        bottom: y + height,
-                        textX: cx,
-                        chipX: x + width - G - chipOffsetX,
-                        chipY: y - G / 4,
-                        markerX: x + chipOffsetX,
-                    };
-                }
-
-                function decisionBox(cx, cy, label) {
-                    const halfWidth = snap((measureTextWidth(label) + G) / 2);
-                    return {
-                        x: cx - halfWidth,
-                        y: cy - G,
-                        label,
-                        role: "decision",
-                        width: halfWidth * 2,
-                        height: 2 * G,
-                        halfWidth,
-                        cx,
-                        cy,
-                        left: cx - halfWidth,
-                        right: cx + halfWidth,
-                        top: cy - G,
-                        bottom: cy + G,
-                        textX: cx,
-                    };
-                }
-
-                function process(box) {
-                    return (
-                        `<rect class="node-bg node-primary" x="${box.x}" y="${box.y}" width="${box.width}" height="${box.height}" rx="4"/>` +
-                        `<text class="node-label" x="${box.textX}" y="${box.cy}" text-anchor="middle" dominant-baseline="central">${box.label}</text>`
-                    );
-                }
-
-                function loopProcess(box) {
-                    return (
-                        process(box) +
-                        `<text x="${box.right - G / 8}" y="${box.y + (7 * G) / 8}" text-anchor="middle" dominant-baseline="central" fill="var(--graph-stroke)" font-size="14">↺</text>`
-                    );
-                }
-
-                function chipEl(x, y, text) {
-                    return (
-                        `<rect class="chip-bg" x="${x}" y="${y}" width="${G}" height="${G / 2}" rx="2"/>` +
-                        `<text class="chip-text" x="${x + G / 2}" y="${y + G / 4}" text-anchor="middle" dominant-baseline="central">${text}</text>`
-                    );
-                }
-
-                function chipBox(label, className = "sub-chip-text") {
-                    const paddingX = CHIP_PAD_X;
-                    const width = snap(
-                        measureTextWidth(label, className) + paddingX * 2,
-                        G / 8,
-                    );
-                    return {
-                        label,
-                        width,
-                        textX: width / 2,
-                    };
-                }
-
-                function annoStub(cx, y1, y2, lines, isAbove) {
-                    const gap = G / 4;
-                    const lineH = Math.round((G * 3) / 8);
-                    let s = `<line class="edge-anno" x1="${cx}" y1="${y1}" x2="${cx}" y2="${y2}"/>`;
-                    const startY = isAbove
-                        ? y2 - gap - (lines.length - 1) * lineH
-                        : y2 + gap;
-                    s += `<text class="intent-label" text-anchor="middle">`;
-                    lines.forEach((l, i) => {
-                        s += `<tspan x="${cx}" ${i === 0 ? `y="${startY}"` : `dy="${lineH}"`}>${l}</tspan>`;
-                    });
-                    s += `</text>`;
-                    return s;
-                }
-
-                function mission(box, annotLines, annotDir) {
-                    let s =
-                        `<rect class="node-bg node-primary-bold" x="${box.x}" y="${box.y}" width="${box.width}" height="${box.height}" rx="4"/>` +
-                        chipEl(box.chipX, box.chipY, "agent") +
-                        `<text class="node-label" x="${box.textX}" y="${box.cy}" text-anchor="middle" dominant-baseline="central">${box.label}</text>`;
-                    if (annotLines) {
-                        const below = annotDir === "below";
-                        s += annoStub(
-                            box.textX,
-                            below ? box.bottom : box.top,
-                            below ? box.bottom + G / 2 : box.top - G / 2,
-                            annotLines,
-                            !below,
-                        );
-                    }
-                    return s;
-                }
-
-                function diamond(box) {
-                    return (
-                        `<polygon class="node-bg node-primary" points="${box.cx},${box.top} ${box.right},${box.cy} ${box.cx},${box.bottom} ${box.left},${box.cy}"/>` +
-                        `<text class="node-label" x="${box.textX}" y="${box.cy}" text-anchor="middle" dominant-baseline="central">${box.label}</text>`
-                    );
-                }
-
-                function spawn(box, annotLines, annotDir) {
-                    const bx = box.markerX;
-                    let s =
-                        `<rect class="node-bg node-primary" x="${box.x}" y="${box.y}" width="${box.width}" height="${box.height}" rx="4"/>` +
-                        `<line class="spawn-marker" x1="${bx}" y1="${box.y + 2}" x2="${bx}" y2="${box.y + G - 2}"/>` +
-                        `<line class="spawn-marker" x1="${bx + G / 4}" y1="${box.y + 2}" x2="${bx + G / 4}" y2="${box.y + G - 2}"/>` +
-                        chipEl(box.chipX, box.chipY, "spawn") +
-                        `<text class="node-label" x="${box.textX}" y="${box.cy}" text-anchor="middle" dominant-baseline="central">${box.label}</text>`;
-                    if (annotLines) {
-                        const below = annotDir === "below";
-                        s += annoStub(
-                            box.textX,
-                            below ? box.bottom : box.top,
-                            below ? box.bottom + G / 2 : box.top - G / 2,
-                            annotLines,
-                            !below,
-                        );
-                    }
-                    return s;
-                }
-
-                function forkBar(x, y, h) {
-                    return `<rect class="fork-bar" x="${x}" y="${y}" width="${G / 4}" height="${h}" rx="${G / 8}"/>`;
-                }
-
-                function container(x, y, w, h, title, chips) {
-                    const sepY = y + G;
-                    let s =
-                        `<rect class="sub-border" x="${x}" y="${y}" width="${w}" height="${h}" rx="4"/>` +
-                        `<line class="sub-sep" x1="${x}" y1="${sepY}" x2="${x + w}" y2="${sepY}"/>` +
-                        `<text class="sub-title" x="${x + w / 2}" y="${y + (G * 3) / 8}" text-anchor="middle" dominant-baseline="central">${title}</text>`;
-                    if (chips) {
-                        const chipBoxes = chips.map((txt) =>
-                            chipBox(txt, "sub-chip-text"),
-                        );
-                        const totalW =
-                            chipBoxes.reduce((sum, chip) => sum + chip.width, 0) +
-                            CHIP_GAP * (chipBoxes.length - 1);
-                        let cx = x + (w - totalW) / 2;
-                        const chipY = y + (G * 5) / 8,
-                            chipH = CHIP_H;
-                        chipBoxes.forEach((chip) => {
-                            s +=
-                                `<rect class="sub-chip-bg" x="${cx}" y="${chipY}" width="${chip.width}" height="${chipH}" rx="2"/>` +
-                                `<text class="sub-chip-text" x="${cx + chip.textX}" y="${chipY + chipH / 2}" text-anchor="middle" dominant-baseline="central">${chip.label}</text>`;
-                            cx += chip.width + CHIP_GAP;
-                        });
-                    }
-                    return s;
-                }
-
-                const MIN_EDGE = G; // --space-8 = 32px: minimum shaft length before arrowhead
-
-                function edge(d, type) {
-                    const m = {
-                        seq: "arr-seq",
-                        branch: "arr-branch",
-                        loop: "arr-branch",
-                        spawn: "arr-spawn",
-                    };
-                    const seg = d.match(
-                        /^M\s*([\d.]+),([\d.]+)\s+([HV])\s*([\d.]+)/,
-                    );
-                    if (seg) {
-                        const len = Math.abs(
-                            seg[3] === "H"
-                                ? +seg[4] - +seg[1]
-                                : +seg[4] - +seg[2],
-                        );
-                        if (len < MIN_EDGE)
-                            console.warn(
-                                `edge too short: ${len}px < MIN_EDGE(${MIN_EDGE}px) in: ${d}`,
-                            );
-                    }
-                    return `<path class="edge-${type}" d="${d}" marker-end="url(#${m[type]})"/>`;
-                }
-
-                // ── Coordinates — all multiples of G ──
-                const sY = 2.5 * G; // spine top  = 80
-                const cY = 3 * G; // spine cy   = 96
-
-                // Parent spine node left edges
-                const startX = 1 * G; // 32
-                const lcX = 4 * G; // 128  loadConfig
-                const dCX = 9 * G; // 288  diamond cx
-                const anX = 11 * G; // 352  Analyze
-                const spX = 15 * G; // 480  spawn-boundary
-                const gapX = 21 * G; // 672  Gap Review loop
-                const planX = 25 * G; // 800  Plan Fixes
-                const fixX = 29 * G; // 928  fixAgents spawn-boundary
-                const cleanCX = 35 * G; // 1120  consecutive clean reviews?
-                const endX = 38 * G; // 1216  End
-                const loopY = 1 * G;
-
-                const start = {
-                    left: startX,
-                    right: startX + 2 * G,
-                    cx: startX + G,
                 };
-                const loadConfig = stationBox(lcX, sY, "loadConfig");
-                const env = decisionBox(dCX, cY, "env?");
-                const analyze = stationBox(anX, sY, "Analyze", "mission");
-                const analysisMission = stationBox(
-                    spX,
-                    sY,
-                    "analysisMission",
-                    "spawn",
-                );
-                const gapReview = stationBox(gapX, sY, "Gap Review", "loop");
-                const planFixes = stationBox(planX, sY, "Plan Fixes", "mission");
-                const fixAgents = stationBox(fixX, sY, "fixAgents", "spawn");
-                const cleanReview = decisionBox(cleanCX, cY, "clean twice?");
-                const end = {
-                    left: endX,
-                    right: endX + 2 * G,
-                    cx: endX + G,
-                };
-
-                // Sub-mission container  center_x = spawn arrow x (spX + 2G = 17G)
-                const subX = 10 * G,
-                    subY = 7 * G,
-                    subW = 14 * G,
-                    subH = 7 * G;
-
-                // Child nodes — all relative to container origin so they reflow with subX/subY
-                const cStartX = subX + G; // 1G left padding
-                const forkX = subX + 4 * G;
-                const cmX = subX + 5 * G;
-                const joinX = subX + 10 * G;
-                const cEndX = subX + 11 * G; // right edge = subX+13G, 1G right padding
-
-                const resY = subY + 2 * G; // 1G header + 1G padding
-                const resCY = subY + 2.5 * G;
-                const synY = subY + 4 * G;
-                const synCY = subY + 4.5 * G;
-                const csY = subY + 3 * G; // child spine (between res and syn rows)
-                const csCY = subY + 3.5 * G;
-                const fbY = subY + 2 * G; // fork/join bar top (aligns with resY)
-                const fbH = 3 * G; // spans res→synEnd (rows +2G..+5G)
-
-                // ── Geometry (painted first, labels painted on top) ──
-                const geo = [
-                    `<rect class="map-bg" x="0" y="0" width="${W}" height="${H}" rx="12"/>`,
-                    gridLines(W, H),
-
-                    // Parent edges (no labels here)
-                    edge(`M ${start.right},${cY} H ${loadConfig.left}`, "seq"),
-                    edge(`M ${loadConfig.right},${cY} H ${env.left}`, "seq"),
-                    edge(`M ${env.right},${cY} H ${analyze.left}`, "branch"),
-                    edge(`M ${env.cx},${env.bottom} V ${5 * G}`, "branch"),
-                    edge(`M ${analyze.right},${cY} H ${analysisMission.left}`, "seq"),
-                    edge(`M ${analysisMission.right},${cY} H ${gapReview.left}`, "seq"),
-                    edge(`M ${gapReview.right},${cY} H ${planFixes.left}`, "seq"),
-                    edge(`M ${planFixes.right},${cY} H ${fixAgents.left}`, "seq"),
-                    edge(`M ${fixAgents.right},${cY} H ${cleanReview.left}`, "seq"),
-                    edge(`M ${cleanReview.right},${cY} H ${end.left}`, "branch"),
-                    edge(
-                        `M ${cleanReview.cx},${cleanReview.top} V ${loopY} H ${gapReview.cx} V ${gapReview.top}`,
-                        "loop",
-                    ),
-                    edge(`M ${subX + subW / 2},${sY + G} V ${subY}`, "spawn"),
-
-                    // Parent nodes (rects/polygons only — text comes later)
-                    `<rect class="terminal-node" x="${startX}" y="${sY}" width="${2 * G}" height="${G}" rx="${G / 2}"/>`,
-                    process(loadConfig),
-                    diamond(env),
-                    mission(analyze),
-                    spawn(analysisMission),
-                    loopProcess(gapReview),
-                    mission(planFixes),
-                    spawn(fixAgents),
-                    diamond(cleanReview),
-                    `<rect class="terminal-node" x="${endX}" y="${sY}" width="${2 * G}" height="${G}" rx="${G / 2}"/>`,
-                    `<rect class="terminal-error" x="${8 * G}" y="${5 * G}" width="${2 * G}" height="${G}" rx="${G / 2}"/>`,
-
-                    // Sub-mission container
-                    container(subX, subY, subW, subH, "DEPENDENCY AUDIT", [
-                        "Inline code",
-                        "Static graph",
-                    ]),
-
-                    // Child edges
-                    edge(`M ${cStartX + 2 * G},${csCY} H ${forkX}`, "seq"),
-                    edge(`M ${forkX + G / 4},${resCY} H ${cmX}`, "seq"),
-                    edge(`M ${forkX + G / 4},${synCY} H ${cmX}`, "seq"),
-                    edge(`M ${cmX + 3 * G},${resCY} H ${joinX}`, "seq"),
-                    edge(`M ${cmX + 3 * G},${synCY} H ${joinX}`, "seq"),
-                    edge(`M ${joinX + G / 4},${csCY} H ${cEndX}`, "seq"),
-
-                    // Child node shapes
-                    forkBar(forkX, fbY, fbH),
-                    `<rect class="terminal-node" x="${cStartX}" y="${csY}" width="${2 * G}" height="${G}" rx="${G / 2}"/>`,
-                    `<rect class="node-bg node-primary-bold" x="${cmX}" y="${resY}" width="${3 * G}" height="${G}" rx="4"/>`,
-                    chipEl(cmX + 2 * G, resY - G / 4, "agent"),
-                    `<rect class="node-bg node-primary-bold" x="${cmX}" y="${synY}" width="${3 * G}" height="${G}" rx="4"/>`,
-                    chipEl(cmX + 2 * G, synY - G / 4, "agent"),
-                    forkBar(joinX, fbY, fbH),
-                    `<rect class="terminal-node" x="${cEndX}" y="${csY}" width="${2 * G}" height="${G}" rx="${G / 2}"/>`,
-                ];
-
-                // ── Labels (painted on top of all geometry) ──
-                const labels = [
-                    // Edge labels
-                    `<text class="edge-label" x="${dCX + G + G / 8}" y="${cY - G / 4}" text-anchor="start">true</text>`,
-                    `<text class="edge-label" x="${dCX - G}" y="${(cY + G + 5 * G) / 2}" text-anchor="end">false</text>`,
-
-                    // Parent node labels
-                    `<text class="terminal-label" x="${startX + G}" y="${sY + G / 2}" text-anchor="middle" dominant-baseline="central">Start</text>`,
-                    `<text class="terminal-label" x="${endX + G}" y="${sY + G / 2}" text-anchor="middle" dominant-baseline="central">End</text>`,
-                    `<text class="node-label" x="${9 * G}" y="${5 * G + G / 2}" text-anchor="middle" dominant-baseline="central">Error</text>`,
-                    `<text class="edge-label" x="${cleanReview.right + G / 8}" y="${cY - G / 4}" text-anchor="start">true</text>`,
-                    `<text class="edge-label" x="${(cleanReview.cx + gapReview.cx) / 2}" y="${loopY - G / 4}" text-anchor="middle">false</text>`,
-
-                    // Analyze annotation (below)
-                    annoStub(
-                        analyze.textX,
-                        analyze.bottom,
-                        analyze.bottom + G / 2,
-                        ["Finds circular refs and", "duplicate declarations"],
-                        false,
-                    ),
-
-                    // Spawn annotation (above)
-                    annoStub(
-                        analysisMission.textX,
-                        analysisMission.top,
-                        analysisMission.top - G / 2,
-                        ["inline code ·", "dual-agent run"],
-                        true,
-                    ),
-
-                    // Final review loop annotations
-                    annoStub(
-                        gapReview.textX,
-                        gapReview.bottom,
-                        gapReview.bottom + G / 2,
-                        ["Final report gap analysis", "odd Claude · even GPT"],
-                        false,
-                    ),
-                    annoStub(
-                        planFixes.textX,
-                        planFixes.top,
-                        planFixes.top - G / 2,
-                        ["Plan fixes for major gaps"],
-                        true,
-                    ),
-                    annoStub(
-                        fixAgents.textX,
-                        fixAgents.bottom,
-                        fixAgents.bottom + G / 2,
-                        ["Spawn focused fix agents"],
-                        false,
-                    ),
-
-                    // Child node labels
-                    `<text class="terminal-label" x="${cStartX + G}" y="${csY + G / 2}" text-anchor="middle" dominant-baseline="central">Start</text>`,
-                    `<text class="node-label" x="${cmX + 1.5 * G}" y="${resY + G / 2}" text-anchor="middle" dominant-baseline="central">Research</text>`,
-                    `<text class="node-label" x="${cmX + 1.5 * G}" y="${synY + G / 2}" text-anchor="middle" dominant-baseline="central">Synthesize</text>`,
-
-                    // Synthesize annotation (below)
-                    annoStub(
-                        cmX + 1.5 * G,
-                        synY + G,
-                        synY + G + G / 2,
-                        ["Compile findings · MD report"],
-                        false,
-                    ),
-
-                    `<text class="terminal-label" x="${cEndX + G}" y="${csY + G / 2}" text-anchor="middle" dominant-baseline="central">End</text>`,
-                ];
-
-                const parts = [...geo, ...labels];
-
-                document.querySelector(".metro-map").innerHTML =
-                    parts.join("\n");
             }
 
-            document.addEventListener("DOMContentLoaded", buildGraph);
+            function gridLines(G, w, h) {
+                let s = "";
+                for (let x = G; x < w; x += G) {
+                    s += `<line x1="${x}" y1="0" x2="${x}" y2="${h}"/>`;
+                }
+                for (let y = G; y < h; y += G) {
+                    s += `<line x1="0" y1="${y}" x2="${w}" y2="${y}"/>`;
+                }
+                return `<g class="grid-line">${s}</g>`;
+            }
 
-            const btn = document.querySelector(".ds-theme-toggle");
-            btn.addEventListener("click", () => {
-                const isDark =
-                    document.documentElement.getAttribute("data-theme") ===
-                    "dark";
-                document.documentElement.setAttribute(
-                    "data-theme",
-                    isDark ? "light" : "dark",
+            function chipEl(x, y, text, G) {
+                return (
+                    `<rect class="chip-bg" x="${x}" y="${y}" width="${G}" height="${G / 2}" rx="2"/>` +
+                    `<text class="chip-text" x="${x + G / 2}" y="${y + G / 4}" text-anchor="middle" dominant-baseline="central">${text}</text>`
                 );
-                btn.textContent = isDark
-                    ? "Toggle Dark Mode"
-                    : "Toggle Light Mode";
-            });
+            }
+
+            function renderTerminal(node, G, isError = false) {
+                const cls = isError ? "terminal-error" : "terminal-node";
+                const labelCls = isError ? "node-label" : "terminal-label";
+                return (
+                    `<rect class="${cls}" x="${node.x}" y="${node.y}" width="${node.width}" height="${node.height}" rx="${G / 2}"/>` +
+                    `<text class="${labelCls}" x="${node.cx}" y="${node.cy}" text-anchor="middle" dominant-baseline="central">${node.label}</text>`
+                );
+            }
+
+            function renderProcess(node) {
+                return (
+                    `<rect class="node-bg node-primary" x="${node.x}" y="${node.y}" width="${node.width}" height="${node.height}" rx="4"/>` +
+                    `<text class="node-label" x="${node.cx}" y="${node.cy}" text-anchor="middle" dominant-baseline="central">${node.label}</text>`
+                );
+            }
+
+            function renderLoop(node, G) {
+                return (
+                    renderProcess(node) +
+                    `<text x="${node.right - G / 8}" y="${node.y + (7 * G) / 8}" text-anchor="middle" dominant-baseline="central" fill="var(--graph-stroke)" font-size="14">↺</text>`
+                );
+            }
+
+            function renderMission(node, G, chipText) {
+                const spawnMarker =
+                    chipText === "spawn"
+                        ? `<line class="spawn-marker" x1="${node.markerX}" y1="${node.y + 2}" x2="${node.markerX}" y2="${node.y + G - 2}"/>` +
+                          `<line class="spawn-marker" x1="${node.markerX + G / 4}" y1="${node.y + 2}" x2="${node.markerX + G / 4}" y2="${node.y + G - 2}"/>`
+                        : "";
+                return (
+                    `<rect class="node-bg node-primary-bold" x="${node.x}" y="${node.y}" width="${node.width}" height="${node.height}" rx="4"/>` +
+                    spawnMarker +
+                    chipEl(node.chipX, node.chipY, chipText, G) +
+                    `<text class="node-label" x="${node.cx}" y="${node.cy}" text-anchor="middle" dominant-baseline="central">${node.label}</text>`
+                );
+            }
+
+            function renderDecision(node) {
+                return (
+                    `<polygon class="node-bg node-primary" points="${node.cx},${node.top} ${node.right},${node.cy} ${node.cx},${node.bottom} ${node.left},${node.cy}"/>` +
+                    `<text class="node-label" x="${node.cx}" y="${node.cy}" text-anchor="middle" dominant-baseline="central">${node.label}</text>`
+                );
+            }
+
+            function renderForkBar(node, G) {
+                return `<rect class="fork-bar" x="${node.x}" y="${node.y}" width="${G / 4}" height="${node.height}" rx="${G / 8}"/>`;
+            }
+
+            function renderContainer(container, G) {
+                const sepY = container.y + G;
+                let s =
+                    `<rect class="sub-border" x="${container.x}" y="${container.y}" width="${container.width}" height="${container.height}" rx="4"/>` +
+                    `<line class="sub-sep" x1="${container.x}" y1="${sepY}" x2="${container.right}" y2="${sepY}"/>` +
+                    `<text class="sub-title" x="${container.cx}" y="${container.y + (G * 3) / 8}" text-anchor="middle" dominant-baseline="central">${container.title}</text>`;
+                const chipY = container.y + (G * 5) / 8;
+                const chipH = Math.round((G * 3) / 8);
+                const totalW =
+                    container.chips.reduce((sum, chip) => sum + chip.width, 0) +
+                    container.chipGap * (container.chips.length - 1);
+                let cursor = container.x + (container.width - totalW) / 2;
+                container.chips.forEach((chip) => {
+                    s +=
+                        `<rect class="sub-chip-bg" x="${cursor}" y="${chipY}" width="${chip.width}" height="${chipH}" rx="2"/>` +
+                        `<text class="sub-chip-text" x="${cursor + chip.width / 2}" y="${chipY + chipH / 2}" text-anchor="middle" dominant-baseline="central">${chip.label}</text>`;
+                    cursor += chip.width + container.chipGap;
+                });
+                return s;
+            }
+
+            function renderAnnotation(annotation) {
+                const lineH = 12;
+                let s = `<line class="edge-anno" x1="${annotation.x}" y1="${annotation.y1}" x2="${annotation.x}" y2="${annotation.y2}"/>`;
+                s += `<text class="intent-label" text-anchor="middle">`;
+                annotation.lines.forEach((line, index) => {
+                    s += `<tspan x="${annotation.x}" ${index === 0 ? `y="${annotation.textY}"` : `dy="${lineH}"`}>${line}</tspan>`;
+                });
+                s += `</text>`;
+                return s;
+            }
+
+            function renderNode(node, G) {
+                if (node.kind === "terminal") {
+                    return renderTerminal(node, G, node.role === "error");
+                }
+                if (node.kind === "decision") {
+                    return renderDecision(node);
+                }
+                if (node.kind === "fork" || node.kind === "join") {
+                    return renderForkBar(node, G);
+                }
+                if (node.role === "spawn") {
+                    return renderMission(node, G, "spawn");
+                }
+                if (node.role === "mission" || node.role === "child-mission") {
+                    return renderMission(node, G, "agent");
+                }
+                if (node.role === "loop") {
+                    return renderLoop(node, G);
+                }
+                return renderProcess(node);
+            }
+
+            function failGraph(message, error, G, W, H) {
+                console.error(message, error || "");
+                window.__MISSION_GRAPH_LAYOUT__ = { ok: false, error: message };
+                svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+                svg.innerHTML = [
+                    `<rect class="map-bg" x="0" y="0" width="${W}" height="${H}" rx="12"/>`,
+                    gridLines(G, W, H),
+                    `<text class="node-label" x="${W / 2}" y="${H / 2}" text-anchor="middle" dominant-baseline="central">${message}</text>`,
+                ].join("\n");
+            }
+
+            function loadElkConstructor() {
+                if (window.ELK) {
+                    return Promise.resolve(window.ELK);
+                }
+                if (elkLoaderPromise) {
+                    return elkLoaderPromise;
+                }
+
+                elkLoaderPromise = new Promise((resolve) => {
+                    const script = document.createElement("script");
+                    let settled = false;
+                    const finish = (ELKConstructor) => {
+                        if (settled) {
+                            return;
+                        }
+                        settled = true;
+                        window.clearTimeout(timer);
+                        resolve(ELKConstructor || null);
+                    };
+                    const timer = window.setTimeout(() => {
+                        console.error("Mission graph ELK bundle timed out");
+                        script.remove();
+                        finish(null);
+                    }, 3000);
+
+                    script.src = ELK_BUNDLE_URL;
+                    script.async = true;
+                    script.onload = () => finish(window.ELK);
+                    script.onerror = () => {
+                        console.error("Mission graph ELK bundle failed to load");
+                        finish(null);
+                    };
+                    document.head.appendChild(script);
+                });
+
+                return elkLoaderPromise;
+            }
+
+            function renderGraph(geometry) {
+                const G = geometry.G;
+                const [, , W, H] = geometry.viewBox.split(/\s+/).map(Number);
+                const nodes = Object.values(geometry.nodes);
+                const containers = Object.values(geometry.containers || {});
+                const rootRoutes = geometry.routes.filter((route) => route.missionId === "root");
+                const nestedRoutes = geometry.routes.filter((route) => route.missionId !== "root");
+                const rootNodes = nodes.filter((node) => node.missionId === "root");
+                const nestedNodes = nodes.filter((node) => node.missionId !== "root");
+
+                svg.setAttribute("viewBox", geometry.viewBox);
+                svg.style.width = `${W}px`;
+                svg.style.minWidth = `${W}px`;
+
+                const parts = [
+                    `<rect class="map-bg" x="0" y="0" width="${W}" height="${H}" rx="12"/>`,
+                    gridLines(G, W, H),
+                    ...rootRoutes.map(
+                        (route) =>
+                            `<path class="edge-${route.renderType}" d="${route.d}" marker-end="url(#${route.markerId})"/>`,
+                    ),
+                    ...rootNodes.map((node) => renderNode(node, G)),
+                    ...containers.map((container) => renderContainer(container, G)),
+                    ...nestedRoutes.map(
+                        (route) =>
+                            `<path class="edge-${route.renderType}" d="${route.d}" marker-end="url(#${route.markerId})"/>`,
+                    ),
+                    ...nestedNodes.map((node) => renderNode(node, G)),
+                    ...geometry.edgeLabels.map(
+                        (label) =>
+                            `<text class="edge-label" x="${label.x}" y="${label.y}" text-anchor="${label.textAnchor}">${label.text}</text>`,
+                    ),
+                    ...geometry.annotations.map(renderAnnotation),
+                ];
+
+                svg.innerHTML = parts.join("\n");
+            }
+
+            async function buildGraph() {
+                const G =
+                    parseInt(
+                        getComputedStyle(document.documentElement).getPropertyValue("--space-8"),
+                    ) || 32;
+                const W = 41 * G;
+                const H = 15 * G;
+
+                if (!createMissionGraphFixture || !buildMissionGraphGeometry) {
+                    failGraph("Mission graph layout failed: browser bundle missing", null, G, W, H);
+                    return;
+                }
+
+                try {
+                    const fixture = createMissionGraphFixture({
+                        G,
+                        measureTextWidth: makeMeasureTextWidth(),
+                    });
+                    const ELKConstructor = await loadElkConstructor();
+                    if (!ELKConstructor) {
+                        failGraph(
+                            "Mission graph layout failed: ELK bundle unavailable",
+                            null,
+                            G,
+                            W,
+                            H,
+                        );
+                        return;
+                    }
+                    if (!buildElkGraph) {
+                        failGraph("Mission graph layout failed: ELK graph builder missing", null, G, W, H);
+                        return;
+                    }
+
+                    let elkResult;
+                    try {
+                        const elk = new ELKConstructor();
+                        elkResult = await elk.layout(buildElkGraph(fixture));
+                    } catch (error) {
+                        failGraph("Mission graph layout failed: ELK execution failed", error, G, W, H);
+                        return;
+                    }
+
+                    const geometry = buildMissionGraphGeometry(fixture, elkResult);
+                    if (geometry.validationFailures.length > 0) {
+                        console.error(
+                            "Mission graph ELK layout produced invalid geometry",
+                            geometry.validationFailures,
+                        );
+                        failGraph(
+                            "Mission graph layout failed: ELK geometry invalid",
+                            geometry.validationFailures,
+                            G,
+                            W,
+                            H,
+                        );
+                        return;
+                    }
+                    geometry.elk = {
+                        width: elkResult.width,
+                        height: elkResult.height,
+                        edgeCount: elkResult.edges?.length || 0,
+                        source: "elk",
+                    };
+                    window.__MISSION_GRAPH_LAYOUT__ = geometry;
+                    geometry.validationFailures.forEach((failure) =>
+                        console.warn(`mission graph validation: ${failure}`),
+                    );
+                    renderGraph(geometry);
+                } catch (error) {
+                    failGraph("Mission graph layout failed", error, G, W, H);
+                }
+            }
+
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", buildGraph, {
+                    once: true,
+                });
+            } else {
+                buildGraph();
+            }
+            })();
         </script>
     </body>
 </html>

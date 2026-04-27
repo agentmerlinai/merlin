@@ -2,13 +2,15 @@
   "name": "merlin",
   "type": "module",
   "scripts": {
-    "test": "node --test theme/tokens.test.js",
-    "generate": "node theme/generate.js",
+    "test": "node --test theme/tokens.test.js mission-graph-layout.test.js",
+    "generate:mission-graph-layout": "node scripts/generate-mission-graph-layout-browser.mjs",
+    "generate": "node theme/generate.js && node scripts/generate-mission-graph-layout-browser.mjs",
     "build:docs": "node scripts/build-docs.mjs",
-    "build": "node theme/generate.js && node scripts/build-docs.mjs && node --test theme/tokens.test.js",
+    "build": "node theme/generate.js && node scripts/generate-mission-graph-layout-browser.mjs && node scripts/build-docs.mjs && node --test theme/tokens.test.js mission-graph-layout.test.js",
     "brand": "node scripts/gen-brand.mjs"
   },
   "devDependencies": {
+    "elkjs": "0.11.1",
     "opentype.js": "^1.3.4",
     "sharp": "^0.33.5"
   }
