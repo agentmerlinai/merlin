@@ -99,7 +99,7 @@ Comments must be captured from SWC comment storage and attached by span/position
 
 Do not build this extractor around SWC's deprecated JS `Visitor` API. A shallow root-item extractor with targeted descent is simpler and better matches the module boundary.
 
-`prompt()` is analyzed as a typed JSON request, not as a custom React component. The visualizer summarizes the prompt request object by:
+`prompt()` is analyzed as a typed JSON request, not as a custom React component. User-facing graph surfaces present these stations as **Review Gate**; inspect surfaces may still show `API: prompt()`. The visualizer summarizes the prompt request object by:
 - showing the registered input view `id`
 - listing important `props` keys
 - listing other notable config keys
@@ -217,14 +217,14 @@ Inferred stations must be visibly marked as inferred so the map never implies th
 Recognized APIs:
 - `agent(...)`
 - `prompt(...)`
-- `spawn(...)`
+- `spawn(description, missionCode)`
 - `run(...)` and `run<ToolName>(...)`
 
 Mapping:
 - `agent(...)` -> `mission-call`
-- `prompt(...)` -> `mission-call`
+- `prompt(...)` -> `mission-call` with user-facing type `Review Gate`
 - `run(...)` -> `mission-call`
-- `spawn(...)` -> `spawn-boundary` plus a `sub-mission-container` placeholder owned by the callsite
+- `spawn(description, missionCode)` -> `spawn-boundary` plus a `sub-mission-container` placeholder owned by the callsite. The required `description` argument is the deterministic primary label; `missionCode` remains the executable child mission source.
 
 Sub-mission expansion rules:
 - the static parser stays single-file and never recursively analyzes imported files just because a sub-mission exists
@@ -238,6 +238,7 @@ Sub-mission expansion rules:
 
 Argument summarization rules:
 - capture literal strings, template literal heads, object keys, provider/model/tool identifiers, and obvious label-like fields
+- for `spawn(description, missionCode)`, use the required short `description` as the primary label before any identifier or LLM fallback
 - preserve whether an argument is literal, object, identifier, or opaque expression
 - never expand callback bodies or imported symbols
 - when the argument is complex, render a short structural summary like `object{id,props,options}` or `identifier: buildPrompt`
@@ -254,11 +255,11 @@ Use standard engineering shapes with meaning carried mostly by label, scale, typ
 - `start` / `end`: terminator
 - `process`, `mission-call`, `opaque-declaration`: process rectangle
 - `decision`: diamond
-- `loop`: process rectangle with a loop marker
+- `loop`: process rectangle with a loop marker inside the primary label composition
 - `concurrency`: fork/join bar
 - `error`: terminal/error shape
 - `comment`: annotation box
-- `spawn-boundary`: predefined-process / call-activity boundary
+- `spawn-boundary`: subprocess boundary with inline subprocess icon and type chip
 - `sub-mission-container`: expanded subprocess container with an explicit boundary, header, and child execution region
 
 Notation rules:
@@ -267,14 +268,14 @@ Notation rules:
 - color reinforces runtime state and priority, but never defines semantics on its own
 - markers refine a standard shape, but do not create a second competing shape vocabulary
 - the same semantic kind must never swap between alternate shapes across missions or rerenders
-- decorative glyphs and custom iconography do not belong on the primary execution canvas
+- decorative glyphs and custom iconography do not belong on the primary execution canvas; semantic Phosphor regular-weight icons are allowed inside primary station labels for Agent, Spawn, Review Gate, and Loop when they improve type recognition without becoming a separate shape vocabulary
 
 Comments are first-class annotations. They should sit off the main path and connect back to the owning node or edge with annotation edges. Keep inline edge labels short; move explanation into comment boxes.
 
 Sub-mission visualization rules:
-- `spawn()` is rendered as a higher-order boundary transition using standard subprocess semantics, not as a plain heavy node
+- `spawn(description, missionCode)` is rendered as a higher-order boundary transition using standard subprocess semantics, not as a plain heavy node
 - inline or hydrated child execution renders as an expanded subprocess container attached to the callsite
-- imported or persisted child execution without hydrated graph data renders first as a call-activity style boundary with a deferred child container placeholder
+- imported or persisted child execution without hydrated graph data renders first as a subprocess boundary with a deferred child container placeholder
 - the root mission renders directly on the graph canvas without container chrome
 - every non-root sub-mission renders with container chrome: boundary, header, child execution region, state/source chips, and entry port
 - hydrated sub-missions are open by default on desktop/tablet and participate directly in the composed layout, recursively
@@ -326,10 +327,10 @@ Layout rules:
 Static analysis only defines the initial shell of a sub-mission container. Runtime execution is authoritative for child execution instances.
 
 Rules:
-- a `spawn()` callsite always creates a stable container identity even before child runtime data exists
+- a `spawn(description, missionCode)` callsite always creates a stable container identity even before child runtime data exists
 - when runtime child graph data arrives, hydrate the container in place instead of replacing it with unrelated nodes
 - child executions must retain stable `callsiteId` and `executionId` values across rerenders so selections, animations, and inspect panels do not jump
-- runtime hydration may enrich a child from call-activity boundary to expanded subprocess container, but must not change the underlying semantic identity of the callsite
+- runtime hydration may enrich a child from subprocess boundary to expanded subprocess container, but must not change the underlying semantic identity of the callsite
 - runtime hydration renders recursively by default: if a hydrated child mission invokes another hydrated child mission, the descendant renders as a nested non-root container with chrome
 - if a persisted mission directly invokes multiple child missions, each child gets its own open non-root container when space permits
 - nested descendants are summarized only by explicit readability, repetition, or viewport collapse rules; depth alone is not a reason to hide hydrated data

@@ -12,7 +12,7 @@ Merlin is designed to:
 - Separate Architect work from run execution by splitting mission creation and editing from running the actual missions
 - Make it easier and safer for less experienced Engineers to produce high quality results by using pre-defined missions
 - Merlin can build its own missions by bootstrapping from the builtin Solo mode
-- Make it easy for the LLM to generate sub-missions safely and token efficiently (`spawn()`) with minimal hallucinations while enabling exact concurrency control for task dependencies
+- Make it easy for the LLM to generate sub-missions safely and token efficiently (`spawn(description, missionCode)`) with minimal hallucinations while enabling exact concurrency control for task dependencies
 - Avoid lost in the middle context rot due to explicit context passing between agent calls, with each call either continuing the current context or starting a new one intentionally
 
 **NOTE:** GoatDB is being co-developed to support Merlin's needs
@@ -29,7 +29,7 @@ Merlin is designed to:
 - Abstracts tool implementation details
 - Central registry for available tools
 - Builtin tools:
-	- `spawn(code)` - execute dynamic sub-mission in a new sandboxed isolate
+	- `spawn(description, missionCode)` - execute dynamic sub-mission in a new sandboxed isolate. `description` is required short human text and becomes the deterministic primary map label; `missionCode` remains the executable child mission source.
 		- **IMPORTANT:** `spawn` is not available within its own context. Only one level nesting is allowed. Limits max concurrently running sub-missions.
 - MCP host
 - Exposes predefined kits in addition to individual tools. These are sets of tools that can be easily referenced from missions and be shared across users
@@ -56,11 +56,14 @@ Merlin is designed to:
 	- Each call can either continue the current context or start a new context intentionally. This context lineage is runtime state and must be visible to the Control Room
 - `async run<ToolName>(toolInput:json): Promise<ToolOutput>`
 	- Merlin dynamically injects `run<tool name>` functions at runtime based on the available tools with JSDoc comments for usage instructions
-- `async spawn(missionCode:string): Promise<MissionResult>`
+- `async spawn(description:string, missionCode:string): Promise<MissionResult>`
+	- `description` is required, short human text for the subprocess task, and is the deterministic primary label for the Control Room graph
+	- The raw API metadata remains `spawn` for type chips and inspect surfaces
 - `async prompt(request:{id:string, props?:JsonObject, [key:string]:JsonValue}): Promise<UserInput>`
 	- `request` must be JSON-serializable so it can cross the mission/orchestrator boundary as-is
 	- `id` resolves through the runtime input registry to a React input view
 	- `props` carries view-specific parameters; additional JSON fields can carry behavior and configuration without changing the API shape
+	- User-facing map presentation is **Review Gate**. Inspect surfaces may still expose `API: prompt()`.
 
 ### Mission Sandbox
 Each mission execution is isolated in its own V8 isolate via Deno Workers with capability-based security. The isolate has zero direct access to the host — all interaction is mediated by the orchestrator through message passing.
@@ -100,7 +103,7 @@ Each mission execution is isolated in its own V8 isolate via Deno Workers with c
 ```
 
 - Isolation model: Each mission runs in a Deno `Worker` with `deno: { permissions: "none" }` — a dedicated V8 isolate with zero filesystem, network, env, subprocess, or FFI access
-- TypeScript compilation: Deno's built-in SWC type-stripping handles TS→JS automatically. Ad-hoc `spawn()` missions are loaded via `Blob` + `URL.createObjectURL()` — no filesystem write needed
+- TypeScript compilation: Deno's built-in SWC type-stripping handles TS→JS automatically. Ad-hoc `spawn(description, missionCode)` missions are loaded via `Blob` + `URL.createObjectURL()` — no filesystem write needed
 - Capability injection: The worker's global scope contains only the Mission API functions (`agent`, `run<ToolName>`, `spawn`, `prompt`). These are thin message-passing stubs that `postMessage` to the orchestrator and `await` the response
 - Security boundary: The orchestrator (main thread) mediates every capability request — validates method, enforces concurrency limits, routes tool calls through the Tool Catalog, tracks tokens/cost, updates GoatDB state
 - Import policy:
@@ -240,7 +243,7 @@ Visualization graph:
 	2. Research Md file
 	3. Validation approaches
 - Tools: ChunkHound, ArguSeek, grep, glob, list dir, read file, bash
-- Writes mission code for the actual execution then calls `spawn(code)`
+- Writes mission code for the actual execution then calls `spawn(description, missionCode)`
 
 ### Validate
 - Inputs:

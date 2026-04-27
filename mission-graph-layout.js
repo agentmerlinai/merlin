@@ -8,6 +8,8 @@ export function createMissionGraphFixture({
 
     const STATION_HPAD = G / 2;
     const STATION_HEIGHT = G;
+    const STATION_ICON_SIZE = G / 2;
+    const STATION_ICON_GAP = G / 8;
     const CHIP_PAD_X = G / 4;
     const CHIP_GAP = G / 2;
     const CONTAINER_HEADER_HEIGHT = G;
@@ -24,30 +26,36 @@ export function createMissionGraphFixture({
     const nodes = [
         { id: "start", label: "Start", role: "start", kind: "terminal", missionId: "root", lane: 0, fallbackLayer: 0 },
         { id: "loadConfig", label: "loadConfig", role: "process", kind: "station", missionId: "root", lane: 0, fallbackLayer: 1 },
-        { id: "env?", label: "env?", role: "decision", kind: "decision", missionId: "root", lane: 0, fallbackLayer: 2 },
-        { id: "Analyze", label: "Analyze", role: "mission", kind: "station", missionId: "root", lane: 0, fallbackLayer: 3 },
-        { id: "analysisMission", label: "analysisMission", role: "spawn", kind: "station", missionId: "root", lane: 0, fallbackLayer: 4 },
-        { id: "Gap Review", label: "Gap Review", role: "loop", kind: "station", missionId: "root", lane: 0, fallbackLayer: 6 },
-        { id: "Plan Fixes", label: "Plan Fixes", role: "mission", kind: "station", missionId: "root", lane: 0, fallbackLayer: 7 },
-        { id: "fixAgents", label: "fixAgents", role: "spawn", kind: "station", missionId: "root", lane: 0, fallbackLayer: 8 },
-        { id: "clean twice?", label: "clean twice?", role: "decision", kind: "decision", missionId: "root", lane: 0, fallbackLayer: 9 },
-        { id: "end", label: "End", role: "end", kind: "terminal", missionId: "root", lane: 0, fallbackLayer: 10 },
-        { id: "error", label: "Error", role: "error", kind: "terminal", missionId: "root", lane: 1, fallbackLayer: 2 },
+        { id: "pickEnvPrompt", label: "Pick Env", role: "prompt", kind: "station", missionId: "root", lane: 0, fallbackLayer: 2 },
+        { id: "env?", label: "env?", role: "decision", kind: "decision", missionId: "root", lane: 0, fallbackLayer: 3 },
+        { id: "Analyze", label: "Analyze", role: "mission", kind: "station", missionId: "root", lane: 0, fallbackLayer: 4 },
+        { id: "analysisMission", label: "Audit Dependencies", role: "spawn", kind: "station", missionId: "root", lane: 0, fallbackLayer: 5 },
+        { id: "Gap Review", label: "Gap Review", role: "loop", kind: "station", missionId: "root", lane: 0, fallbackLayer: 7 },
+        { id: "Plan Fixes", label: "Plan Fixes", role: "mission", kind: "station", missionId: "root", lane: 0, fallbackLayer: 8 },
+        { id: "approveFixPlanPrompt", label: "Approve Fix Plan", role: "prompt", kind: "station", missionId: "root", lane: 0, fallbackLayer: 9 },
+        { id: "fixAgents", label: "Run Fix Agents", role: "spawn", kind: "station", missionId: "root", lane: 0, fallbackLayer: 10 },
+        { id: "clean twice?", label: "clean twice?", role: "decision", kind: "decision", missionId: "root", lane: 0, fallbackLayer: 11 },
+        { id: "end", label: "End", role: "end", kind: "terminal", missionId: "root", lane: 0, fallbackLayer: 12 },
+        { id: "error", label: "Error", role: "error", kind: "terminal", missionId: "root", lane: 1, fallbackLayer: 3 },
         { id: "childStart", label: "Start", role: "child-start", kind: "terminal", missionId: "dependencyAudit", lane: 0, fallbackLayer: 0 },
-        { id: "fork", label: "fork", role: "fork", kind: "fork", missionId: "dependencyAudit", lane: 0, fallbackLayer: 1 },
-        { id: "research", label: "Research", role: "child-mission", kind: "child-mission", missionId: "dependencyAudit", lane: -1, fallbackLayer: 2 },
-        { id: "researchDeepDiveSpawn", label: "researchDeepDive", role: "spawn", kind: "station", missionId: "dependencyAudit", lane: -1, fallbackLayer: 3 },
-        { id: "synthesize", label: "Synthesize", role: "child-mission", kind: "child-mission", missionId: "dependencyAudit", lane: 1, fallbackLayer: 2 },
-        { id: "join", label: "join", role: "join", kind: "join", missionId: "dependencyAudit", lane: 0, fallbackLayer: 4 },
-        { id: "childEnd", label: "End", role: "child-end", kind: "terminal", missionId: "dependencyAudit", lane: 0, fallbackLayer: 5 },
+        { id: "auditScopePrompt", label: "Confirm Audit Scope", role: "prompt", kind: "station", missionId: "dependencyAudit", lane: 0, fallbackLayer: 1 },
+        { id: "fork", label: "fork", role: "fork", kind: "fork", missionId: "dependencyAudit", lane: 0, fallbackLayer: 2 },
+        { id: "research", label: "Research", role: "child-mission", kind: "child-mission", missionId: "dependencyAudit", lane: -1, fallbackLayer: 3 },
+        { id: "researchDeepDiveSpawn", label: "Deep Dive Research", role: "spawn", kind: "station", missionId: "dependencyAudit", lane: -1, fallbackLayer: 4 },
+        { id: "synthesize", label: "Synthesize", role: "child-mission", kind: "child-mission", missionId: "dependencyAudit", lane: 1, fallbackLayer: 3 },
+        { id: "join", label: "join", role: "join", kind: "join", missionId: "dependencyAudit", lane: 0, fallbackLayer: 5 },
+        { id: "childEnd", label: "End", role: "child-end", kind: "terminal", missionId: "dependencyAudit", lane: 0, fallbackLayer: 6 },
         { id: "deepStart", label: "Start", role: "child-start", kind: "terminal", missionId: "researchDeepDive", lane: 0, fallbackLayer: 0 },
         { id: "collectSignals", label: "Collect Signals", role: "mission", kind: "station", missionId: "researchDeepDive", lane: 0, fallbackLayer: 1 },
-        { id: "evidence?", label: "evidence?", role: "decision", kind: "decision", missionId: "researchDeepDive", lane: 0, fallbackLayer: 2 },
-        { id: "deepEnd", label: "End", role: "child-end", kind: "terminal", missionId: "researchDeepDive", lane: 0, fallbackLayer: 3 },
+        { id: "reviewEvidencePrompt", label: "Review Evidence", role: "prompt", kind: "station", missionId: "researchDeepDive", lane: 0, fallbackLayer: 2 },
+        { id: "evidence?", label: "evidence?", role: "decision", kind: "decision", missionId: "researchDeepDive", lane: 0, fallbackLayer: 3 },
+        { id: "deepEnd", label: "End", role: "child-end", kind: "terminal", missionId: "researchDeepDive", lane: 0, fallbackLayer: 4 },
     ].map((node) => measureNode(node, {
         G,
         STATION_HPAD,
         STATION_HEIGHT,
+        STATION_ICON_SIZE,
+        STATION_ICON_GAP,
         measureTextWidth,
     }));
 
@@ -98,18 +106,21 @@ export function createMissionGraphFixture({
 
     const edges = [
         { id: "edge.start.loadConfig", type: "seq", missionId: "root", sourcePort: "start.e", targetPort: "loadConfig.w" },
-        { id: "edge.loadConfig.env", type: "seq", missionId: "root", sourcePort: "loadConfig.e", targetPort: "env?.w" },
+        { id: "edge.loadConfig.pickEnvPrompt", type: "seq", missionId: "root", sourcePort: "loadConfig.e", targetPort: "pickEnvPrompt.w" },
+        { id: "edge.pickEnvPrompt.env", type: "seq", missionId: "root", sourcePort: "pickEnvPrompt.e", targetPort: "env?.w" },
         { id: "edge.env.analyze.true", type: "branch", missionId: "root", sourcePort: "env?.e", targetPort: "Analyze.w", label: "true", labelPlacement: "above" },
         { id: "edge.env.error.false", type: "branch", missionId: "root", sourcePort: "env?.s.false", targetPort: "error.n", label: "false", labelPlacement: "left" },
         { id: "edge.analyze.analysisMission", type: "seq", missionId: "root", sourcePort: "Analyze.e", targetPort: "analysisMission.w" },
         { id: "edge.analysisMission.dependencyAudit", type: "spawn", missionId: "root", sourcePort: "analysisMission.s.spawn", targetPort: container.inputPort },
         { id: "edge.analysisMission.gapReview", type: "seq", missionId: "root", sourcePort: "analysisMission.e", targetPort: "Gap Review.w" },
         { id: "edge.gapReview.planFixes", type: "seq", missionId: "root", sourcePort: "Gap Review.e", targetPort: "Plan Fixes.w" },
-        { id: "edge.planFixes.fixAgents", type: "seq", missionId: "root", sourcePort: "Plan Fixes.e", targetPort: "fixAgents.w" },
+        { id: "edge.planFixes.approveFixPlanPrompt", type: "seq", missionId: "root", sourcePort: "Plan Fixes.e", targetPort: "approveFixPlanPrompt.w" },
+        { id: "edge.approveFixPlanPrompt.fixAgents", type: "seq", missionId: "root", sourcePort: "approveFixPlanPrompt.e", targetPort: "fixAgents.w" },
         { id: "edge.fixAgents.cleanReview", type: "seq", missionId: "root", sourcePort: "fixAgents.e", targetPort: "clean twice?.w" },
         { id: "edge.cleanReview.end.true", type: "branch", missionId: "root", sourcePort: "clean twice?.e", targetPort: "end.w", label: "true", labelPlacement: "above" },
         { id: "edge.cleanReview.gapReview.false", type: "loop", missionId: "root", sourcePort: "clean twice?.n.loop", targetPort: "Gap Review.n.loop", label: "false", labelPlacement: "above" },
-        { id: "edge.childStart.fork", type: "seq", missionId: "dependencyAudit", sourcePort: "childStart.e", targetPort: "fork.w" },
+        { id: "edge.childStart.auditScopePrompt", type: "seq", missionId: "dependencyAudit", sourcePort: "childStart.e", targetPort: "auditScopePrompt.w" },
+        { id: "edge.auditScopePrompt.fork", type: "seq", missionId: "dependencyAudit", sourcePort: "auditScopePrompt.e", targetPort: "fork.w" },
         { id: "edge.fork.research", type: "seq", missionId: "dependencyAudit", sourcePort: "fork.e.research", targetPort: "research.w" },
         { id: "edge.fork.synthesize", type: "seq", missionId: "dependencyAudit", sourcePort: "fork.e.synthesize", targetPort: "synthesize.w" },
         { id: "edge.research.spawnDeepDive", type: "seq", missionId: "dependencyAudit", sourcePort: "research.e", targetPort: "researchDeepDiveSpawn.w" },
@@ -118,7 +129,8 @@ export function createMissionGraphFixture({
         { id: "edge.synthesize.join", type: "seq", missionId: "dependencyAudit", sourcePort: "synthesize.e", targetPort: "join.w.synthesize" },
         { id: "edge.join.childEnd", type: "seq", missionId: "dependencyAudit", sourcePort: "join.e", targetPort: "childEnd.w" },
         { id: "edge.deepStart.collectSignals", type: "seq", missionId: "researchDeepDive", sourcePort: "deepStart.e", targetPort: "collectSignals.w" },
-        { id: "edge.collectSignals.evidence", type: "seq", missionId: "researchDeepDive", sourcePort: "collectSignals.e", targetPort: "evidence?.w" },
+        { id: "edge.collectSignals.reviewEvidencePrompt", type: "seq", missionId: "researchDeepDive", sourcePort: "collectSignals.e", targetPort: "reviewEvidencePrompt.w" },
+        { id: "edge.reviewEvidencePrompt.evidence", type: "seq", missionId: "researchDeepDive", sourcePort: "reviewEvidencePrompt.e", targetPort: "evidence?.w" },
         { id: "edge.evidence.deepEnd", type: "branch", missionId: "researchDeepDive", sourcePort: "evidence?.e", targetPort: "deepEnd.w", label: "true", labelPlacement: "above" },
     ];
 
@@ -127,6 +139,10 @@ export function createMissionGraphFixture({
         { id: "anno.analysisMission", ownerId: "analysisMission", lines: ["inline code ·", "dual-agent run"], side: "above" },
         { id: "anno.gapReview", ownerId: "Gap Review", lines: ["Final report gap analysis", "odd Claude · even GPT"], side: "below" },
         { id: "anno.planFixes", ownerId: "Plan Fixes", lines: ["Plan fixes for major gaps"], side: "above" },
+        { id: "anno.pickEnvPrompt", ownerId: "pickEnvPrompt", lines: ["Choose target environment", "before analysis starts"], side: "above" },
+        { id: "anno.approveFixPlanPrompt", ownerId: "approveFixPlanPrompt", lines: ["Review proposed fixes", "before agents edit files"], side: "above" },
+        { id: "anno.auditScopePrompt", ownerId: "auditScopePrompt", lines: ["Confirm package scope", "before parallel audit"], side: "above" },
+        { id: "anno.reviewEvidencePrompt", ownerId: "reviewEvidencePrompt", lines: ["Check evidence quality", "before final synthesis"], side: "above" },
         { id: "anno.fixAgents", ownerId: "fixAgents", lines: ["Spawn focused fix agents"], side: "below" },
         { id: "anno.synthesize", ownerId: "synthesize", lines: ["Compile findings · MD report"], side: "below" },
         { id: "anno.collectSignals", ownerId: "collectSignals", lines: ["Nested hydrated mission"], side: "below" },
@@ -150,6 +166,8 @@ export function createMissionGraphFixture({
         childLaneGap: CHILD_LANE_GAP,
         labelGap: LABEL_GAP,
         stationPadding: STATION_HPAD,
+        stationIconSize: STATION_ICON_SIZE,
+        stationIconGap: STATION_ICON_GAP,
         chipPadX: CHIP_PAD_X,
         chipGap: CHIP_GAP,
         container,
@@ -301,7 +319,7 @@ export function validateMissionGraphGeometry(fixture, geometry) {
     for (const node of fixture.nodes) {
         if (node.kind === "station") {
             const expected = snapUp(
-                node.labelWidth + fixture.stationPadding * 2,
+                (node.labelContentWidth ?? node.labelWidth) + fixture.stationPadding * 2,
                 fixture.stationWidthGrid,
             );
             if (node.width !== expected) {
@@ -498,8 +516,9 @@ export function validateMissionGraphGeometry(fixture, geometry) {
     return failures;
 }
 
-function measureNode(node, { G, STATION_HPAD, STATION_HEIGHT, measureTextWidth }) {
+function measureNode(node, { G, STATION_HPAD, STATION_HEIGHT, STATION_ICON_SIZE, STATION_ICON_GAP, measureTextWidth }) {
     const labelWidth = measureTextWidth(node.label, labelClass(node));
+    const labelContentWidth = labelWidth + labelIconWidth(node, STATION_ICON_SIZE, STATION_ICON_GAP);
     if (node.kind === "terminal") {
         return { ...node, labelWidth, width: 2 * G, height: G };
     }
@@ -516,9 +535,17 @@ function measureNode(node, { G, STATION_HPAD, STATION_HEIGHT, measureTextWidth }
     return {
         ...node,
         labelWidth,
-        width: snapUp(labelWidth + STATION_HPAD * 2, 2 * G),
+        labelContentWidth,
+        width: snapUp(labelContentWidth + STATION_HPAD * 2, 2 * G),
         height: STATION_HEIGHT,
     };
+}
+
+function labelIconWidth(node, iconSize, iconGap) {
+    if (node.role === "mission" || node.role === "child-mission" || node.role === "spawn" || node.role === "prompt" || node.role === "loop") {
+        return iconSize + iconGap;
+    }
+    return 0;
 }
 
 function labelClass(node) {
@@ -1608,7 +1635,6 @@ function withBounds(box, fixture) {
         textX: x + box.width / 2,
         chipX: x + box.width - fixture.G - fixture.G / 4,
         chipY: y - fixture.G / 4,
-        markerX: x + fixture.G / 4,
     };
 }
 

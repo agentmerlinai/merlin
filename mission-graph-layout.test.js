@@ -394,7 +394,40 @@ describe("mission graph geometry", () => {
         );
         assert.deepEqual(
             nodesInMission(fixture, "researchDeepDive").map((node) => node.id),
-            ["deepStart", "collectSignals", "evidence?", "deepEnd"],
+            ["deepStart", "collectSignals", "reviewEvidencePrompt", "evidence?", "deepEnd"],
+        );
+    });
+
+    it("models prompt calls as first-class station nodes in each mission scope", () => {
+        const fixture = createMissionGraphFixture({ measureTextWidth });
+        const promptNodesByMission = (missionId) =>
+            nodesInMission(fixture, missionId)
+                .filter((node) => node.role === "prompt")
+                .map((node) => ({ id: node.id, label: node.label, kind: node.kind }));
+
+        assert.deepEqual(promptNodesByMission("root"), [
+            { id: "pickEnvPrompt", label: "Pick Env", kind: "station" },
+            { id: "approveFixPlanPrompt", label: "Approve Fix Plan", kind: "station" },
+        ]);
+        assert.deepEqual(promptNodesByMission("dependencyAudit"), [
+            { id: "auditScopePrompt", label: "Confirm Audit Scope", kind: "station" },
+        ]);
+        assert.deepEqual(promptNodesByMission("researchDeepDive"), [
+            { id: "reviewEvidencePrompt", label: "Review Evidence", kind: "station" },
+        ]);
+    });
+
+    it("uses human task labels for spawn stations", () => {
+        const fixture = createMissionGraphFixture({ measureTextWidth });
+        assert.deepEqual(
+            fixture.nodes
+                .filter((node) => node.role === "spawn")
+                .map((node) => ({ id: node.id, label: node.label })),
+            [
+                { id: "analysisMission", label: "Audit Dependencies" },
+                { id: "fixAgents", label: "Run Fix Agents" },
+                { id: "researchDeepDiveSpawn", label: "Deep Dive Research" },
+            ],
         );
     });
 
@@ -429,11 +462,20 @@ describe("mission graph geometry", () => {
 
         assert.deepEqual(
             rootContainer.children.map((child) => child.id),
-            ["childStart", "fork", "research", "researchDeepDiveSpawn", "synthesize", "join", "childEnd"],
+            [
+                "childStart",
+                "auditScopePrompt",
+                "fork",
+                "research",
+                "researchDeepDiveSpawn",
+                "synthesize",
+                "join",
+                "childEnd",
+            ],
         );
         assert.deepEqual(
             nestedContainer.children.map((child) => child.id),
-            ["deepStart", "collectSignals", "evidence?", "deepEnd"],
+            ["deepStart", "collectSignals", "reviewEvidencePrompt", "evidence?", "deepEnd"],
         );
         assert.equal(rootContainer.children.includes(nestedContainer), false);
         assert.equal(elkGraph.children.includes(nestedContainer), true);
@@ -646,8 +688,9 @@ describe("mission graph geometry", () => {
     it("keeps node sizing tied to semantic labels and Merlin grid snapping", async () => {
         const { fixture, geometry } = await buildGeometry();
         for (const node of fixture.nodes.filter((candidate) => candidate.kind === "station")) {
+            const labelContentWidth = node.labelContentWidth ?? node.labelWidth;
             const expected = Math.ceil(
-                (node.labelWidth + fixture.stationPadding * 2) / fixture.stationWidthGrid,
+                (labelContentWidth + fixture.stationPadding * 2) / fixture.stationWidthGrid,
             ) * fixture.stationWidthGrid;
             assert.equal(node.width, expected, node.id);
             const rendered = geometry.nodes[node.id];
@@ -677,11 +720,13 @@ describe("mission graph geometry", () => {
         const { fixture, geometry } = await buildGeometry();
         const unobstructedEdges = [
             "edge.start.loadConfig",
-            "edge.loadConfig.env",
+            "edge.loadConfig.pickEnvPrompt",
+            "edge.pickEnvPrompt.env",
             "edge.env.analyze.true",
             "edge.analyze.analysisMission",
             "edge.gapReview.planFixes",
-            "edge.planFixes.fixAgents",
+            "edge.planFixes.approveFixPlanPrompt",
+            "edge.approveFixPlanPrompt.fixAgents",
             "edge.fixAgents.cleanReview",
             "edge.cleanReview.end.true",
         ];

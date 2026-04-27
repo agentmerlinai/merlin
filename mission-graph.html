@@ -493,6 +493,17 @@
                 stroke-width: 1.5;
                 fill: none;
             }
+            .graph-svg .node-icon {
+                color: var(--graph-stroke);
+                fill: currentColor;
+            }
+            .graph-svg .node-review-gate {
+                stroke: var(--color-accent);
+                stroke-width: 2.5;
+            }
+            .graph-svg .node-loop {
+                stroke-dasharray: 6, 3;
+            }
             .graph-svg .node-label {
                 fill: var(--text-primary);
                 font-family: var(--font-caption);
@@ -705,6 +716,18 @@
                         fill="var(--graph-stroke)"
                     />
                 </marker>
+                <symbol id="ph-user" viewBox="0 0 256 256">
+                    <path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z" />
+                </symbol>
+                <symbol id="ph-git-branch" viewBox="0 0 256 256">
+                    <path d="M224,64a32,32,0,1,0-40,31v17a24,24,0,0,1-24,24H96V95a32,32,0,1,0-16,0v66a32,32,0,1,0,16,0v-9h64a40,40,0,0,0,40-40V95A32.06,32.06,0,0,0,224,64ZM88,48A16,16,0,1,1,72,64,16,16,0,0,1,88,48Zm0,160a16,16,0,1,1,16-16A16,16,0,0,1,88,208ZM200,80a16,16,0,1,1,16-16A16,16,0,0,1,200,80Z" />
+                </symbol>
+                <symbol id="ph-list-checks" viewBox="0 0 256 256">
+                    <path d="M224,128a8,8,0,0,1-8,8H128a8,8,0,0,1,0-16h88A8,8,0,0,1,224,128ZM128,72h88a8,8,0,0,0,0-16H128a8,8,0,0,0,0,16Zm88,112H128a8,8,0,0,0,0,16h88a8,8,0,0,0,0-16ZM82.34,42.34,56,68.69,45.66,58.34A8,8,0,0,0,34.34,69.66l16,16a8,8,0,0,0,11.32,0l32-32A8,8,0,0,0,82.34,42.34Zm0,64L56,132.69,45.66,122.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32,0l32-32a8,8,0,0,0-11.32-11.32Zm0,64L56,196.69,45.66,186.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32,0l32-32a8,8,0,0,0-11.32-11.32Z" />
+                </symbol>
+                <symbol id="ph-arrow-clockwise" viewBox="0 0 256 256">
+                    <path d="M232,56v48a8,8,0,0,1-8,8H176a8,8,0,0,1,0-16h28.69L182.63,73.94A79.56,79.56,0,1,0,208,132a8,8,0,0,1,16,0,95.56,95.56,0,1,1-29.6-69.25L216,84.69V56a8,8,0,0,1,16,0Z" />
+                </symbol>
             </defs>
         </svg>
 
@@ -728,8 +751,8 @@
                 L-shaped or Z-shaped (H/V path commands only — no 45° diagonals).
                 Primary labels are sourced deterministically: string literal
                 first argument (e.g.
-                <code>agent("Analyze", …)</code>) or the identifier name of the
-                spawned argument — no LLM needed for these. LLM synthesizes the
+                <code>agent("Analyze", …)</code>) or the required description in
+                <code>spawn("Audit dependencies", missionCode)</code> — no LLM needed for these. LLM synthesizes the
                 intent annotation below each node only when no
                 <code>//</code> comment is present; graph annotations use a
                 readable annotation token stronger than
@@ -823,7 +846,36 @@
                                 rx="1"
                             />
                         </svg>
-                        Mission Call
+                        Agent
+                    </div>
+                    <div class="legend-item">
+                        <svg
+                            class="graph-svg"
+                            width="32"
+                            height="18"
+                            viewBox="0 0 32 18"
+                        >
+                            <rect
+                                class="node-bg node-review-gate"
+                                x="1"
+                                y="3"
+                                width="30"
+                                height="12"
+                                rx="2"
+                            />
+                            <svg
+                                class="node-icon"
+                                x="11"
+                                y="4"
+                                width="10"
+                                height="10"
+                                viewBox="0 0 256 256"
+                                aria-hidden="true"
+                            >
+                                <use href="#ph-list-checks"></use>
+                            </svg>
+                        </svg>
+                        Review Gate
                     </div>
                     <div class="legend-item">
                         <svg
@@ -840,20 +892,17 @@
                                 height="12"
                                 rx="2"
                             />
-                            <line
-                                class="spawn-marker"
-                                x1="7"
-                                y1="4"
-                                x2="7"
-                                y2="14"
-                            />
-                            <line
-                                class="spawn-marker"
-                                x1="14"
-                                y1="4"
-                                x2="14"
-                                y2="14"
-                            />
+                            <svg
+                                class="node-icon"
+                                x="11"
+                                y="4"
+                                width="10"
+                                height="10"
+                                viewBox="0 0 256 256"
+                                aria-hidden="true"
+                            >
+                                <use href="#ph-git-branch"></use>
+                            </svg>
                         </svg>
                         Spawn Boundary
                     </div>
@@ -1041,9 +1090,20 @@
                         >
                             agent
                         </text>
+                        <svg
+                            class="node-icon"
+                            x="30"
+                            y="22"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 256 256"
+                            aria-hidden="true"
+                        >
+                            <use href="#ph-user"></use>
+                        </svg>
                         <text
                             class="node-label"
-                            x="60"
+                            x="72"
                             y="30"
                             text-anchor="middle"
                             dominant-baseline="central"
@@ -1067,9 +1127,9 @@
                             <tspan x="60" dy="12">authored comment</tspan>
                         </text>
                     </svg>
-                    <div class="shape-name">mission-call</div>
+                    <div class="shape-name">agent</div>
                     <div class="shape-note">
-                        Bold-stroke rect + type chip (top-right).
+                        Bold-stroke rect + inline agent icon + type chip (top-right).
                         <strong>Primary label</strong>: string literal first
                         argument (deterministic), or LLM when the argument is
                         opaque (MArgon 11px).
@@ -1080,6 +1140,68 @@
                         use readable graph annotation text. The annotation is
                         unconstrained by node width and can show a full comment
                         paragraph.
+                    </div>
+                </div>
+
+                <!-- review-gate -->
+                <div class="shape-card">
+                    <svg
+                        class="graph-svg"
+                        width="120"
+                        height="100"
+                        viewBox="0 0 120 100"
+                    >
+                        <rect
+                            class="node-bg node-review-gate"
+                            x="10"
+                            y="37"
+                            width="100"
+                            height="26"
+                            rx="4"
+                        />
+                        <rect
+                            class="chip-bg"
+                            x="78"
+                            y="30"
+                            width="26"
+                            height="12"
+                            rx="2"
+                        />
+                        <text
+                            class="chip-text"
+                            x="91"
+                            y="36"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                        >
+                            gate
+                        </text>
+                        <svg
+                            class="node-icon"
+                            x="21"
+                            y="42"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 256 256"
+                            aria-hidden="true"
+                        >
+                            <use href="#ph-list-checks"></use>
+                        </svg>
+                        <text
+                            class="node-label"
+                            x="68"
+                            y="50"
+                            text-anchor="middle"
+                            dominant-baseline="central"
+                        >
+                            Approve Plan
+                        </text>
+                    </svg>
+                    <div class="shape-name">review gate</div>
+                    <div class="shape-note">
+                        Human checkpoint station backed by <code>prompt()</code>.
+                        User-facing graph text says Review Gate; inspect can
+                        still show <code>API: prompt()</code>.
                     </div>
                 </div>
 
@@ -1162,31 +1284,31 @@
                             height="26"
                             rx="4"
                         />
+                        <svg
+                            class="node-icon"
+                            x="34"
+                            y="42"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 256 256"
+                            aria-hidden="true"
+                        >
+                            <use href="#ph-arrow-clockwise"></use>
+                        </svg>
                         <text
                             class="node-label"
-                            x="52"
+                            x="70"
                             y="50"
                             text-anchor="middle"
                             dominant-baseline="central"
                         >
                             forEach
                         </text>
-                        <text
-                            x="93"
-                            y="60"
-                            text-anchor="middle"
-                            dominant-baseline="central"
-                            fill="var(--graph-stroke)"
-                            font-size="14"
-                        >
-                            ↺
-                        </text>
                     </svg>
                     <div class="shape-name">loop</div>
                     <div class="shape-note">
-                        Process rect + ↺ marker (bottom-right).
-                        for/while/do-while. Loop-back edge routes above the node
-                        row.
+                        Process rect + inline loop icon. for/while/do-while.
+                        Loop-back edge routes above the node row.
                     </div>
                 </div>
 
@@ -1278,20 +1400,6 @@
                             height="40"
                             rx="4"
                         />
-                        <line
-                            class="spawn-marker"
-                            x1="22"
-                            y1="58"
-                            x2="22"
-                            y2="94"
-                        />
-                        <line
-                            class="spawn-marker"
-                            x1="29"
-                            y1="58"
-                            x2="29"
-                            y2="94"
-                        />
                         <rect
                             class="chip-bg"
                             x="74"
@@ -1309,14 +1417,25 @@
                         >
                             spawn
                         </text>
+                        <svg
+                            class="node-icon"
+                            x="34"
+                            y="68"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 256 256"
+                            aria-hidden="true"
+                        >
+                            <use href="#ph-git-branch"></use>
+                        </svg>
                         <text
                             class="node-label"
-                            x="70"
+                            x="76"
                             y="76"
                             text-anchor="middle"
                             dominant-baseline="central"
                         >
-                            Child Mission
+                            Audit Deps
                         </text>
                         <!-- Comment annotation — TOP -->
                         <line
@@ -1333,11 +1452,11 @@
                     </svg>
                     <div class="shape-name">spawn-boundary</div>
                     <div class="shape-note">
-                        Rect + double-bar markers (BPMN call-activity).
-                        <strong>Primary label</strong>: identifier name of the
-                        spawned mission argument or
-                        <code>options.id</code> (deterministic), or LLM fallback
-                        for opaque call sites.
+                        Rect + inline subprocess icon + type chip.
+                        <strong>Primary label</strong>: required
+                        <code>spawn(description, missionCode)</code> description
+                        (deterministic), or LLM fallback for opaque inferred call
+                        sites.
                         <strong>Comment annotation</strong>: attached above the
                         node via a short dashed stub (placed above when a child
                         container expands below) — the author's
@@ -1575,7 +1694,8 @@
                 deterministic priority chain: a <code>//</code> or
                 <code>/** */</code> comment above the call wins first; then a
                 string literal first argument (e.g.
-                <code>agent("Analyze", …)</code>); then
+                <code>agent("Analyze", …)</code>); then the required
+                <code>spawn(description, missionCode)</code> description; then
                 <code>options.id</code> / <code>.label</code> /
                 <code>.name</code>; then the identifier name of a code/mission
                 argument (camelCase-split); and finally LLM synthesis only when
@@ -1586,7 +1706,10 @@
                 no comment exists. LLM results are cached per mission content
                 hash; zero LLM overhead at render time. The annotation is not
                 constrained by node width — it extends into the available space
-                below the node and wraps naturally.
+                below the node and wraps naturally. Agent, Spawn, Review Gate,
+                and Loop labels may include a semantic Phosphor icon inside the
+                label group; the icon is hidden from accessibility names when
+                the adjacent text already carries the meaning.
             </div>
 
             <table
@@ -2133,7 +2256,7 @@
                                     font-weight: 700;
                                     color: var(--on-primary);
                                 "
-                                >prompt</span
+                                >gate</span
                             >
                         </span>
                     </div>
@@ -2297,22 +2420,42 @@
 
             function renderLoop(node, G) {
                 return (
-                    renderProcess(node) +
-                    `<text x="${node.right - G / 8}" y="${node.y + (7 * G) / 8}" text-anchor="middle" dominant-baseline="central" fill="var(--graph-stroke)" font-size="14">↺</text>`
+                    `<rect class="node-bg node-primary node-loop" x="${node.x}" y="${node.y}" width="${node.width}" height="${node.height}" rx="4"/>` +
+                    renderNodeLabel(node, G, "ph-arrow-clockwise")
+                );
+            }
+
+            function roleIconId(node) {
+                if (node.role === "spawn") return "ph-git-branch";
+                if (node.role === "prompt") return "ph-list-checks";
+                if (node.role === "loop") return "ph-arrow-clockwise";
+                return "ph-user";
+            }
+
+            function renderNodeLabel(node, G, iconId) {
+                if (!iconId) {
+                    return `<text class="node-label" x="${node.cx}" y="${node.cy}" text-anchor="middle" dominant-baseline="central">${node.label}</text>`;
+                }
+                const iconSize = G / 2;
+                const gap = G / 8;
+                const contentWidth = (node.labelWidth || 0) + iconSize + gap;
+                const iconX = node.cx - contentWidth / 2;
+                const iconY = node.cy - iconSize / 2;
+                const textX = iconX + iconSize + gap + (node.labelWidth || 0) / 2;
+                return (
+                    `<svg class="node-icon" x="${iconX}" y="${iconY}" width="${iconSize}" height="${iconSize}" viewBox="0 0 256 256" aria-hidden="true" focusable="false">` +
+                    `<use href="#${iconId}"></use>` +
+                    `</svg>` +
+                    `<text class="node-label" x="${textX}" y="${node.cy}" text-anchor="middle" dominant-baseline="central">${node.label}</text>`
                 );
             }
 
             function renderMission(node, G, chipText) {
-                const spawnMarker =
-                    chipText === "spawn"
-                        ? `<line class="spawn-marker" x1="${node.markerX}" y1="${node.y + 2}" x2="${node.markerX}" y2="${node.y + G - 2}"/>` +
-                          `<line class="spawn-marker" x1="${node.markerX + G / 4}" y1="${node.y + 2}" x2="${node.markerX + G / 4}" y2="${node.y + G - 2}"/>`
-                        : "";
+                const nodeClass = node.role === "prompt" ? "node-review-gate" : "node-primary-bold";
                 return (
-                    `<rect class="node-bg node-primary-bold" x="${node.x}" y="${node.y}" width="${node.width}" height="${node.height}" rx="4"/>` +
-                    spawnMarker +
+                    `<rect class="node-bg ${nodeClass}" x="${node.x}" y="${node.y}" width="${node.width}" height="${node.height}" rx="4"/>` +
                     chipEl(node.chipX, node.chipY, chipText, G) +
-                    `<text class="node-label" x="${node.cx}" y="${node.cy}" text-anchor="middle" dominant-baseline="central">${node.label}</text>`
+                    renderNodeLabel(node, G, roleIconId(node))
                 );
             }
 
@@ -2371,6 +2514,9 @@
                 }
                 if (node.role === "spawn") {
                     return renderMission(node, G, "spawn");
+                }
+                if (node.role === "prompt") {
+                    return renderMission(node, G, "gate");
                 }
                 if (node.role === "mission" || node.role === "child-mission") {
                     return renderMission(node, G, "agent");
