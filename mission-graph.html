@@ -250,8 +250,21 @@
                 border: 1px solid var(--border-default);
                 border-radius: var(--radius-xl);
                 padding: var(--space-6);
+            }
+            .map-chrome {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: var(--space-gap-lg);
+                margin-bottom: var(--space-4);
+            }
+            .map-grid-scroll {
+                height: clamp(320px, 48vh, 540px);
                 overflow: auto;
                 scroll-padding-inline: var(--space-6);
+                border: 1px solid var(--border-muted);
+                border-radius: var(--radius-lg);
+                background: var(--bg-muted);
             }
             .metro-map {
                 width: 1312px;
@@ -344,8 +357,8 @@
             .map-legend {
                 display: flex;
                 gap: var(--space-gap-lg);
-                margin-top: var(--space-4);
                 flex-wrap: wrap;
+                flex: 1;
             }
             .legend-item {
                 display: flex;
@@ -367,6 +380,31 @@
                 background: transparent;
                 border: 1.5px solid currentColor;
             }
+            .map-controls {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                flex-shrink: 0;
+                border: 1px solid var(--border-default);
+                border-radius: var(--radius-md);
+                padding: 3px;
+            }
+            .map-control-button {
+                min-width: 46px;
+                border: 0;
+                border-radius: var(--radius-sm);
+                padding: 5px 9px;
+                background: transparent;
+                color: var(--text-secondary);
+                cursor: pointer;
+                font-family: var(--font-heading);
+                font-size: 11px;
+                font-weight: 700;
+            }
+            .map-control-button[aria-pressed="true"] {
+                background: var(--color-primary);
+                color: var(--on-primary);
+            }
 
             .state-row-title {
                 font-family: var(--font-caption);
@@ -378,6 +416,24 @@
             }
 
             @media (max-width: 640px) {
+                .map-chrome {
+                    flex-direction: column;
+                }
+                .map-legend {
+                    width: 100%;
+                    flex-wrap: nowrap;
+                    overflow-x: auto;
+                    padding-bottom: 4px;
+                }
+                .legend-item {
+                    flex: 0 0 auto;
+                }
+                .map-controls {
+                    width: 100%;
+                }
+                .map-control-button {
+                    flex: 1;
+                }
                 .shape-grid {
                     grid-template-columns: 1fr;
                 }
@@ -762,221 +818,242 @@
             </div>
 
             <div class="map-wrap">
-                <svg
-                    class="metro-map graph-svg"
-                    data-renderer="shared-layout"
-                    viewBox="0 0 1312 480"
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-label="Merlin Mission Graph Demo"
-                ></svg>
-
-                <!-- Legend strip -->
-                <div class="map-legend">
-                    <div class="legend-item">
-                        <svg
-                            class="graph-svg"
-                            width="28"
-                            height="18"
-                            viewBox="0 0 28 18"
-                        >
-                            <rect
-                                class="terminal-node"
-                                x="1"
-                                y="2"
-                                width="26"
-                                height="14"
-                                rx="7"
-                            />
-                        </svg>
-                        Start / End
-                    </div>
-                    <div class="legend-item">
-                        <svg
-                            class="graph-svg"
-                            width="28"
-                            height="18"
-                            viewBox="0 0 28 18"
-                        >
-                            <rect
-                                class="node-bg node-primary"
-                                x="1"
-                                y="3"
-                                width="26"
-                                height="12"
-                                rx="4"
-                            />
-                        </svg>
-                        Process
-                    </div>
-                    <div class="legend-item">
-                        <svg
-                            class="graph-svg"
-                            width="28"
-                            height="18"
-                            viewBox="0 0 28 18"
-                        >
-                            <polygon
-                                class="node-bg node-primary"
-                                points="14,1 27,9 14,17 1,9"
-                            />
-                        </svg>
-                        Decision
-                    </div>
-                    <div class="legend-item">
-                        <svg
-                            class="graph-svg"
-                            width="32"
-                            height="18"
-                            viewBox="0 0 32 18"
-                        >
-                            <rect
-                                class="node-bg node-primary-bold"
-                                x="1"
-                                y="3"
-                                width="30"
-                                height="12"
-                                rx="2"
-                            />
-                            <rect
-                                class="chip-bg"
-                                x="19"
-                                y="0"
-                                width="12"
-                                height="8"
-                                rx="1"
-                            />
-                        </svg>
-                        Agent
-                    </div>
-                    <div class="legend-item">
-                        <svg
-                            class="graph-svg"
-                            width="32"
-                            height="18"
-                            viewBox="0 0 32 18"
-                        >
-                            <rect
-                                class="node-bg node-review-gate"
-                                x="1"
-                                y="3"
-                                width="30"
-                                height="12"
-                                rx="2"
-                            />
+                <div class="map-chrome">
+                    <!-- Legend strip -->
+                    <div class="map-legend">
+                        <div class="legend-item">
                             <svg
-                                class="node-icon"
-                                x="11"
-                                y="4"
-                                width="10"
-                                height="10"
-                                viewBox="0 0 256 256"
-                                aria-hidden="true"
+                                class="graph-svg"
+                                width="28"
+                                height="18"
+                                viewBox="0 0 28 18"
                             >
-                                <use href="#ph-list-checks"></use>
+                                <rect
+                                    class="terminal-node"
+                                    x="1"
+                                    y="2"
+                                    width="26"
+                                    height="14"
+                                    rx="7"
+                                />
                             </svg>
-                        </svg>
-                        Review Gate
-                    </div>
-                    <div class="legend-item">
-                        <svg
-                            class="graph-svg"
-                            width="32"
-                            height="18"
-                            viewBox="0 0 32 18"
-                        >
-                            <rect
-                                class="node-bg node-primary"
-                                x="1"
-                                y="3"
-                                width="30"
-                                height="12"
-                                rx="2"
-                            />
+                            Start / End
+                        </div>
+                        <div class="legend-item">
                             <svg
-                                class="node-icon"
-                                x="11"
-                                y="4"
-                                width="10"
-                                height="10"
-                                viewBox="0 0 256 256"
-                                aria-hidden="true"
+                                class="graph-svg"
+                                width="28"
+                                height="18"
+                                viewBox="0 0 28 18"
                             >
-                                <use href="#ph-git-branch"></use>
+                                <rect
+                                    class="node-bg node-primary"
+                                    x="1"
+                                    y="3"
+                                    width="26"
+                                    height="12"
+                                    rx="4"
+                                />
                             </svg>
-                        </svg>
-                        Spawn Boundary
+                            Process
+                        </div>
+                        <div class="legend-item">
+                            <svg
+                                class="graph-svg"
+                                width="28"
+                                height="18"
+                                viewBox="0 0 28 18"
+                            >
+                                <polygon
+                                    class="node-bg node-primary"
+                                    points="14,1 27,9 14,17 1,9"
+                                />
+                            </svg>
+                            Decision
+                        </div>
+                        <div class="legend-item">
+                            <svg
+                                class="graph-svg"
+                                width="32"
+                                height="18"
+                                viewBox="0 0 32 18"
+                            >
+                                <rect
+                                    class="node-bg node-primary-bold"
+                                    x="1"
+                                    y="3"
+                                    width="30"
+                                    height="12"
+                                    rx="2"
+                                />
+                                <rect
+                                    class="chip-bg"
+                                    x="19"
+                                    y="0"
+                                    width="12"
+                                    height="8"
+                                    rx="1"
+                                />
+                            </svg>
+                            Agent
+                        </div>
+                        <div class="legend-item">
+                            <svg
+                                class="graph-svg"
+                                width="32"
+                                height="18"
+                                viewBox="0 0 32 18"
+                            >
+                                <rect
+                                    class="node-bg node-review-gate"
+                                    x="1"
+                                    y="3"
+                                    width="30"
+                                    height="12"
+                                    rx="2"
+                                />
+                                <svg
+                                    class="node-icon"
+                                    x="11"
+                                    y="4"
+                                    width="10"
+                                    height="10"
+                                    viewBox="0 0 256 256"
+                                    aria-hidden="true"
+                                >
+                                    <use href="#ph-list-checks"></use>
+                                </svg>
+                            </svg>
+                            Review Gate
+                        </div>
+                        <div class="legend-item">
+                            <svg
+                                class="graph-svg"
+                                width="32"
+                                height="18"
+                                viewBox="0 0 32 18"
+                            >
+                                <rect
+                                    class="node-bg node-primary"
+                                    x="1"
+                                    y="3"
+                                    width="30"
+                                    height="12"
+                                    rx="2"
+                                />
+                                <svg
+                                    class="node-icon"
+                                    x="11"
+                                    y="4"
+                                    width="10"
+                                    height="10"
+                                    viewBox="0 0 256 256"
+                                    aria-hidden="true"
+                                >
+                                    <use href="#ph-git-branch"></use>
+                                </svg>
+                            </svg>
+                            Spawn Boundary
+                        </div>
+                        <div class="legend-item">
+                            <svg
+                                class="graph-svg"
+                                width="32"
+                                height="18"
+                                viewBox="0 0 32 18"
+                            >
+                                <rect
+                                    class="sub-border"
+                                    x="1"
+                                    y="1"
+                                    width="30"
+                                    height="16"
+                                    rx="2"
+                                />
+                            </svg>
+                            Sub-Mission
+                        </div>
+                        <div class="legend-item">
+                            <svg
+                                class="graph-svg"
+                                width="14"
+                                height="18"
+                                viewBox="0 0 14 18"
+                            >
+                                <rect
+                                    class="fork-bar"
+                                    x="4"
+                                    y="1"
+                                    width="6"
+                                    height="16"
+                                    rx="3"
+                                />
+                            </svg>
+                            Concurrency Fork/Join
+                        </div>
+                        <div class="legend-item">
+                            <svg
+                                class="graph-svg"
+                                width="32"
+                                height="18"
+                                viewBox="0 0 32 18"
+                            >
+                                <line
+                                    x1="16"
+                                    y1="1"
+                                    x2="16"
+                                    y2="17"
+                                    class="edge-spawn"
+                                />
+                            </svg>
+                            Spawn
+                        </div>
+                        <div class="legend-item">
+                            <svg
+                                class="graph-svg"
+                                width="32"
+                                height="18"
+                                viewBox="0 0 32 18"
+                            >
+                                <rect
+                                    class="terminal-error"
+                                    x="1"
+                                    y="3"
+                                    width="30"
+                                    height="12"
+                                    rx="6"
+                                />
+                            </svg>
+                            Error
+                        </div>
                     </div>
-                    <div class="legend-item">
-                        <svg
-                            class="graph-svg"
-                            width="32"
-                            height="18"
-                            viewBox="0 0 32 18"
+                    <div class="map-controls" aria-label="Mission graph view controls">
+                        <button
+                            class="map-control-button"
+                            type="button"
+                            data-graph-view="fit"
+                            aria-pressed="true"
                         >
-                            <rect
-                                class="sub-border"
-                                x="1"
-                                y="1"
-                                width="30"
-                                height="16"
-                                rx="2"
-                            />
-                        </svg>
-                        Sub-Mission
-                    </div>
-                    <div class="legend-item">
-                        <svg
-                            class="graph-svg"
-                            width="14"
-                            height="18"
-                            viewBox="0 0 14 18"
+                            Fit
+                        </button>
+                        <button
+                            class="map-control-button"
+                            type="button"
+                            data-graph-view="actual"
+                            aria-pressed="false"
                         >
-                            <rect
-                                class="fork-bar"
-                                x="4"
-                                y="1"
-                                width="6"
-                                height="16"
-                                rx="3"
-                            />
-                        </svg>
-                        Concurrency Fork/Join
+                            100%
+                        </button>
                     </div>
-                    <div class="legend-item">
-                        <svg
-                            class="graph-svg"
-                            width="32"
-                            height="18"
-                            viewBox="0 0 32 18"
-                        >
-                            <line
-                                x1="16"
-                                y1="1"
-                                x2="16"
-                                y2="17"
-                                class="edge-spawn"
-                            />
-                        </svg>
-                        Spawn
-                    </div>
-                    <div class="legend-item">
-                        <svg
-                            class="graph-svg"
-                            width="32"
-                            height="18"
-                            viewBox="0 0 32 18"
-                        >
-                            <rect
-                                class="terminal-error"
-                                x="1"
-                                y="3"
-                                width="30"
-                                height="12"
-                                rx="6"
-                            />
-                        </svg>
-                        Error
-                    </div>
+                </div>
+                <div class="map-grid-scroll">
+                    <svg
+                        class="metro-map graph-svg"
+                        data-renderer="shared-layout"
+                        viewBox="0 0 1312 480"
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-label="Merlin Mission Graph Demo"
+                    ></svg>
                 </div>
             </div>
         </div>
@@ -2350,6 +2427,13 @@
                 createMissionGraphFixture,
             } = window.MissionGraphLayout || {};
             const svg = document.querySelector(".metro-map");
+            const graphViewport = document.querySelector(".map-grid-scroll");
+            const graphViewButtons = document.querySelectorAll("[data-graph-view]");
+            const graphViewState = {
+                mode: "fit",
+                width: 1312,
+                height: 480,
+            };
             let elkLoaderPromise = null;
 
             function themeFonts() {
@@ -2527,15 +2611,56 @@
                 return renderProcess(node);
             }
 
+            function syncGraphViewButtons() {
+                graphViewButtons.forEach((button) => {
+                    button.setAttribute(
+                        "aria-pressed",
+                        String(button.dataset.graphView === graphViewState.mode),
+                    );
+                });
+            }
+
+            function applyGraphView() {
+                if (!graphViewport || !svg || !graphViewState.width || !graphViewState.height) {
+                    return;
+                }
+
+                let renderedWidth = graphViewState.width;
+                if (graphViewState.mode === "fit") {
+                    const scale = Math.min(
+                        graphViewport.clientWidth / graphViewState.width,
+                        graphViewport.clientHeight / graphViewState.height,
+                        1,
+                    );
+                    renderedWidth = Math.round(graphViewState.width * scale);
+                }
+
+                svg.style.width = `${renderedWidth}px`;
+                svg.style.minWidth = `${renderedWidth}px`;
+                svg.style.height = "auto";
+                syncGraphViewButtons();
+            }
+
+            function setGraphViewMode(mode) {
+                if (mode !== "fit" && mode !== "actual") {
+                    return;
+                }
+                graphViewState.mode = mode;
+                applyGraphView();
+            }
+
             function failGraph(message, error, G, W, H) {
                 console.error(message, error || "");
                 window.__MISSION_GRAPH_LAYOUT__ = { ok: false, error: message };
                 svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+                graphViewState.width = W;
+                graphViewState.height = H;
                 svg.innerHTML = [
                     `<rect class="map-bg" x="0" y="0" width="${W}" height="${H}" rx="12"/>`,
                     gridLines(G, W, H),
                     `<text class="node-label" x="${W / 2}" y="${H / 2}" text-anchor="middle" dominant-baseline="central">${message}</text>`,
                 ].join("\n");
+                applyGraphView();
             }
 
             function loadElkConstructor() {
@@ -2587,8 +2712,8 @@
                 const nestedNodes = nodes.filter((node) => node.missionId !== "root");
 
                 svg.setAttribute("viewBox", geometry.viewBox);
-                svg.style.width = `${W}px`;
-                svg.style.minWidth = `${W}px`;
+                graphViewState.width = W;
+                graphViewState.height = H;
 
                 const parts = [
                     `<rect class="map-bg" x="0" y="0" width="${W}" height="${H}" rx="12"/>`,
@@ -2612,6 +2737,7 @@
                 ];
 
                 svg.innerHTML = parts.join("\n");
+                applyGraphView();
             }
 
             async function buildGraph() {
@@ -2687,6 +2813,19 @@
                     failGraph("Mission graph layout failed", error, G, W, H);
                 }
             }
+
+            graphViewButtons.forEach((button) => {
+                button.addEventListener("click", () => {
+                    setGraphViewMode(button.dataset.graphView);
+                });
+            });
+            if (window.ResizeObserver && graphViewport) {
+                const graphResizeObserver = new ResizeObserver(() => applyGraphView());
+                graphResizeObserver.observe(graphViewport);
+            } else {
+                window.addEventListener("resize", applyGraphView);
+            }
+            syncGraphViewButtons();
 
             if (document.readyState === "loading") {
                 document.addEventListener("DOMContentLoaded", buildGraph, {
