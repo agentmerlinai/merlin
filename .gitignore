@@ -150,3 +150,10 @@ vite.config.ts.timestamp-*
 
 # OpenCode
 opencode.json
+
+# Pi.dev
+.pi/
+
+# Generated route HTML (scripts/route-entries.mjs)
+apps/web/index.html
+apps/web/design-system/
