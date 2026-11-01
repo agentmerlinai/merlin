@@ -1,0 +1,239 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://merlin.dev/theme/schema.json",
+  "title": "Merlin Theme",
+  "type": "object",
+  "required": [
+    "primaryHue"
+  ],
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "primaryHue": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 360,
+      "description": "OKLCH hue angle for primary color role (0-360)"
+    },
+    "accentHue": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 360,
+      "description": "OKLCH hue angle for accent color role (0-360)"
+    },
+    "fonts": {
+      "type": "object",
+      "properties": {
+        "body": {
+          "enum": [
+            "MNeon",
+            "MXenon",
+            "MArgon",
+            "MKrypton",
+            "MRadon",
+            "Geist",
+            "Geist Mono",
+            "Newsreader",
+            "IBM Plex Sans",
+            "IBM Plex Serif",
+            "IBM Plex Mono",
+            "Source Sans 3",
+            "Source Serif 4",
+            "Source Code Pro",
+            "Atkinson Hyperlegible Next",
+            "Atkinson Hyperlegible Mono"
+          ]
+        },
+        "heading": {
+          "enum": [
+            "MNeon",
+            "MXenon",
+            "MArgon",
+            "MKrypton",
+            "MRadon",
+            "Geist",
+            "Geist Mono",
+            "Newsreader",
+            "IBM Plex Sans",
+            "IBM Plex Serif",
+            "IBM Plex Mono",
+            "Source Sans 3",
+            "Source Serif 4",
+            "Source Code Pro",
+            "Atkinson Hyperlegible Next",
+            "Atkinson Hyperlegible Mono"
+          ]
+        },
+        "caption": {
+          "enum": [
+            "MNeon",
+            "MXenon",
+            "MArgon",
+            "MKrypton",
+            "MRadon",
+            "Geist",
+            "Geist Mono",
+            "Newsreader",
+            "IBM Plex Sans",
+            "IBM Plex Serif",
+            "IBM Plex Mono",
+            "Source Sans 3",
+            "Source Serif 4",
+            "Source Code Pro",
+            "Atkinson Hyperlegible Next",
+            "Atkinson Hyperlegible Mono"
+          ]
+        },
+        "code": {
+          "enum": [
+            "MNeon",
+            "MXenon",
+            "MArgon",
+            "MKrypton",
+            "MRadon",
+            "Geist",
+            "Geist Mono",
+            "Newsreader",
+            "IBM Plex Sans",
+            "IBM Plex Serif",
+            "IBM Plex Mono",
+            "Source Sans 3",
+            "Source Serif 4",
+            "Source Code Pro",
+            "Atkinson Hyperlegible Next",
+            "Atkinson Hyperlegible Mono"
+          ]
+        },
+        "agent": {
+          "enum": [
+            "MNeon",
+            "MXenon",
+            "MArgon",
+            "MKrypton",
+            "MRadon",
+            "Geist",
+            "Geist Mono",
+            "Newsreader",
+            "IBM Plex Sans",
+            "IBM Plex Serif",
+            "IBM Plex Mono",
+            "Source Sans 3",
+            "Source Serif 4",
+            "Source Code Pro",
+            "Atkinson Hyperlegible Next",
+            "Atkinson Hyperlegible Mono"
+          ]
+        },
+        "prose": {
+          "enum": [
+            "MNeon",
+            "MXenon",
+            "MArgon",
+            "MKrypton",
+            "MRadon",
+            "Geist",
+            "Geist Mono",
+            "Newsreader",
+            "IBM Plex Sans",
+            "IBM Plex Serif",
+            "IBM Plex Mono",
+            "Source Sans 3",
+            "Source Serif 4",
+            "Source Code Pro",
+            "Atkinson Hyperlegible Next",
+            "Atkinson Hyperlegible Mono"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "code": {
+      "type": "object",
+      "properties": {
+        "keyword": {
+          "enum": [
+            "MNeon",
+            "MXenon",
+            "MArgon",
+            "MKrypton",
+            "MRadon",
+            "Geist",
+            "Geist Mono",
+            "Newsreader",
+            "IBM Plex Sans",
+            "IBM Plex Serif",
+            "IBM Plex Mono",
+            "Source Sans 3",
+            "Source Serif 4",
+            "Source Code Pro",
+            "Atkinson Hyperlegible Next",
+            "Atkinson Hyperlegible Mono"
+          ]
+        },
+        "string": {
+          "enum": [
+            "MNeon",
+            "MXenon",
+            "MArgon",
+            "MKrypton",
+            "MRadon",
+            "Geist",
+            "Geist Mono",
+            "Newsreader",
+            "IBM Plex Sans",
+            "IBM Plex Serif",
+            "IBM Plex Mono",
+            "Source Sans 3",
+            "Source Serif 4",
+            "Source Code Pro",
+            "Atkinson Hyperlegible Next",
+            "Atkinson Hyperlegible Mono"
+          ]
+        },
+        "fn": {
+          "enum": [
+            "MNeon",
+            "MXenon",
+            "MArgon",
+            "MKrypton",
+            "MRadon",
+            "Geist",
+            "Geist Mono",
+            "Newsreader",
+            "IBM Plex Sans",
+            "IBM Plex Serif",
+            "IBM Plex Mono",
+            "Source Sans 3",
+            "Source Serif 4",
+            "Source Code Pro",
+            "Atkinson Hyperlegible Next",
+            "Atkinson Hyperlegible Mono"
+          ]
+        },
+        "comment": {
+          "enum": [
+            "MNeon",
+            "MXenon",
+            "MArgon",
+            "MKrypton",
+            "MRadon",
+            "Geist",
+            "Geist Mono",
+            "Newsreader",
+            "IBM Plex Sans",
+            "IBM Plex Serif",
+            "IBM Plex Mono",
+            "Source Sans 3",
+            "Source Serif 4",
+            "Source Code Pro",
+            "Atkinson Hyperlegible Next",
+            "Atkinson Hyperlegible Mono"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

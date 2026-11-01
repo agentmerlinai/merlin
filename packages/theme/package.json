@@ -1,0 +1,25 @@
+{
+  "name": "@merlin/theme",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./tokens.js",
+    "./tokens": "./tokens.js",
+    "./brand": "./brand.js",
+    "./kits": "./kits.js",
+    "./fonts": "./fonts.js",
+    "./oklch": "./oklch.js",
+    "./semantic-fields": "./semantic-fields.js",
+    "./generate": "./generate.js",
+    "./fonts.css": "./fonts.css",
+    "./properties.css": "./properties.css",
+    "./semantic.css": "./semantic.css",
+    "./surfaces.css": "./surfaces.css",
+    "./assets/logo.svg": "./assets/logo.svg"
+  },
+  "scripts": {
+    "generate": "node generate.js",
+    "test": "node --test tokens.test.js semantic-fields.test.js fonts.test.js brand.test.js"
+  }
+}

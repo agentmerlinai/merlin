@@ -1,0 +1,190 @@
+{
+  "policy": "Vendored unmodified from the named source. Do not subset or rename a family that carries an OFL Reserved Font Name (Monaspace, IBM Plex, Source); see fonts.js reserved flags.",
+  "latin_unicode_range": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD",
+  "fonts": [
+    {
+      "family": "Geist",
+      "file": "Geist Var Roman.woff2",
+      "source": "@fontsource-variable/geist@5.3.0",
+      "original": "files/geist-latin-wght-normal.woff2",
+      "license": "licenses/Geist-OFL.txt",
+      "sha256": "19f9c92546aa300c312235e3125af1b81394d8db9a4bc4a425cd5b641d2d54e1"
+    },
+    {
+      "family": "Geist",
+      "file": "Geist Var Italic.woff2",
+      "source": "@fontsource-variable/geist@5.3.0",
+      "original": "files/geist-latin-wght-italic.woff2",
+      "license": "licenses/Geist-OFL.txt",
+      "sha256": "9b10496762af92659f3b05d2b084b0c8f962c3ecdf637aa764e3b7fd17f5acaf"
+    },
+    {
+      "family": "Geist Mono",
+      "file": "Geist Mono Var Roman.woff2",
+      "source": "@fontsource-variable/geist-mono@5.3.0",
+      "original": "files/geist-mono-latin-wght-normal.woff2",
+      "license": "licenses/Geist-OFL.txt",
+      "sha256": "684ad5b531f81d43c1e8c7038262d5db7cdc1f68006e04d6c7769efa8d33c8cc"
+    },
+    {
+      "family": "Newsreader",
+      "file": "Newsreader Var Roman.woff2",
+      "source": "@fontsource-variable/newsreader@5.3.0",
+      "original": "files/newsreader-latin-wght-normal.woff2",
+      "license": "licenses/Newsreader-OFL.txt",
+      "sha256": "62981321d9a3cc7a61a73792729043703fd6112da86e8ec848bb57f088578757"
+    },
+    {
+      "family": "Newsreader",
+      "file": "Newsreader Var Italic.woff2",
+      "source": "@fontsource-variable/newsreader@5.3.0",
+      "original": "files/newsreader-latin-wght-italic.woff2",
+      "license": "licenses/Newsreader-OFL.txt",
+      "sha256": "48bc8861b9b2ca9300747cad4fd6a3b4ac3028d364df00bd1b72097baa75e509"
+    },
+    {
+      "family": "IBM Plex Sans",
+      "file": "IBM Plex Sans Var Roman.woff2",
+      "source": "@fontsource-variable/ibm-plex-sans@5.3.0",
+      "original": "files/ibm-plex-sans-latin-wght-normal.woff2",
+      "license": "licenses/IBM-Plex-OFL.txt",
+      "sha256": "e2291e842cf5af167122a22881a740c7f2dda7716f1e8cd76680264f4a859470"
+    },
+    {
+      "family": "IBM Plex Sans",
+      "file": "IBM Plex Sans Var Italic.woff2",
+      "source": "@fontsource-variable/ibm-plex-sans@5.3.0",
+      "original": "files/ibm-plex-sans-latin-wght-italic.woff2",
+      "license": "licenses/IBM-Plex-OFL.txt",
+      "sha256": "4363757d2695c7633f98472855849f7c30528eba869d7968ee35b58c87cf14c1"
+    },
+    {
+      "family": "IBM Plex Serif",
+      "file": "IBM Plex Serif Var Roman.woff2",
+      "source": "IBM/plex master",
+      "original": "packages/plex-serif-variable/fonts/complete/woff2/IBM Plex Serif Var-Roman.woff2",
+      "license": "licenses/IBM-Plex-OFL.txt",
+      "sha256": "2e1e46ebd6b446f091d013c773d5da24e403e74e5d7b7060c8c499180ca69893"
+    },
+    {
+      "family": "IBM Plex Serif",
+      "file": "IBM Plex Serif Var Italic.woff2",
+      "source": "IBM/plex master",
+      "original": "packages/plex-serif-variable/fonts/complete/woff2/IBM Plex Serif Var-Italic.woff2",
+      "license": "licenses/IBM-Plex-OFL.txt",
+      "sha256": "5ee4c9187a84dd44a878849aa9ecc1325d28bc2820fb3a15525da1bfb79b1504"
+    },
+    {
+      "family": "IBM Plex Mono",
+      "file": "IBM Plex Mono Var Roman.woff2",
+      "source": "IBM/plex master",
+      "original": "packages/plex-mono-variable/fonts/complete/woff2/IBM Plex Mono Var-Roman.woff2",
+      "license": "licenses/IBM-Plex-OFL.txt",
+      "sha256": "ef55d69e81baa6523a9b6e015d746e707bc7e9579f18703a169cb18c36dd567b"
+    },
+    {
+      "family": "Source Sans 3",
+      "file": "Source Sans 3 Var Roman.woff2",
+      "source": "@fontsource-variable/source-sans-3@5.3.1",
+      "original": "files/source-sans-3-latin-wght-normal.woff2",
+      "license": "licenses/Source-OFL.txt",
+      "sha256": "19143dca075972bc84e3fd9eab7416dd40cc565dccb2435a044bdfabe060c7d5"
+    },
+    {
+      "family": "Source Sans 3",
+      "file": "Source Sans 3 Var Italic.woff2",
+      "source": "@fontsource-variable/source-sans-3@5.3.1",
+      "original": "files/source-sans-3-latin-wght-italic.woff2",
+      "license": "licenses/Source-OFL.txt",
+      "sha256": "5fbc14d56cea35e60596c72ca969b349443c6a536f74e11748eed8b3a396e61d"
+    },
+    {
+      "family": "Source Serif 4",
+      "file": "Source Serif 4 Var Roman.woff2",
+      "source": "@fontsource-variable/source-serif-4@5.3.1",
+      "original": "files/source-serif-4-latin-standard-normal.woff2",
+      "license": "licenses/Source-OFL.txt",
+      "sha256": "f2ea9c12d2fe9bd3a9589b02ad2c0909da88f30938c91adc838c4f4098f9f9e0"
+    },
+    {
+      "family": "Source Serif 4",
+      "file": "Source Serif 4 Var Italic.woff2",
+      "source": "@fontsource-variable/source-serif-4@5.3.1",
+      "original": "files/source-serif-4-latin-standard-italic.woff2",
+      "license": "licenses/Source-OFL.txt",
+      "sha256": "96e6393209728ab93c334ae739af8a040cd2006c82e8614d6465a8084db88f89"
+    },
+    {
+      "family": "Source Code Pro",
+      "file": "Source Code Pro Var Roman.woff2",
+      "source": "@fontsource-variable/source-code-pro@5.3.1",
+      "original": "files/source-code-pro-latin-wght-normal.woff2",
+      "license": "licenses/Source-OFL.txt",
+      "sha256": "8b774aaa5137a38ef40f4ac9d36db9a5eee152b2f66589dfdc82ff007fc87135"
+    },
+    {
+      "family": "Atkinson Hyperlegible Next",
+      "file": "Atkinson Hyperlegible Next Var Roman.woff2",
+      "source": "@fontsource-variable/atkinson-hyperlegible-next@5.3.0",
+      "original": "files/atkinson-hyperlegible-next-latin-wght-normal.woff2",
+      "license": "licenses/Atkinson-OFL.txt",
+      "sha256": "18b2a1a39a2fa298b0ba5390aca68462669826c90925656f1c1f6796e0e1bbaf"
+    },
+    {
+      "family": "Atkinson Hyperlegible Next",
+      "file": "Atkinson Hyperlegible Next Var Italic.woff2",
+      "source": "@fontsource-variable/atkinson-hyperlegible-next@5.3.0",
+      "original": "files/atkinson-hyperlegible-next-latin-wght-italic.woff2",
+      "license": "licenses/Atkinson-OFL.txt",
+      "sha256": "4a5037bfaf6680f40147407407ec09fa42925774bde809a579283d27f9f08106"
+    },
+    {
+      "family": "Atkinson Hyperlegible Mono",
+      "file": "Atkinson Hyperlegible Mono Var Roman.woff2",
+      "source": "@fontsource-variable/atkinson-hyperlegible-mono@5.3.0",
+      "original": "files/atkinson-hyperlegible-mono-latin-wght-normal.woff2",
+      "license": "licenses/Atkinson-OFL.txt",
+      "sha256": "2706b1ee4f452e744ea91f7e4908cbde9c5d35521bf5ffffc71a382a2de89613"
+    },
+    {
+      "family": "MNeon",
+      "file": "Monaspace Neon Var.woff2",
+      "source": "githubnext/monaspace (existing)",
+      "original": "Monaspace Neon Var.woff2",
+      "license": "licenses/Monaspace-OFL.txt",
+      "sha256": "6569968f448ae856ab5b57dff1f13b109b220ca8e3f664169e135fcb5c4f0721"
+    },
+    {
+      "family": "MXenon",
+      "file": "Monaspace Xenon Var.woff2",
+      "source": "githubnext/monaspace (existing)",
+      "original": "Monaspace Xenon Var.woff2",
+      "license": "licenses/Monaspace-OFL.txt",
+      "sha256": "eea00c02f4c00f09fd50e80efdb8341975f9eb8c82720ce50f44c19a962996c5"
+    },
+    {
+      "family": "MArgon",
+      "file": "Monaspace Argon Var.woff2",
+      "source": "githubnext/monaspace (existing)",
+      "original": "Monaspace Argon Var.woff2",
+      "license": "licenses/Monaspace-OFL.txt",
+      "sha256": "ad0ad84cb65ab56ea82b3098800403aeec1bbc445ba24da0dc87f439b3883db6"
+    },
+    {
+      "family": "MKrypton",
+      "file": "Monaspace Krypton Var.woff2",
+      "source": "githubnext/monaspace (existing)",
+      "original": "Monaspace Krypton Var.woff2",
+      "license": "licenses/Monaspace-OFL.txt",
+      "sha256": "f1357532c080c3f976e35ec1d18a92b423d4261103acb7d2cdccffa03a989fad"
+    },
+    {
+      "family": "MRadon",
+      "file": "Monaspace Radon Var.woff2",
+      "source": "githubnext/monaspace (existing)",
+      "original": "Monaspace Radon Var.woff2",
+      "license": "licenses/Monaspace-OFL.txt",
+      "sha256": "6411b3c2b3e02e3913248184800d6c5a83bb1ccd1472daeb7bfee605c176cb33"
+    }
+  ]
+}

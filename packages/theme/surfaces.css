@@ -1,0 +1,33 @@
+/* ── Surface stack ───────────────────────────────────────────────
+   The site has one depth language. A surface takes one of three roles:
+   - panel: lifts off the page (largest shadow, largest radius)
+   - well:  recesses into its parent (page fill, inner radius)
+   - plate: lifts again inside a panel or well (surface fill, small radius)
+
+   Depth is a fill step plus one shadow token. Never invent a per-component
+   shadow, gradient, or hex fill: that breaks the stack and the theme swap.
+
+   Tint a layer by overriding its fill and border variables, never by forking
+   the recipe. A primary-subtle panel stacks exactly like a neutral one.
+
+   This file is the single source of truth for the recipe. Components name the
+   role in markup and own only layout. */
+
+.surface-panel {
+  background: var(--panel-fill, var(--bg-surface));
+  border: 1px solid var(--panel-border, var(--border-muted));
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+.surface-well {
+  background: var(--well-fill, var(--bg-page));
+  border: 1px solid var(--well-border, var(--border-muted));
+  border-radius: var(--radius-lg);
+}
+
+.surface-plate {
+  background: var(--plate-fill, var(--bg-surface));
+  border: 1px solid var(--plate-border, var(--border-muted));
+  border-radius: var(--radius-md);
+}

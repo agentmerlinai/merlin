@@ -4,11 +4,21 @@ import {
   contrastRatio, bestTextColor,
   maxGamutChroma, generateScale, computeOptimalShade
 } from './oklch.js';
+import { resolveSemanticHues, SEMANTIC_FIELDS } from './semantic-fields.js';
+import { DEFAULT_TYPE, TYPE_PRESETS, fontVars } from './fonts.js';
+import { DEFAULT_RADIUS_STYLE, radiusVars } from './kits.js';
+
+export { resolveSemanticHues, snapTheme, SEMANTIC_FIELDS, MIN_BRAND_GAP, MIN_SEMANTIC_GAP } from './semantic-fields.js';
+export {
+  FONT_ROLES, CODE_ROLES, FONT_VAR_KEYS, FONT_FAMILIES, FONT_CATEGORIES, TYPE_PRESETS, DEFAULT_TYPE,
+  isFontFamily, isTypePreset, resolveFonts, resolveCode, fontStack, fontVars,
+} from './fonts.js';
 
 export const DEFAULT_THEME = {
   primaryHue: 280, // wizard archetype — intentional, see COLOR_GUIDE § intentional ownership
   accentHue: 90,
-  fonts: { body: 'MNeon', heading: 'MXenon', caption: 'MArgon', code: 'MNeon', agent: 'MKrypton', prose: 'MRadon' }
+  fonts: TYPE_PRESETS.monaspace.fonts,
+  code: TYPE_PRESETS.monaspace.code,
 };
 
 export const SPACE_BASE = 4;
@@ -17,16 +27,29 @@ export const TYPE_BASE = 16;
 export const TYPE_RATIO = 1.25;
 export const TYPE_STEPS = ['xs', 'sm', 'base', 'md', 'lg', 'xl', '2xl', '3xl', '4xl'];
 export const TYPE_INDICES = [-2, -1, 0, 1, 2, 3, 4, 5, 6];
-export const RADII = { none: '0', sm: '4px', md: '8px', lg: '12px', xl: '16px', full: '9999px' };
 
-function buildRoles(primaryHue, accentHue) {
+/* Semantic chroma follows the climate as well as the hue: a strong warm or cool
+   brand lifts the signal slightly, so no semantic token is ever static. */
+function semanticChroma(role, climate) {
+  return SEMANTIC_FIELDS[role].peakChromaFraction * (0.9 + 0.2 * Math.abs(climate));
+}
+
+function semanticRole(role, hues, climate) {
+  return {
+    hue: hues[role],
+    peakChromaFraction: semanticChroma(role, climate),
+    label: `${role[0].toUpperCase()}${role.slice(1)} (H=${hues[role].toFixed(1)})`,
+  };
+}
+
+function buildRoles(primaryHue, accentHue, hues, climate) {
   return {
     primary:  { hue: primaryHue, peakChromaFraction: 0.65, forceWhiteText: true, label: `Primary (H=${primaryHue})` },
     accent:   { hue: accentHue,  peakChromaFraction: 0.95, label: `Accent (H=${accentHue})` },
     neutral:  { hue: primaryHue, peakChromaFraction: 0.09, label: 'Neutral (brand-tinted)' },
-    error:    { hue: 25,         peakChromaFraction: 0.61, label: 'Error' },
-    warning:  { hue: 70,         peakChromaFraction: 0.92, label: 'Warning' },
-    success:  { hue: 155,        peakChromaFraction: 0.87, label: 'Success' },
+    error:    semanticRole('error', hues, climate),
+    warning:  semanticRole('warning', hues, climate),
+    success:  semanticRole('success', hues, climate),
   };
 }
 
@@ -61,7 +84,7 @@ function buildPalettes(ROLES, lightBg, darkBg) {
   return palettes;
 }
 
-function buildPrimitives(palettes, fonts) {
+function buildPrimitives(palettes, fonts, code, radius) {
   const primitives = {};
 
   for (const [role, scale] of Object.entries(palettes)) {
@@ -78,15 +101,13 @@ function buildPrimitives(palettes, fonts) {
   for (let i = 0; i < TYPE_STEPS.length; i++)
     primitives[`--font-size-${TYPE_STEPS[i]}`] = `${(TYPE_BASE * TYPE_RATIO ** TYPE_INDICES[i]).toFixed(1)}px`;
 
-  for (const [k, v] of Object.entries(RADII)) primitives[`--radius-${k}`] = v;
+  Object.assign(primitives, radiusVars(radius));
 
   const f = { ...DEFAULT_THEME.fonts, ...fonts };
-  primitives['--font-body']    = `'${f.body}', monospace`;
-  primitives['--font-heading'] = `'${f.heading}', monospace`;
-  primitives['--font-caption'] = `'${f.caption}', monospace`;
-  primitives['--font-code']    = `'${f.code}', monospace`;
-  primitives['--font-agent']   = `'${f.agent}', monospace`;
-  primitives['--font-prose']   = `'${f.prose}', monospace`;
+  /* A changed code face collapses the Monaspace mix; an unchanged one keeps
+     the metric-compatible voices. The store passes the resolved map. */
+  const c = code ?? (f.code === DEFAULT_THEME.fonts.code ? DEFAULT_THEME.code : {});
+  Object.assign(primitives, fontVars(f, c));
 
   return primitives;
 }
@@ -113,25 +134,42 @@ function resolveSemanticDark(role, palettes, primitives) {
   };
 }
 
+/* The hat's four inks are illustration roles, not UI roles. The contour is
+   line art: it stays the darkest ink in both themes so folds read as ink, not
+   as highlights. Dark lifts only the body and shadow fills to separate them
+   from the dark plate; it never flips the contour. */
+function brandInkRoles(primitives, bodyStep, shadowStep, accent) {
+  return {
+    '--brand-outline': primitives['--color-primary-950'],
+    '--brand-body':    primitives[`--color-primary-${bodyStep}`],
+    '--brand-shadow':  primitives[`--color-primary-${shadowStep}`],
+    '--brand-accent':  accent,
+  };
+}
+
 const COLOR_ROLES = ['primary', 'accent', 'error', 'warning', 'success'];
 
-export function computeTheme({ primaryHue = DEFAULT_THEME.primaryHue, accentHue = DEFAULT_THEME.accentHue, fonts = {} } = {}) {
-  const ROLES = buildRoles(primaryHue, accentHue);
+export function computeTheme({ primaryHue = DEFAULT_THEME.primaryHue, accentHue = DEFAULT_THEME.accentHue, fonts = {}, code, radius = DEFAULT_RADIUS_STYLE } = {}) {
+  const { hues, climate, diagnostics } = resolveSemanticHues(primaryHue, accentHue);
+  const ROLES = buildRoles(primaryHue, accentHue, hues, climate);
   const neutralScale = generateScale(primaryHue, 0.09);
   const darkBg = neutralScale.find(s => s.name === 800).hex;
-  const lightBg = '#ffffff';
+  /* The light surface is a near-white tint of the brand, not #ffffff. Every
+     surface and pair then re-solves against a moving background. */
+  const surfaceC = Math.min(0.008, maxGamutChroma(0.985, primaryHue) * 0.9);
+  const lightBg = oklchToHex(0.985, surfaceC, primaryHue);
   const palettes = buildPalettes(ROLES, lightBg, darkBg);
-  const primitives = buildPrimitives(palettes, fonts);
+  const primitives = buildPrimitives(palettes, fonts, code, radius);
 
   const semanticLight = {
     '--bg-page':        primitives['--color-neutral-50'],
-    '--bg-surface':     '#ffffff',
+    '--bg-surface':     lightBg,
     '--bg-muted':       primitives['--color-neutral-100'],
     '--bg-subtle':      primitives['--color-neutral-200'],
     '--text-primary':   primitives['--color-neutral-900'],
     '--text-secondary': primitives['--color-neutral-600'],
     '--text-muted':     primitives['--color-neutral-500'],
-    '--text-inverse':   '#ffffff',
+    '--text-inverse':   primitives['--color-neutral-50'],
     ...Object.assign({}, ...COLOR_ROLES.map(r => resolveSemanticLight(r, palettes, primitives))),
     '--border-default': primitives['--color-neutral-500'],
     '--border-muted':   primitives['--color-neutral-300'],
@@ -141,6 +179,10 @@ export function computeTheme({ primaryHue = DEFAULT_THEME.primaryHue, accentHue 
     '--shadow-md':      '0 2px 8px oklch(0 0 0 / .08), 0 1px 2px oklch(0 0 0 / .04)',
     '--shadow-lg':      '0 4px 16px oklch(0 0 0 / .10), 0 2px 4px oklch(0 0 0 / .04)',
   };
+  Object.assign(
+    semanticLight,
+    brandInkRoles(primitives, 500, 700, semanticLight['--color-accent-fg'])
+  );
 
   const semanticDark = {
     '--bg-page':        primitives['--color-neutral-900'],
@@ -160,6 +202,10 @@ export function computeTheme({ primaryHue = DEFAULT_THEME.primaryHue, accentHue 
     '--shadow-md':      '0 2px 8px oklch(0 0 0 / .30), 0 1px 2px oklch(0 0 0 / .15)',
     '--shadow-lg':      '0 4px 16px oklch(0 0 0 / .40), 0 2px 4px oklch(0 0 0 / .20)',
   };
+  Object.assign(
+    semanticDark,
+    brandInkRoles(primitives, 400, 600, semanticDark['--color-accent-fg'])
+  );
 
   const spacingSemantic = {
     '--space-inline-xs': primitives['--space-1'],
@@ -179,7 +225,7 @@ export function computeTheme({ primaryHue = DEFAULT_THEME.primaryHue, accentHue 
     '--space-gap-lg':    primitives['--space-5'],
   };
 
-  return { palettes, primitives, ROLES, semanticLight, semanticDark, spacingSemantic };
+  return { palettes, primitives, ROLES, semanticLight, semanticDark, spacingSemantic, semanticDiagnostics: diagnostics, semanticClimate: climate };
 }
 
 const TYPOGRAPHY_ALIASES = `  /* Typography aliases */
@@ -198,6 +244,10 @@ const TYPOGRAPHY_ALIASES = `  /* Typography aliases */
   --tracking-tight: -0.01em;
   --tracking-normal: 0;
   --tracking-wide: 0.04em;`;
+
+// Header for the generated sheets. Lives here so the generator and the
+// sync-check test cannot drift apart.
+export const CSS_HEADER = '/* Generated by packages/theme/generate.js — do not edit manually */\n\n';
 
 export function generateCSS(themeConfig) {
   const { primitives, semanticLight, semanticDark, spacingSemantic } = computeTheme(themeConfig);
