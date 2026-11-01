@@ -15,6 +15,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  text-decoration: none;
   transition: opacity 0.15s;
 }
 

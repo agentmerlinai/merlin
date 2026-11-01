@@ -14,22 +14,22 @@
 }
 
 .kw {
-  font-family: var(--font-agent);
+  font-family: var(--font-code-keyword);
   font-weight: 600;
   color: var(--color-primary);
 }
 
 .str {
-  font-family: var(--font-caption);
+  font-family: var(--font-code-string);
   color: var(--color-success);
 }
 
 .fn {
-  font-family: var(--font-heading);
+  font-family: var(--font-code-fn);
   color: var(--color-accent);
 }
 
 .cm {
-  font-family: var(--font-prose);
+  font-family: var(--font-code-comment);
   color: var(--text-muted);
 }

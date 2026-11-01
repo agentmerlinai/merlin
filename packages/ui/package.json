@@ -3,16 +3,19 @@
   "version": "0.0.1",
   "type": "module",
   "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
   "exports": {
     ".": "./src/index.ts",
     "./styles": "./src/styles/global.css"
   },
   "peerDependencies": {
-    "@phosphor-icons/react": "^2.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "dependencies": {
+    "@merlin/theme": "*",
     "class-variance-authority": "^0.7.1",
     "@radix-ui/react-slot": "^1.2.3"
   },
