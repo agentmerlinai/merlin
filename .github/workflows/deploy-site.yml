@@ -32,11 +32,31 @@ jobs:
 
       - run: npm run build
 
+      # The WebKit suite is the Safari engine contract: the artifact is built,
+      # so the runner only has to fetch that engine.
+      - run: npx playwright install --with-deps webkit
+
+      - run: npm run test:safari
+
+      - run: npm run test:pages
+
+      # The dev server must ship the same document as the artifact; these two
+      # runs are what keeps `npm run dev` honest between deploys.
+      - run: npm run test:dev
+
+      - run: npm run test:pages:dev
+        env:
+          CHROME_BIN: /usr/bin/google-chrome
+
+      - run: npm run test:hero
+        env:
+          CHROME_BIN: /usr/bin/google-chrome
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: docs
+          path: dist/client
 
   deploy:
     needs: build
