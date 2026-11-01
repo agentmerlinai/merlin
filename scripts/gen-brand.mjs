@@ -1,57 +1,51 @@
 #!/usr/bin/env node
 /**
  * Generates brand SVG assets for Merlin.
- * Reads logo.svg and Monaspace Xenon Var.woff2, writes 4 SVGs to docs/assets/brand/.
- * No external dependencies — pure Node built-ins.
+ * Reads packages/theme/assets/logo.svg and Monaspace Xenon Var.woff2, writes
+ * the brand assets to apps/web/public/assets/brand/.
  *
- * Design tokens (from theme/semantic.css):
+ * Colours resolve from packages/theme/tokens.js, the same computed theme that
+ * the live page consumes. The logo's source inks are declared once in
+ * scripts/brand-ink.mjs and mapped to the four --brand-* roles.
  *
- *   Light mode (transparent background)
- *     --color-primary-fg:  #574ecf  (primary-600)   → title
- *     --text-secondary:    #7d7f90  (neutral-500)   → tagline
- *
- *   Dark mode
- *     --bg-page:           #292b34  (neutral-900)
- *     --color-primary-fg:  #898dfd  (primary-400)   → title
- *     --text-secondary:    #989aab  (neutral-400)   → tagline
- *
- * Social preview reuses dark mode palette.
- * Logo mark is embedded verbatim — no color modifications.
+ *   Light wordmark: transparent, light brand inks
+ *   Dark wordmark + social preview: dark page, dark brand inks
+ *   Avatar/favicons: dark brand inks (theme-neutral asset)
  */
 
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import sharp from 'sharp';
+import { computeTheme } from '../packages/theme/tokens.js';
+import { brandInnerArt, tintBrandArt } from './brand-ink.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
-const outDir = join(root, 'docs/assets/brand');
+const outDir = join(root, 'apps/web/public/assets/brand');
 
-// Design tokens
-const TOKEN = {
-  bgDark:       '#292b34',  // --bg-page (dark)             neutral-900
+const { semanticLight: light, semanticDark: dark } = computeTheme();
+const inkOf = (semantic) => ({
+  outline: semantic['--brand-outline'],
+  body: semantic['--brand-body'],
+  shadow: semantic['--brand-shadow'],
+  accent: semantic['--brand-accent'],
+});
+const LIGHT_INK = inkOf(light);
+const DARK_INK = inkOf(dark);
 
-  titleLight:   '#574ecf',  // --color-primary-fg (light)   primary-600
-  titleDark:    '#a9affe',  // --color-primary-fg (dark)    primary-300
-
-  taglineLight: '#7d7f90',  // --text-secondary (light)     neutral-500
-  taglineDark:  '#fecb16',  // --color-accent (dark)        accent (vivid gold)
-};
-
-const TAGLINE = 'Expertise as Code';
+const WORDMARK_TAGLINE = 'A base for the air gap';
+const SOCIAL_TAGLINE = 'One box. Every change signed.';
 
 // --- Read source assets ---
 
-// Extract inner paths verbatim — logo used exactly as authored, no color changes
-const logoSvg = readFileSync(join(root, 'logo.svg'), 'utf-8');
-const innerPaths = logoSvg
-  .replace(/<\?xml[^?]*\?>\s*/g, '')
-  .replace(/^[\s\S]*?<svg[^>]*>\s*/, '')
-  .replace(/\s*<\/svg>\s*$/, '')
-  .trim();
+const innerPaths = brandInnerArt(
+  readFileSync(join(root, 'packages/theme/assets/logo.svg'), 'utf-8')
+);
 
-const fontBase64 = readFileSync(join(root, 'fonts/Monaspace Xenon Var.woff2')).toString('base64');
+const tintArt = (ink, label) => tintBrandArt(innerPaths, (role) => ink[role], label);
+
+const fontBase64 = readFileSync(join(root, 'packages/theme/fonts/Monaspace Xenon Var.woff2')).toString('base64');
 const fontStyle = `<style>@font-face {
     font-family: 'MXenon';
     src: url('data:font/woff2;base64,${fontBase64}') format('woff2');
@@ -64,16 +58,16 @@ const fontStyle = `<style>@font-face {
 //   title  → x=288 y=74 font-size=66        → cap-top ≈ 26, baseline 74
 //   tagline→ x=288 y=97 font-size=18        → cap-top ≈ 84, baseline 97
 //   text center-y ≈ (26+97)/2 = 61 ≈ mark center 60 ✓
-function wordmark(bg, titleColor, taglineColor) {
+function wordmark({ bg, title, tagline, ink }) {
   const bgRect = bg ? `<rect width="680" height="120" fill="${bg}"/>` : '';
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 120">
   ${fontStyle}
   ${bgRect}
   <g transform="translate(156,10) scale(0.1348)">
-    ${innerPaths}
+    ${tintArt(ink, 'wordmark')}
   </g>
-  <text x="288" y="74" font-family="MXenon" font-weight="700" font-size="66" fill="${titleColor}">Merlin</text>
-  <text x="288" y="97" font-family="MXenon" font-weight="400" font-size="18" fill="${taglineColor}">${TAGLINE}</text>
+  <text x="288" y="74" font-family="MXenon" font-weight="700" font-size="66" fill="${title}">Merlin</text>
+  <text x="288" y="97" font-family="MXenon" font-weight="400" font-size="18" fill="${tagline}">${WORDMARK_TAGLINE}</text>
 </svg>
 `;
 }
@@ -82,17 +76,29 @@ mkdirSync(outDir, { recursive: true });
 
 // 1. merlin-wordmark-light.svg — transparent background
 writeFileSync(join(outDir, 'merlin-wordmark-light.svg'),
-  wordmark(null, TOKEN.titleLight, TOKEN.taglineLight));
+  wordmark({
+    bg: null,
+    title: light['--color-primary-fg'],
+    tagline: light['--text-muted'],
+    ink: LIGHT_INK,
+  }));
 
 // 2. merlin-wordmark-dark.svg — opaque dark background
 writeFileSync(join(outDir, 'merlin-wordmark-dark.svg'),
-  wordmark(TOKEN.bgDark, TOKEN.titleDark, TOKEN.taglineDark));
+  wordmark({
+    bg: dark['--bg-page'],
+    title: dark['--color-primary-fg'],
+    tagline: dark['--color-accent'],
+    ink: DARK_INK,
+  }));
 
 // 3. merlin-avatar.svg + .png — mark centered on square canvas, transparent bg
 // Source mark: 828×740 → square: 828×828, vertical offset: (828-740)/2=44
+// The avatar is theme-neutral. The dark ink set keeps the lightest body and
+// the vivid accent, so the mark reads on both light and dark browser chrome.
 const avatarSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 828 828">
   <g transform="translate(0,44)">
-    ${innerPaths}
+    ${tintArt(DARK_INK, 'avatar')}
   </g>
 </svg>
 `;
@@ -122,12 +128,12 @@ writeFileSync(join(outDir, 'apple-touch-icon.png'), touchIcon);
 //   "Merlin" baseline 248+88=336 (84×4), tagline baseline 352+32=384 (96×4)
 const socialSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
   ${fontStyle}
-  <rect width="1200" height="630" fill="${TOKEN.bgDark}"/>
+  <rect width="1200" height="630" fill="${dark['--bg-page']}"/>
   <g transform="translate(240,216) scale(0.2705)">
-    ${innerPaths}
+    ${tintArt(DARK_INK, 'social preview')}
   </g>
-  <text x="528" y="336" font-family="MXenon" font-weight="700" font-size="120" fill="${TOKEN.titleDark}">Merlin</text>
-  <text x="528" y="384" font-family="MXenon" font-weight="400" font-size="40" fill="${TOKEN.taglineDark}">${TAGLINE}</text>
+  <text x="528" y="336" font-family="MXenon" font-weight="700" font-size="120" fill="${dark['--color-primary-fg']}">Merlin</text>
+  <text x="528" y="384" font-family="MXenon" font-weight="400" font-size="40" fill="${dark['--color-accent']}">${SOCIAL_TAGLINE}</text>
 </svg>
 `;
 writeFileSync(join(outDir, 'merlin-social-preview.svg'), socialSvg);
@@ -139,4 +145,4 @@ const png = await sharp(Buffer.from(socialSvg))
   .toBuffer();
 writeFileSync(join(outDir, 'merlin-social-preview.png'), png);
 
-console.log('Generated 8 brand assets in docs/assets/brand/ (4 SVG + 4 PNG)');
+console.log('Generated 8 brand assets in apps/web/public/assets/brand/ (4 SVG + 4 PNG)');
