@@ -366,11 +366,11 @@ The only human judgment calls. Everything downstream is computable math.
 |------|-----|-------------|-----------|
 | Primary | _chosen_ | 0.13–0.15 | Brand identity, CTAs, active states |
 | Neutral | _same as primary_ | 0.015 | Brand-tinted gray (same hue, ~10% chroma) |
-| Error | 25° | 0.15 | Convention: red-family for danger |
-| Warning | 70° | 0.12 | Convention: amber for caution |
-| Success | 155° | 0.13 | Teal-green — colorblind-safe vs error red |
+| Error | 15–35° (focal 25°) | 0.15 | Convention: red-family window for danger |
+| Warning | 55–88° (focal 72°) | 0.12 | Convention: amber window for caution |
+| Success | 135–175° (focal 155°) | 0.13 | Teal-green window — colorblind-safe vs error red |
 
-Error is red because users expect it. Success uses teal-green (not pure green) because teal remains distinguishable from error-red under protanopia and deuteranopia. These are convention-fixed, not derived from the brand hue.
+Error is red because users expect it. Success uses teal-green (not pure green) because teal remains distinguishable from error-red under protanopia and deuteranopia. These are **convention-bounded**, not brand-derived: the hue moves inside its window as the brand climate changes, but it never leaves the family. The resolver lives in `packages/theme/semantic-fields.js`; a preset that cannot keep the 30° separation is snapped away from the collision.
 
 ### Primary Hue Selection Constraints
 
@@ -527,7 +527,7 @@ Use shade **600** for light-mode semantic colors (passes AA on white). Use shade
 | Semantic Token | Light Theme | Dark Theme |
 |----------------|-------------|------------|
 | `--bg-page` | neutral-50 | neutral-900 |
-| `--bg-surface` | white | neutral-800 |
+| `--bg-surface` | tinted near-white | neutral-800 |
 | `--bg-muted` | neutral-100 | neutral-700 |
 | `--text-primary` | neutral-900 | neutral-50 |
 | `--text-secondary` | neutral-500 | neutral-400 |
@@ -548,7 +548,7 @@ Every semantic background needs a paired foreground with guaranteed contrast ≥
 
 ## Color Harmony (Decorative Only)
 
-Harmony rotation produces hue sets for data visualization, illustration, and accents. **Not** for semantic roles — those are convention-fixed.
+Harmony rotation produces hue sets for data visualization, illustration, and accents. **Not** for semantic roles — those stay inside their convention windows.
 
 | Harmony | Rotation from base | Use case |
 |---------|-------------------|----------|

@@ -320,6 +320,13 @@ pleasure_multiplier:
 | `--radius-2xl` | base_r × 3 | 12px | 24px | 36px |
 | `--radius-full` | 9999px | pill | pill | pill |
 
+### Shipped presets
+
+The runtime ships three coherent styles (Soft, Sharp, Round) rather than a
+free multiplier. Their values, and the rule that `--radius-full` follows the
+style, live in DESIGN_SYSTEM.md § Border radius. `packages/theme/kits.js` is the
+single source; this guide owns the derivation, not the shipped numbers.
+
 ## Line Weight System
 
 ### Border Weight as Dominance Lever
