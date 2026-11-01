@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-icon-kit="phosphor" data-page="{{PAGE_ID}}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{TITLE}}</title>
+  <meta name="description" content="{{DESCRIPTION}}">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="{{CANONICAL}}">
+
+  <link rel="icon" href="/assets/brand/merlin-avatar.svg" type="image/svg+xml">
+  <link rel="icon" href="/assets/brand/favicon-32x32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/brand/apple-touch-icon.png">
+
+  <meta property="og:title" content="{{TITLE}}">
+  <meta property="og:description" content="{{DESCRIPTION}}">
+  <meta property="og:image" content="https://agentmerlin.ai/assets/brand/merlin-social-preview.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="{{CANONICAL}}">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{TITLE}}">
+  <meta name="twitter:description" content="{{DESCRIPTION}}">
+  <meta name="twitter:image" content="https://agentmerlin.ai/assets/brand/merlin-social-preview.png">
+
+  <!-- Styles before paint. The document owns the cascade in dev and in the
+       artifact, so the first frame never falls back to unstyled markup. -->
+  {{STYLESHEETS}}
+
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="78942879-823e-4d53-8b0c-9abf7752e7d0"></script>
+
+  <!-- Theme before paint: the document must never flash the wrong paper.
+       The body is generated from src/theme-boot.js, the same module the island uses. -->
+  <script>{{THEME_BOOT}}</script>
+</head>
+<body>
+  <div data-build="icon-sprite"></div>
+  <div data-build="brand-sprite"></div>
+
+  <!-- Shared paint servers. One dot grid, defined once. -->
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+    <defs>
+      <pattern id="collab-dots" width="14" height="14" patternUnits="userSpaceOnUse">
+        <circle cx="1" cy="1" r="1" fill="currentColor"></circle>
+      </pattern>
+    </defs>
+  </svg>
+
+  <!-- GoatDB mark: official art (MIT). Do not redraw. -->
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+    <symbol id="goatdb-mark" viewBox="0 0 90.6 90.6">
+      <path class="goat-nose" d="m14.939 40.842 4.454 4.455-4.454 4.454-4.455-4.454z"/>
+      <path class="goat-eye" d="m45.238 34.591 4.455 4.455-4.455 4.455-4.454-4.455z"/>
+      <path fill="currentColor" d="M80.1 45.3 59.3 24.5 73.9 9.9l-4.5-4.5L54.8 20l-5.1-5.1L64.4.3l-.3-.3h-8.3L45.4 10.4l-35 34.9 10.2 10.2v27h6.2v8.1H33v-8.1h6.2V74l6.2 6.2v10.4h45.3V45.2H80.2Zm-65.2 4.5-4.5-4.5 4.5-4.5 4.5 4.5zm30.4-6.3L40.8 39l4.5-4.5 4.5 4.5z"/>
+    </symbol>
+  </svg>
+
+  <div id="app"><!--app-html--></div>
+
+  <script type="module" src="{{ENTRY}}"></script>
+</body>
+</html>
