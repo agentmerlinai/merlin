@@ -38,6 +38,11 @@ jobs:
 
       - run: npm run test:safari
 
+      # The deck's last rest is a layout contract, not a motion one: the
+      # ending must reach the scrollport top when the viewport outgrows the
+      # 100svh panels. WebKit is already installed above.
+      - run: npm run test:deck
+
       - run: npm run test:pages
 
       # The dev server must ship the same document as the artifact; these two
