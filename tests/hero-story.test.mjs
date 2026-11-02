@@ -784,6 +784,52 @@ if (!CHROME_BIN) {
     await waitSettled();
   });
 
+  test('geometry: the ending closes on the stage center line', async () => {
+    /* The ending used to start on the page top, so the last panel left a void
+       below its block while every chapter sat on the reader's center. The block
+       is the eyebrow plus the grid: the wrap's only children, and the whole of
+       what the composition centers. */
+    const align = () => evaluate(`(() => {
+      const panel = document.querySelector('#tailor');
+      const kids = [...panel.querySelector('.wrap').children].map((el) => el.getBoundingClientRect());
+      const top = Math.min(...kids.map((r) => r.top));
+      const bottom = Math.max(...kids.map((r) => r.bottom));
+      return {
+        center: Number(((top + bottom) / 2 - innerHeight / 2).toFixed(1)) || 0,
+        top: Number(top.toFixed(1)),
+        nav: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')),
+        overflow: panel.scrollHeight - panel.clientHeight
+      };
+    })()`);
+    const holds = async (where) => {
+      const a = await align();
+      assert.ok(Math.abs(a.center) <= 1.5, `the ending centers on the stage ${where} (${a.center})`);
+      assert.ok(a.top >= a.nav, `the ending clears the nav ${where} (${a.top} of ${a.nav})`);
+      assert.equal(a.overflow, 0, `the ending fits its panel ${where}`);
+    };
+    const rest = async () => {
+      await evaluate(`document.querySelector('#tailor').scrollIntoView({ behavior: 'instant', block: 'start' })`);
+      await waitSettled();
+    };
+
+    await rest();
+    await holds('at the default deck');
+
+    /* The 64 % share and the short-window floor both keep the frame symmetric
+       about the viewport, so the block follows either one. */
+    for (const viewport of [{ width: 1920, height: 1080, mobile: false }, { width: 1440, height: 520, mobile: false }]) {
+      await setViewport(viewport);
+      await rest();
+      await holds(`at ${viewport.width}x${viewport.height}`);
+    }
+
+    /* Later tests inherit the viewport; leave the default deck in place. */
+    await setViewport(VIEWPORTS[0]);
+    await rest();
+    await go(0);
+    await waitSettled();
+  });
+
   test('geometry: the figure centers on the stage and its caption cannot move it', async () => {
     /* The caption used to be a flex sibling of a centred column, so its height
        sized the free space and lifted the perimeter by half the caption block

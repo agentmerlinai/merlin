@@ -596,9 +596,12 @@ html { scroll-snap-type: y mandatory; }
    off before it rides above the station line, so no departing line shows. */
 .story-copy {
   position: sticky; top: var(--story-station);
-  /* The chapter sits on the figure's center line, not its top edge. The box
-     spans the stage's height and centers its track; `min-height` lets a copy
-     taller than the stage stay top aligned instead of crossing the nav. */
+}
+/* One frame owns the deck's optical line: a chapter's copy and the ending's
+   block both center in the stage the figure defines. `min-height` is the
+   frame, so a block taller than the stage stays top aligned instead of
+   crossing the nav. */
+.story-copy, .close > .wrap {
   display: flex; flex-direction: column; justify-content: center;
   min-height: var(--story-stage-h);
 }
@@ -2802,13 +2805,17 @@ exception is a caret: a blink is cyclical by nature, so its loop returns to
 /* ── Section shell ─────────────────────────────────────────── */
 /* One page is one frame. A section is exactly one panel: the deck snaps on
    panel tops, so a section that grew past a page could never be read to its
-   end. Content fits the panel; it never grows it. */
+   end. Content fits the panel; it never grows it. The shell owns the nav
+   clearance, the page gap, and the positioned box the snap point resolves
+   against. */
 .section {
   position: relative;
   height: var(--panel);
   padding: var(--panel-pad-top) 0 var(--panel-gap);
 }
 .section + .section { border-top: 1px solid var(--border-muted); }
+/* The ending is the deck's last panel: no separator above it. */
+.section + .section.close { border-top: 0; }
 
 .eyebrow {
   display: flex; align-items: center; gap: 7px;
@@ -4094,9 +4101,10 @@ html[data-panel="tailor"] .repo-row .note::after { animation-play-state: running
 /* The ending borrows the section shell, so this block owns composition only:
    the claim row states the guarantee, the band hands the repo over, and the
    stage note qualifies it under the doors. */
-/* The ending shares the deck's page top: its block starts on the same line as
-   every chapter, and the section shell supplies the one top inset, so no
-   second vertical owner holds the block in the middle.
+/* The ending closes the deck on the chapters' optical line: its block takes the
+   same stage frame their copy centers in, so the reader leaves on the line the
+   story kept. The shell's inset clears the nav but starts above that line, so
+   the wrap restores the line with a margin.
    The last panel is the only panel whose top must reach the scrollport top.
    A 100svh panel is shorter than the live viewport once the browser chrome
    collapses, so the last snap point falls past max scroll; the snap engine
@@ -4106,6 +4114,17 @@ html[data-panel="tailor"] .repo-row .note::after { animation-play-state: running
 .close {
   position: relative; view-timeline: --phase-close block;
   min-height: 100dvh;
+}
+/* The kit and the ending are the deck's standalone panels after the story.
+   The margin moves their wrap off the shell's top inset and onto the stage
+   line, so both start where the chapters do. */
+@media (min-width: 981px) {
+  .close > .wrap,
+  .kit > .wrap { margin-top: calc(var(--story-top) - var(--panel-pad-top)); }
+  /* Flex keeps a child's margin instead of collapsing it, so the eyebrow's
+     half of the pair is retired: the grid's margin-top stays the one owner of
+     the gap (10px; 14px on a short panel). */
+  .close > .wrap > .eyebrow { margin-bottom: 0; }
 }
 /* The headline names the beat; the tree beside it is the proof. A short
    measure keeps both in one line of sight. */
@@ -4280,6 +4299,9 @@ html[data-panel="tailor"] .repo-row .note::after { animation-play-state: running
   /* A column flex item does not stretch across the main axis: without this the
      frame keeps its (absolutely positioned) content width of zero. */
   .story-frame { align-self: stretch; }
+  /* Below the two-column breakpoint the chapters top align under the stage, so
+     the ending keeps the page top with them. */
+  .close > .wrap { display: block; min-height: 0; }
   /* The copy holds below the stage here, so the stage's center line does not
      apply. The gap is measured to the figure's ink, not the panel's border: a
      chapter's figure ends at the pane's own inset, so the box takes the gap
