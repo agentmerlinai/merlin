@@ -66,7 +66,7 @@ Dark/light theme swap via `data-theme` attribute on `<html>`.
 
 ## Typography
 
-The brand studio ships five type presets. Monaspace is the default; the other
+The kit ships five type presets. Monaspace is the default; the other
 presets trade voices without changing the token roles, so every surface
 recomposes from the same six declarations.
 
@@ -78,10 +78,11 @@ recomposes from the same six declarations.
 | Source | Source Sans 3 | Source Serif 4 | Source Serif 4 | Source Code Pro |
 | Hyperlegible | Atkinson Hyperlegible Next | Atkinson Hyperlegible Next | Newsreader | Atkinson Hyperlegible Mono |
 
-The studio lives in the nav ("Your brand"). It chooses the hue pair, one
-typeface, one icon kit, and one corner style. Every choice persists in
-`merlin-brand` (version 3) and is restored before first paint, so the page
-never flashes a default face or shape.
+The kit is the first standalone section after the home story ("The kit"). It
+chooses the hue pair, one typeface, one icon kit, and one corner style. Every
+choice persists in `merlin-brand` (version 3) and is restored before first
+paint, so the page never flashes a default face or shape. The design-system
+page repeats the same controls in its interactive preview.
 
 ### Tokens
 
@@ -348,7 +349,7 @@ Shape system grounded in superellipse math, Gestalt grouping, and PAD emotional 
 Open `/design-system/` in a browser for the full interactive reference:
 
 - Real-time hue sliders for primary and accent colors
-- Icon kit and corner-style choosers, shared with the nav studio
+- Icon kit and corner-style choosers, shared with the home kit section
 - Dark/light theme toggle
 - WCAG contrast validation report
 - Optimized for print-to-PDF (Chrome recommended)
