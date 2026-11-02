@@ -22,26 +22,8 @@ test('render: home keeps the story contract', () => {
   assert.equal((html.match(/data-story-beat=/g) || []).length, 6);
   assert.match(html, /data-story-stage=/);
   assert.match(html, /data-island="hero"/);
-  assert.match(html, /data-island="brand-thread"/);
-  assert.match(html, /class="brand-thread-ticket surface-plate"/);
-  assert.match(html, /class="brand-thread-lead">The design system is a base too\./);
-  /* The note shows the current pair, but never the nav chip's caption: the
-     tiles tie it to the studio, the prose keeps it a note. */
-  const note = /<p class="brand-thread-ticket[^"]*"[^>]*>([\s\S]*?)<\/p>/.exec(html);
-  assert.ok(note, 'the slip is one paragraph');
-  assert.match(note[1], /class="swatch-pair"/);
-  assert.doesNotMatch(note[1], /brand-trigger-label/);
-  assert.doesNotMatch(html, /<button[^>]*brand-thread-ticket/);
-  assert.match(html, /popovertarget="brand-panel"/i);
   assert.match(html, /data-island="theme"/);
-  assert.match(html, /data-island="brand"/);
   assert.match(html, /id="top"/);
-  assert.match(html, /id="your-brand"/);
-  assert.match(html, /id="brand-panel"/);
-  assert.match(html, /data-preset="arcane"/);
-  assert.match(html, /id="brand-typeface"/);
-  assert.match(html, /<option value="monaspace"[^>]*>Monaspace<\/option>/);
-  assert.match(html, /class="lab-ds" href="\/design-system\/"/);
 });
 
 test('render: design system exposes every kit showcase', () => {

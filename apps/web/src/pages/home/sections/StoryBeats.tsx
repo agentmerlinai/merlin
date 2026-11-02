@@ -16,6 +16,9 @@ function Chip({ icon, children }: { icon: string; children: string }) {
   );
 }
 
+/* One list for the six chapters. The kit follows the hero as its own section,
+   so the story keeps one unbroken sequence and the list numbers stay the
+   chapters' own 01–06. */
 export function StoryBeats() {
   return (
     <ol className="story-beats">
@@ -28,20 +31,6 @@ export function StoryBeats() {
             <span className="story-index">01 · Loop</span>
             <h2 className="story-label">Start from the standard chat.</h2>
             <p className="story-line">Merlin ships a standard chat: tools, context, and an answer, with people and agents on one record. Pick the model, write tools in TypeScript or over MCP, and own the context window: you decide what the model sees on every turn. Adapt the base to the work, not the other way around.</p>
-            {/* The slip is content: it names what the chapter's "adapt the base"
-                means in practice. One control, one place: the nav chip is the
-                only door, so the slip is a note, not a second button. It shows
-                the current pair, but not the chip's uppercase caption: the
-                swatches tie the note to the studio, the prose keeps it from
-                reading as a duplicate control. The leader is decoration and
-                lives outside the copy. */}
-            <div className="brand-thread-slot" data-island="brand-thread">
-              <p className="brand-thread-ticket surface-plate" role="note">
-                <span className="swatch-pair" aria-hidden="true"><span /><span /></span>
-                <span className="brand-thread-lead">The design system is a base too.</span>
-                <span className="brand-thread-line">Adapt it to your brand, not the other way around.</span>
-              </p>
-            </div>
           </div>
         </div>
       </li>

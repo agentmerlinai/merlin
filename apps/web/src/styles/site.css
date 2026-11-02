@@ -23,14 +23,6 @@ html {
      of the gesture and spends the rest letting go. Every scene that moves
      something uses this curve, so the page has one physical feel. */
   --ease-hand: cubic-bezier(.35, 0, .4, 1);
-  /* The chapter annotation's beat: the note enters whole, the leader then
-     draws out of it, the aim mark lands, the halo pulses. The note lives in
-     the copy and the stroke in a body-level layer, so the clock sits above
-     both and the two hosts cannot drift apart. */
-  --thread-enter: 0.26s;
-  --thread-draw: 0.52s;
-  --thread-mark-at: calc(var(--thread-enter) + var(--thread-draw));
-  --thread-pulse-at: calc(var(--thread-mark-at) + 0.18s);
 }
 html[data-theme="light"] { color-scheme: light; }
 
@@ -3852,8 +3844,8 @@ html[data-panel="tailor"] .repo-row .note::after { animation-play-state: running
   background: var(--color-primary-subtle);
   color: var(--color-primary-fg);
 }
-/* One recipe for every two-swatch pair: preset, nav chip, chapter slip. The
-   edge tint and ink are variables, so the pair cannot fork into three copies. */
+/* One recipe for every two-swatch pair: preset and kit swatches. The edge
+   tint is a variable, so the pair cannot fork into copies. */
 .swatch-pair {
   --pair-edge: color-mix(in srgb, var(--bg-page) 45%, transparent);
   display: inline-flex; gap: 2px;
@@ -3862,8 +3854,6 @@ html[data-panel="tailor"] .repo-row .note::after { animation-play-state: running
   width: 9px; height: 9px; border-radius: 2px;
   border: 1px solid var(--pair-edge);
 }
-.swatch-pair span:first-child { background: var(--pair-a, transparent); }
-.swatch-pair span:last-child { background: var(--pair-b, transparent); }
 .choice .swatch-pair { --pair-edge: color-mix(in srgb, var(--bg-surface) 40%, transparent); }
 .knobs {
   display: grid; grid-template-columns: 1fr 1fr;
@@ -3926,177 +3916,10 @@ html[data-panel="tailor"] .repo-row .note::after { animation-play-state: running
   border: 1px solid var(--border-muted); overflow: hidden;
 }
 .tape span { flex: 1; }
-/* Brand is page chrome. The trigger states the pair; the panel is the studio. */
-.brand-control { display: flex; }
-.brand-trigger {
-  display: inline-flex; align-items: center; gap: 8px;
-  height: 38px; padding: 0 12px 0 10px;
-  border: 1px solid var(--border-muted); border-radius: var(--radius-md);
-  background: transparent; color: var(--text-secondary); cursor: pointer;
-  transition: border-color 0.15s, color 0.15s, background-color 0.15s, transform 0.15s;
-}
-.brand-trigger:hover {
-  border-color: var(--border-strong); color: var(--text-primary);
-  background: var(--bg-surface);
-}
-/* Open reads as pressed: one fill step past the hover surface, plus the same
-   1px contact shift the button recipe uses. The panel is visible above it. */
-.brand-trigger[aria-expanded="true"] {
-  border-color: var(--border-strong); color: var(--text-primary);
-  background: var(--bg-muted); transform: translateY(1px);
-}
-.brand-trigger .icon { width: 16px; height: 16px; }
-.brand-trigger-label {
-  font-family: var(--font-caption); font-size: 10px; font-weight: 700;
-  letter-spacing: 0.1em; text-transform: uppercase;
-}
-/* A popover is top-layer chrome: no portal, no click-outside handler. */
-.brand-panel {
-  position: fixed; inset: auto; margin: 0;
-  top: calc(var(--nav-h) + 10px);
-  right: max(24px, calc((100vw - 1180px) / 2));
-  width: min(420px, calc(100vw - 32px));
-  max-height: calc(100svh - var(--nav-h) - 24px);
-  overflow: auto; padding: 18px;
-  color: var(--text-primary);
-}
-.theme-controls[data-layout="panel"] .knobs {
-  grid-template-columns: 1fr; gap: 16px; margin-top: 20px;
-}
-.theme-controls[data-layout="panel"] .token-tape { margin-top: 16px; }
-@media (min-width: 721px) {
-  .theme-controls[data-layout="section"] .theme-kits { grid-template-columns: 1fr 1fr; }
-}
 .lab-actions {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: center; justify-content: flex-start;
   gap: 12px; margin-top: 12px;
 }
-.brand-reset {
-  padding: 5px 10px; border: 1px solid var(--border-muted);
-  border-radius: var(--radius-full); background: transparent;
-  font-family: var(--font-caption); font-size: 9px; font-weight: 700;
-  letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--text-secondary); cursor: pointer;
-}
-.brand-reset:hover { border-color: var(--border-strong); color: var(--text-primary); }
-.lab-ds {
-  font-size: 11px; color: var(--text-secondary);
-  text-decoration: underline; text-underline-offset: 3px;
-}
-.lab-ds:hover { color: var(--text-primary); }
-
-/* The chapter slip. It carries the chapter's own rule — adapt the base, do
-   not invert it — one level down, so it is an annotation and not a second
-   door: no cursor, no hover, no transition. It sits on the copy's left edge,
-   where the paragraph starts, and speaks in the paragraph's own voice one step
-   lower: the reader must read a note, not a chip. Its pair reads the chip's
-   tokens, so even a still page ties the note to the studio in the bar. */
-.brand-thread-ticket {
-  position: absolute; top: 100%; left: 0; margin: var(--space-3) 0 0;
-  display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-1);
-  inline-size: fit-content; max-inline-size: 300px;
-  padding: var(--space-3);
-  /* The pair is the one graphic tie to the studio: it reads the same tokens as
-     the nav chip, so a retint moves both. */
-  --pair-a: var(--color-primary-cta-light);
-  --pair-b: var(--color-accent-cta-light);
-}
-.brand-thread-lead {
-  font-size: var(--font-size-sm); line-height: 1.5; color: var(--text-primary);
-}
-/* Balance keeps the sentence from ending on a two-word orphan. */
-.brand-thread-line {
-  font-size: var(--font-size-sm); line-height: 1.5; color: var(--text-secondary);
-  text-wrap: balance;
-}
-/* The leader belongs to neither the sticky copy nor the fixed bar, so it is a
-   fixed layer above the bar and below the skip link. This sheet owns the
-   breakpoint and the motion gate; the controller only measures what is left
-   visible. One switch opens the layer: below it the leader sits drawn, so no
-   still page and no early frame shows a line. */
-.brand-thread {
-  /* Every cue reads the `--thread-*` clock on `html`: one owner for the beat. */
-  position: fixed; inset: 0; z-index: 51;
-  inline-size: 100%; block-size: 100%;
-  overflow: visible; pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.18s var(--ease-hand);
-}
-.brand-thread[data-visible="true"] { opacity: 1; }
-/* `pathLength="1"` (draw.ts) turns the dash units into fractions of the route,
-   so the line grows from the slip toward the chip. The clock lives on the open
-   switch only: leaving a station ends the annotation, so the line must not
-   un-draw for half a second, and a quick return must still get the whole draw.
-   A resize rewrites `d` alone: the offset stays at 0, so nothing replays. */
-.brand-thread-path {
-  fill: none;
-  stroke: color-mix(in srgb, var(--border-strong) 55%, transparent);
-  stroke-width: 1; stroke-linecap: round; stroke-linejoin: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-}
-.brand-thread[data-visible="true"] .brand-thread-path {
-  stroke-dashoffset: 0;
-  /* The stroke waits for the note: the eye must see the card before a line
-     leaves it. */
-  transition: stroke-dashoffset var(--thread-draw) var(--ease-hand) var(--thread-enter);
-}
-/* The aim marks wait for the stroke: a ring ahead of the line would point at a
-   target the eye has not reached. The pair never borrows the pager ink, so the
-   two chrome cues stay distinguishable. */
-.brand-thread-ring, .brand-thread-dot { opacity: 0; }
-.brand-thread-ring {
-  fill: none;
-  stroke: color-mix(in srgb, var(--border-strong) 70%, transparent);
-  stroke-width: 1;
-}
-.brand-thread-dot { fill: var(--color-accent); }
-.brand-thread[data-visible="true"] .brand-thread-ring,
-.brand-thread[data-visible="true"] .brand-thread-dot {
-  opacity: 1;
-  transition: opacity 0.18s var(--ease-hand) var(--thread-mark-at);
-}
-/* The halo is the pulse: it leaves the dot, widens and fades on the compositor
-   (`scale` + `opacity`). Three beats are enough to find the chip; a fourth
-   nags. It stops before the reader has to ignore it, and it needs no
-   reduced-motion twin, because that gate removes the whole layer and the
-   slip's locator row carries the direction on its own. */
-.brand-thread-halo {
-  fill: none;
-  stroke: color-mix(in srgb, var(--color-accent) 70%, transparent);
-  stroke-width: 1;
-  opacity: 0;
-  transform-box: fill-box; transform-origin: center;
-}
-.brand-thread[data-visible="true"] .brand-thread-halo {
-  animation: brand-thread-pulse 1.1s var(--ease-hand) var(--thread-pulse-at) 3;
-}
-@keyframes brand-thread-pulse {
-  from { scale: 0.8; opacity: 0.7; }
-  to { scale: 1.7; opacity: 0; }
-}
-/* The note is the line's source, so it enters whole — plate, pair and prose,
-   one beat before the stroke — instead of only its squares. The layer's own
-   existence is the gate, so a page without a leader (still page, one column,
-   no script) keeps the note. `opacity` keeps the card's box, so the line's
-   origin never jumps. */
-@media (prefers-reduced-motion: no-preference) {
-  body:has(> .brand-thread) .brand-thread-ticket { opacity: 0; }
-  body:has(> .brand-thread[data-visible="true"]) .brand-thread-ticket {
-    opacity: 1;
-    transition: opacity var(--thread-enter) var(--ease-hand);
-  }
-}
-
-@media (max-width: 1000px) {
-  .brand-trigger { padding: 0 8px; }
-  .brand-trigger-label { display: none; }
-}
-
-@media (max-width: 720px) {
-  .brand-panel { left: 16px; right: 16px; width: auto; }
-}
-
 /* ── The ending's foot ─────────────────────────────────────── */
 /* The ending borrows the section shell, so this block owns composition only:
    the claim row states the guarantee, the band hands the repo over, and the
@@ -4319,10 +4142,6 @@ html[data-panel="tailor"] .repo-row .note::after { animation-play-state: running
     gap: 18px 0; align-items: start;
   }
   .repo { max-width: 560px; }
-  /* The copy already fills the one-column panel, so the hanging slip has no
-     room below it. The desktop annotation retires with its leader; the nav
-     pair stays as the affordance. */
-  .brand-thread-slot, .brand-thread { display: none; }
   /* The flow only reads left-to-right, so the connector column is dropped
      and the stacked blocks read top-to-bottom without it. The gap it used
      to hold is restored as a margin, so the "Integrated" label is not glued
@@ -4576,9 +4395,6 @@ html[data-panel="tailor"] .repo-row .note::after { animation-play-state: running
   /* Without motion the copies read in the flow: a sticky box would stack the
      chapters on one line. */
   #top .story-copy { position: static; display: block; min-height: 0; }
-  /* The leader is a scroll-station annotation; a still page reads the slip
-     in place, with no fixed layer to track. */
-  .brand-thread { display: none; }
   #tailor .end-grid *,
   #tailor .end-grid *::before,
   #tailor .end-grid *::after { animation: none !important; }

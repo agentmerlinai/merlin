@@ -1,26 +1,15 @@
 import { useMemo } from 'react';
-import { computeTheme, snapTheme, TYPE_PRESETS, resolveCode, resolveFonts } from '@merlin/theme/tokens';
-import { ICON_KITS, RADIUS_STYLES, type IconKit, type RadiusStyle } from '@merlin/theme/kits';
+import { computeTheme, resolveCode, resolveFonts } from '@merlin/theme/tokens';
 import { Icon } from '../../components/Icon';
-import { PRESETS, type PresetKey } from './presets';
+import { KIT_VIEWS, PRESET_VIEWS, RADIUS_VIEWS, TYPE_VIEWS, type PresetView } from './options';
 import { resetTheme, selectIconKit, selectPreset, selectRadius, setHues, useThemeStudio } from './store';
 
 const roles = ['error', 'warning', 'success'] as const;
 
-const KIT_VIEWS = Object.entries(ICON_KITS) as [IconKit, (typeof ICON_KITS)[IconKit]][];
-const RADIUS_VIEWS = Object.entries(RADIUS_STYLES) as [RadiusStyle, (typeof RADIUS_STYLES)[RadiusStyle]][];
-
-type Layout = 'section' | 'panel';
-
-/* One set of controls serves the page chrome and the design-system page. The
-   layout only changes ids and the footer: the generator stays in one place. */
-export function ThemeControls({
-  layout = 'section',
-  designSystemLink = false,
-}: {
-  layout?: Layout;
-  designSystemLink?: boolean;
-}) {
+/* The design-system page's full control set. The home kit section composes
+   the same store and option lists in its own layout; this file keeps one
+   control set for the reference page, with native ranges and buttons. */
+export function ThemeControls() {
   const state = useThemeStudio();
   const fonts = useMemo(() => resolveFonts(state.type), [state.type]);
   const code = useMemo(() => resolveCode(state.type), [state.type]);
@@ -35,41 +24,15 @@ export function ThemeControls({
       }),
     [state.primaryHue, state.accentHue, fonts, code, state.radius]
   );
-  const id = (name: string) => `${layout === 'panel' ? 'brand-' : ''}${name}`;
 
-  const presetViews = useMemo(
-    () =>
-      (Object.entries(PRESETS) as [PresetKey, (typeof PRESETS)[PresetKey]][]).map(([key, preset]) => {
-        const target = snapTheme(preset.primaryHue, preset.accentHue);
-        const { primitives } = computeTheme(target);
-        return {
-          key,
-          label: preset.label,
-          target,
-          primary: primitives['--color-primary-cta-light'],
-          accent: primitives['--color-accent-cta-light'],
-        };
-      }),
-    []
-  );
-
-  const typePresetViews = useMemo(
-    () =>
-      Object.entries(TYPE_PRESETS).map(([key, preset]) => ({
-        key,
-        label: preset.label,
-      })),
-    []
-  );
-
-  const usePreset = (view: (typeof presetViews)[number]) => {
+  const usePreset = (view: PresetView) => {
     setHues({ primaryHue: view.target.primaryHue, accentHue: view.target.accentHue });
   };
 
   return (
-    <div className="theme-controls" data-layout={layout}>
+    <div className="theme-controls">
       <div className="presets" role="group" aria-label="Colour presets">
-        {presetViews.map((view) => (
+        {PRESET_VIEWS.map((view) => (
           <button
             key={view.key}
             className="choice"
@@ -82,8 +45,8 @@ export function ThemeControls({
             onClick={() => usePreset(view)}
           >
             <span className="swatch-pair" aria-hidden="true">
-              <span data-preset-swatch="primary" style={{ background: view.primary }} />
-              <span data-preset-swatch="accent" style={{ background: view.accent }} />
+              <span style={{ background: view.primary }} />
+              <span style={{ background: view.accent }} />
             </span>
             {view.label}
           </button>
@@ -91,22 +54,17 @@ export function ThemeControls({
       </div>
 
       <div className="knobs">
-        <label className="knob" htmlFor={id('primary-hue')}>
+        <label className="knob" htmlFor="primary-hue">
           <span className="knob-head">
-            <span
-              className="knob-swatch"
-              data-knob-swatch="primary"
-              aria-hidden="true"
-              style={{ background: theme.primitives['--color-primary-cta-light'] }}
-            />
+            <span className="knob-swatch" aria-hidden="true" style={{ background: 'var(--color-primary-cta-light)' }} />
             <span className="knob-name">Primary hue</span>
-            <output className="knob-value" id={id('primary-hue-value')} htmlFor={id('primary-hue')}>
+            <output className="knob-value" id="primary-hue-value" htmlFor="primary-hue">
               {state.primaryHue}°
             </output>
           </span>
           <input
             className="knob-range"
-            id={id('primary-hue')}
+            id="primary-hue"
             type="range"
             min={0}
             max={360}
@@ -116,22 +74,17 @@ export function ThemeControls({
             onChange={(event) => setHues({ primaryHue: Number(event.target.value), accentHue: state.accentHue })}
           />
         </label>
-        <label className="knob" htmlFor={id('accent-hue')}>
+        <label className="knob" htmlFor="accent-hue">
           <span className="knob-head">
-            <span
-              className="knob-swatch"
-              data-knob-swatch="accent"
-              aria-hidden="true"
-              style={{ background: theme.primitives['--color-accent-cta-light'] }}
-            />
+            <span className="knob-swatch" aria-hidden="true" style={{ background: 'var(--color-accent-cta-light)' }} />
             <span className="knob-name">Accent hue</span>
-            <output className="knob-value" id={id('accent-hue-value')} htmlFor={id('accent-hue')}>
+            <output className="knob-value" id="accent-hue-value" htmlFor="accent-hue">
               {state.accentHue}°
             </output>
           </span>
           <input
             className="knob-range"
-            id={id('accent-hue')}
+            id="accent-hue"
             type="range"
             min={0}
             max={360}
@@ -143,15 +96,15 @@ export function ThemeControls({
         </label>
       </div>
 
-      <label className="typeface" htmlFor={id('typeface')}>
+      <label className="typeface" htmlFor="typeface">
         <span className="typeface-name">Typeface</span>
         <select
           className="typeface-select"
-          id={id('typeface')}
+          id="typeface"
           value={state.type.preset}
           onChange={(event) => selectPreset(event.target.value)}
         >
-          {typePresetViews.map((view) => (
+          {TYPE_VIEWS.map((view) => (
             <option key={view.key} value={view.key}>
               {view.label}
             </option>
@@ -163,18 +116,18 @@ export function ThemeControls({
         <div className="kit-row" role="group" aria-label="Icon kit">
           <span className="kit-name">Icon kit</span>
           <div className="kit-choices">
-            {KIT_VIEWS.map(([key, kit]) => (
+            {KIT_VIEWS.map((view) => (
               <button
-                key={key}
+                key={view.key}
                 className="choice"
                 type="button"
-                data-kit-choice={key}
-                aria-pressed={state.iconKit === key}
-                title={`${kit.label} icon kit`}
-                onClick={() => selectIconKit(key)}
+                data-kit-choice={view.key}
+                aria-pressed={state.iconKit === view.key}
+                title={`${view.label} icon kit`}
+                onClick={() => selectIconKit(view.key)}
               >
-                <Icon name="icon-cube" kit={key} className="choice-glyph" />
-                {kit.label}
+                <Icon name="icon-cube" kit={view.key} className="choice-glyph" />
+                {view.label}
               </button>
             ))}
           </div>
@@ -183,22 +136,18 @@ export function ThemeControls({
         <div className="kit-row" role="group" aria-label="Corner style">
           <span className="kit-name">Corners</span>
           <div className="kit-choices">
-            {RADIUS_VIEWS.map(([key, style]) => (
+            {RADIUS_VIEWS.map((view) => (
               <button
-                key={key}
+                key={view.key}
                 className="choice"
                 type="button"
-                data-radius={key}
-                aria-pressed={state.radius === key}
-                title={`${style.label} corners`}
-                onClick={() => selectRadius(key)}
+                data-radius={view.key}
+                aria-pressed={state.radius === view.key}
+                title={`${view.label} corners`}
+                onClick={() => selectRadius(view.key)}
               >
-                <span
-                  className="choice-radius"
-                  aria-hidden="true"
-                  style={{ borderRadius: style.scale.md }}
-                />
-                {style.label}
+                <span className="choice-radius" aria-hidden="true" style={{ borderRadius: view.sample }} />
+                {view.label}
               </button>
             ))}
           </div>
@@ -236,16 +185,11 @@ export function ThemeControls({
         </div>
       </div>
 
-      {designSystemLink && (
-        <div className="lab-actions">
-          <button className="brand-reset" type="button" onClick={resetTheme} title="Restore default colour and type">
-            Reset
-          </button>
-          <a className="lab-ds" href="/design-system/">
-            Design system
-          </a>
-        </div>
-      )}
+      <div className="lab-actions">
+        <button className="theme-reset" type="button" onClick={resetTheme} title="Restore the default colour, type, kit, and corners">
+          Reset
+        </button>
+      </div>
     </div>
   );
 }

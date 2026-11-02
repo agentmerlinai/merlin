@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import { BrandControl } from '../islands/theme-lab/BrandControl';
 import { ThemeToggle } from '../islands/theme-toggle/ThemeToggle';
 
 type PageId = 'home' | 'design-system';
@@ -36,9 +35,6 @@ export function SiteLayout({ current, children }: { current: PageId; children: R
           )}
 
           <div className="nav-actions">
-            <div data-island="brand">
-              <BrandControl />
-            </div>
             <div data-island="theme">
               <ThemeToggle />
             </div>
