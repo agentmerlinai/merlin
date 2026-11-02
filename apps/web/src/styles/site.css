@@ -440,8 +440,8 @@ h1 {
   --story-stage-h: min(var(--story-stage-share), calc(100svh - 2 * var(--story-top)));
   --story-station: var(--story-top);
   /* The intro fills the rest of the first page: from the station line to the
-     page's bottom edge. The chapters below are whole panels, so the story is
-     exactly seven pages and the first section starts on a page boundary. */
+     page's bottom edge (`--story-face`). The chapters below are whole panels;
+     the kit follows the hero as a section of its own. */
   --story-face: calc(100svh - var(--story-station));
   /* Why time, not scroll: a still gesture must not leave a scene half-played.
      One length per surface is the scene's whole clock; every slice's delay and
@@ -506,8 +506,9 @@ html { scroll-snap-type: y mandatory; }
      rest; the intro shares the line. */
   padding-block-start: var(--story-top);
   grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
-  grid-template-rows: auto 1fr;
-  grid-template-areas: "stage intro" "stage beats";
+  /* intro · chapters 1–6. The stage spans both rows, so it stays pinned
+     behind the copy for the whole story. The kit is a section after it. */
+  grid-template-rows: auto auto;
   align-items: start;
   /* The beats declare the view timelines; every scene inside the stage reads
      them by name across the DOM boundary. Each beat's snap point declares an
@@ -517,7 +518,8 @@ html { scroll-snap-type: y mandatory; }
                   --arrive-1, --arrive-2, --arrive-3, --arrive-4, --arrive-5, --arrive-6;
 }
 .story-intro {
-  grid-area: intro; min-height: var(--story-face);
+  grid-column: 2; grid-row: 1;
+  min-height: var(--story-face);
   /* The opening's exit is also the page light's entrance; one timeline, so the
      handoff can never land in a gap. */
   view-timeline: --opening block;
@@ -545,7 +547,7 @@ html { scroll-snap-type: y mandatory; }
 }
 
 .story-beats {
-  grid-area: beats; list-style: none; margin: 0; padding: 0;
+  grid-column: 2; grid-row: 2; list-style: none; margin: 0; padding: 0;
   position: relative; z-index: 1;
 }
 /* One beat is one page: the morph's scroll interval and the station pitch are
@@ -689,7 +691,8 @@ html { scroll-snap-type: y mandatory; }
    card never fades the surface under it, and the card's shadow is never
    clipped by the viewport. */
 .story-frame {
-  grid-area: stage; position: sticky; top: var(--story-top);
+  grid-column: 1; grid-row: 1 / -1;
+  position: sticky; top: var(--story-top);
   align-self: start; z-index: 2;
   height: var(--story-stage-h);
 }
@@ -1453,11 +1456,15 @@ html { scroll-snap-type: y mandatory; }
 @property --pose { syntax: "<number>"; inherits: true; initial-value: 0; }
 
 .story-stage {
-  --base-backend: 104px;
+  /* The band is the larger of its two stacks plus one air step. A rung sets the
+     floor and the air, never the band itself, so it cannot undercut the rows it
+     holds. */
+  --base-band-floor: 104px;
+  --base-band-air: 3px;
   --base-client: 50px;
   --base-footer: 20px;
   --base-zone-x: 22px;
-  --base-zone-y: 24px;
+  --base-zone-nominal: 24px;
   /* The band divides into three hosts with two 8 px gaps; every backend box is
      read from these numbers, so the figure has one geometry source. */
   --base-well-gap: 8px;
@@ -1465,8 +1472,10 @@ html { scroll-snap-type: y mandatory; }
   --base-well-x1: calc(var(--base-well-w) + var(--base-well-gap));
   --base-well-x2: calc(2 * (var(--base-well-w) + var(--base-well-gap)));
   --base-chip-w: calc(var(--base-well-w) - 16px);
+  --base-row-top: 22px;
+  --base-row-gap: 5px;
   --base-chip-h: 35px;
-  --base-chip-y1: calc(22px + var(--base-chip-h) + 5px);
+  --base-chip-y1: calc(var(--base-row-top) + var(--base-chip-h) + var(--base-row-gap));
   /* The replica's bar row is where the five data containers land. */
   --base-bar-w: 18px;
   --base-bar-h: 12px;
@@ -1493,6 +1502,7 @@ html { scroll-snap-type: y mandatory; }
      sits `--base-mode-top` inside it, and both read one grade. */
   --base-label-inset: 18px;
   --base-mode-top: 8px;
+  --base-mode-height: 12px;
   --base-annotation-size: var(--text-xs);
   --base-egress-inset: max(var(--base-egress-nominal),
     calc(var(--radius-xl) * var(--base-corner-scale) + var(--base-corner-safety)));
@@ -1500,7 +1510,18 @@ html { scroll-snap-type: y mandatory; }
     calc(var(--radius-lg) * var(--base-corner-scale) + var(--base-corner-safety)));
   --base-mode-inset: max(var(--base-mode-nominal),
     calc(var(--radius-xl) * var(--base-corner-scale) + var(--base-corner-safety)));
-  --base-peer-h: calc(46px + var(--base-replica-h));
+  /* The rail is the floor: the zone always clears the mode's own stack. */
+  --base-zone-y: max(var(--base-zone-nominal),
+    calc(var(--base-mode-top) + var(--base-mode-height) + 2px));
+  --base-peer-chrome: 46px;
+  --base-peer-h: calc(var(--base-peer-chrome) + var(--base-replica-h));
+  /* The band reads the taller of the two stacks (two chip rows, the peer) and
+     adds the air. Nothing may set the band below its contents. */
+  --base-band-content: max(
+    calc(var(--base-row-top) + 2 * var(--base-chip-h) + var(--base-row-gap)),
+    var(--base-peer-h));
+  --base-backend: max(var(--base-band-floor),
+    calc(var(--base-band-content) + var(--base-band-air)));
   --base-peer-top: calc((var(--base-backend) - var(--base-peer-h)) / 2);
   --base-peer-bottom: calc(var(--base-peer-top) + var(--base-peer-h));
   --base-bar-x: calc(var(--base-well-x1) + 1px + var(--base-peer-body-inset) + 1px + var(--base-replica-pad-left));
@@ -1593,12 +1614,12 @@ html { scroll-snap-type: y mandatory; }
    grid cell, so the flip never moves the layout; the rail holds the row. */
 .base-mode {
   flex: none; translate: 0 var(--base-mode-top);
-  display: grid; height: 12px; margin: 0;
+  display: grid; height: var(--base-mode-height); margin: 0;
   font-family: var(--font-caption); font-size: var(--base-annotation-size); letter-spacing: 0.06em;
   text-transform: uppercase; color: var(--text-secondary);
 }
 .base-mode span {
-  grid-area: 1 / 1; justify-self: end; line-height: 12px;
+  grid-area: 1 / 1; justify-self: end; line-height: var(--base-mode-height);
   opacity: clamp(0, (0.78 - var(--pose)) * 1000, 1);
 }
 .base-mode .base-mode--local { opacity: clamp(0, (var(--pose) - 0.78) * 1000, 1); }
@@ -1725,7 +1746,7 @@ html { scroll-snap-type: y mandatory; }
 /* Each container's two boxes: the host slot it fills, and the block (or the
    role line) it becomes. */
 .base-part[data-service="app"] {
-  --part-x0: 8px; --part-y0: 22px;
+  --part-x0: 8px; --part-y0: var(--base-row-top);
   --part-x1: var(--base-bar-x); --part-y1: var(--base-bar-y);
 }
 .base-part[data-service="auth"] {
@@ -1733,7 +1754,7 @@ html { scroll-snap-type: y mandatory; }
   --part-x1: calc(var(--base-bar-x) + var(--base-bar-pitch)); --part-y1: var(--base-bar-y);
 }
 .base-part[data-service="repo"] {
-  --part-x0: calc(var(--base-well-x1) + 8px); --part-y0: 22px;
+  --part-x0: calc(var(--base-well-x1) + 8px); --part-y0: var(--base-row-top);
   --part-x1: calc(var(--base-bar-x) + 2 * var(--base-bar-pitch)); --part-y1: var(--base-bar-y);
 }
 .base-part[data-service="cache"] {
@@ -1741,7 +1762,7 @@ html { scroll-snap-type: y mandatory; }
   --part-x1: calc(var(--base-bar-x) + 3 * var(--base-bar-pitch)); --part-y1: var(--base-bar-y);
 }
 .base-part[data-service="audit"] {
-  --part-x0: calc(var(--base-well-x2) + 8px); --part-y0: 22px;
+  --part-x0: calc(var(--base-well-x2) + 8px); --part-y0: var(--base-row-top);
   --part-x1: calc(var(--base-bar-x) + 4 * var(--base-bar-pitch)); --part-y1: var(--base-bar-y);
 }
 /* Ops pipelines becomes the peer's authority: a line, not a block. Its plate
@@ -4339,18 +4360,20 @@ html[data-panel="tailor"] .repo-row .note::after { animation-play-state: running
   .plan-row { grid-template-columns: 44px minmax(0, 1fr); gap: 4px; }
   .plan-name { font-size: 7.5px; }
   .todo { font-size: 8.5px; gap: 4px; }
-  /* The band keeps its proportions; the block row narrows so the five blocks
-     still fit the peer's inner width, and the replica's label takes a second
-     line. */
+  /* One phone rung. The band and the rail derive from these ingredients (see
+     the stage block), so the two chip rows and the peer always fit; the block
+     row narrows so the five blocks still fit the peer's inner width. */
   .story-stage {
-    --base-backend: 96px;
-    --base-client: 46px;
-    --base-gap: 22px;
+    --base-band-floor: 0px;
+    --base-client: 44px;
+    --base-gap: 6px;
     --base-footer: 18px;
     --base-zone-x: 10px;
-    --base-zone-y: 18px;
-    --base-chip-h: 32px;
-    --base-replica-h: 41px;
+    --base-zone-nominal: 13px;
+    --base-row-top: 21px;
+    --base-row-gap: 4px;
+    --base-chip-h: 31px;
+    --base-replica-h: 39px;
     /* The pill's usable chord at the bar row is ~55 px: five 8 px blocks and
        four 2 px gaps (48 px) leave room for the corner-safe left pad. */
     --base-bar-w: 8px;
@@ -4365,7 +4388,7 @@ html[data-panel="tailor"] .repo-row .note::after { animation-play-state: running
     --base-mode-top: 6px;
     --base-annotation-size: 9px;
   }
-  .base-body { padding: 12px; }
+  .base-body { padding: 8px; }
   .base-perimeter { padding: var(--base-zone-y) var(--base-zone-x) 1px; }
   .base-head > .canvas-label { padding: 1px 8px; }
   /* The pill keeps the boundary's name and drops its gloss: the fence and the
@@ -4394,7 +4417,13 @@ html[data-panel="tailor"] .repo-row .note::after { animation-play-state: running
   .base-client-name { letter-spacing: 0.04em; }
   .base-client-icon { width: 20px; height: 20px; }
   .base-client-icon .icon { width: 18px; height: 18px; }
-  .story-pane[data-pane="6"] .topology-caption { font-size: 9px; line-height: 1.3; }
+  /* The caption is the mat's footer: one narrow measure keeps its line count
+     stable, and the tighter leading buys the band its last pixels. */
+  .story-pane[data-pane="6"] .topology-caption {
+    max-inline-size: 300px; justify-self: center;
+    translate: 0 calc(100% + var(--space-1_5));
+    font-size: 9px; line-height: 1.2;
+  }
   .story-credit { font-size: 9px; }
   .presets { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
   .knobs { grid-template-columns: 1fr; gap: 18px; }
@@ -4473,30 +4502,6 @@ html[data-panel="tailor"] .repo-row .note::after { animation-play-state: running
   .typeface { margin-top: 14px; padding-top: 12px; }
 }
 
-/* The phone's stage is one height, so the base band is one size there: the
-   drawing must clear the figure it sits in without a caption line carried
-   under the fold. The copy still takes a rung tighter on a short fold, so the
-   same reserve holds at 360 x 640. */
-@media (max-width: 720px) {
-  .story-stage {
-    /* The phone's stage is one height, so the base band takes one size there:
-       the drawing must clear the figure it sits in without a caption line
-       carried under the fold. The band is measured from the compact stage. */
-    --base-backend: 80px;
-    --base-client: 44px;
-    --base-gap: 8px;
-    --base-zone-y: 13px;
-  }
-  .base-body { padding: 8px; }
-  /* One caption band: three or four lines must both leave the drawing's own
-     edges in place while the copy below keeps one gap. A narrow measure makes
-     the line count the same at every phone width, and the mat's footer still
-     hugs the fence. */
-  .story-pane[data-pane="6"] .topology-caption {
-    max-inline-size: 300px; justify-self: center;
-    translate: 0 calc(100% + var(--space-1_5));
-  }
-}
 
 /* Short folds spend the same page on the copy channel. The figure holds its
    floor, so the copy takes one rung tighter instead of leaving its last line

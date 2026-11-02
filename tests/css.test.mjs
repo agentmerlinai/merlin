@@ -371,7 +371,7 @@ test('story: every corner-bound inset follows the corner radius', () => {
   assert.doesNotMatch(css, /\.base-perimeter > \.canvas-label/, 'the badge is not anchored to the panel');
   assert.doesNotMatch(css, /\.base-mode \{[^}]*position:\s*absolute/, 'the mode is not a second anchor');
 
-  const narrow = css.match(/\.story-stage \{([^}]*--base-replica-h: 41px[^}]*)\}/);
+  const narrow = css.match(/\.story-stage \{([^}]*--base-band-floor: 0px[^}]*)\}/);
   assert.ok(narrow, 'the narrow stage is locatable');
   assert.match(narrow[1], /--base-bar-w:\s*8px/, 'the narrow blocks are 8 px');
   assert.match(narrow[1], /--base-bar-gap:\s*2px/, 'the narrow gaps are 2 px');
@@ -389,11 +389,26 @@ test('story: every corner-bound inset follows the corner radius', () => {
   assert.match(css, /\.base-footer-fact \{ display:\s*none; \}/,
     'the narrow footer drops the repeated volume');
   assert.match(narrow[1], /--base-annotation-size:\s*9px/, 'the narrow band takes one grade step');
-  assert.match(css, /\.story-pane\[data-pane="6"\] \.topology-caption \{ font-size:\s*9px/,
+  assert.match(css, /\.story-pane\[data-pane="6"\] \.topology-caption \{[^}]*font-size:\s*9px/,
     'the band and the caption share the phone grade');
   assert.match(stage[1], /--base-label-inset:\s*18px/, 'the desktop rail keeps its own inset');
   assert.match(stage[1], /--base-mode-top:\s*8px/, 'the mode sits on the 2 px step');
   assert.match(stage[1], /--base-annotation-size:\s*var\(--text-xs\)/, 'the band grade has one owner');
+
+  /* The band and the rail read their contents, never a rung's number: a
+     breakpoint can shrink the ingredients, never the box that holds them. */
+  assert.match(stage[1], /--base-chip-y1:[^;]*var\(--base-row-top\)/, 'the row origin is a token');
+  assert.match(stage[1], /--base-chip-y1:[^;]*var\(--base-row-gap\)/, 'the row gap is a token');
+  assert.match(stage[1], /--base-peer-h:[^;]*var\(--base-peer-chrome\)/, 'the peer chrome is a token');
+  assert.match(stage[1], /--base-band-content:\s*max\(/, 'the band reads the taller stack');
+  assert.match(stage[1], /--base-band-content:[^;]*var\(--base-peer-h\)/, 'the band reads the peer');
+  assert.match(stage[1], /--base-backend:\s*max\(/, 'the band adds its air to its contents');
+  assert.match(stage[1], /--base-zone-y:\s*max\(/, 'the rail adds its air to the mode');
+  assert.match(stage[1], /--base-zone-y:[^;]*var\(--base-mode-height\)/, 'the rail reads the mode height');
+  assert.equal((css.match(/^\s*--base-backend:/gm) || []).length, 1, 'one band owner');
+  assert.equal((css.match(/^\s*--base-zone-y:/gm) || []).length, 1, 'one rail owner');
+  assert.doesNotMatch(narrow[1], /--base-backend:/, 'the phone never sets the band');
+  assert.doesNotMatch(narrow[1], /--base-zone-y:/, 'the phone never sets the rail');
 });
 
 test('story: the app card leaves with the plan; the panel is the enclosure', () => {

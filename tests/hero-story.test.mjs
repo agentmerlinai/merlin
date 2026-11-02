@@ -853,6 +853,74 @@ if (!CHROME_BIN) {
     await waitSettled();
   });
 
+  test('geometry: every figure box stays inside its frame at each rung', async () => {
+    /* The band and the rail are derived from their contents, so a rung can
+       shrink the ingredients without letting a container row, the peer, or the
+       mode cross its frame. Measure boxes, never source strings: the same
+       contract must survive a rewrite. */
+    const decks = [
+      ...VIEWPORTS,
+      { width: 720, height: 900, mobile: true },
+      { width: 359, height: 420, mobile: true }
+    ];
+    const read = () => evaluate(`(() => {
+      const stage = document.querySelector('[data-story-stage]');
+      const q = (s) => stage.querySelector(s);
+      const box = (el) => { const r = el.getBoundingClientRect(); return [r.top, r.bottom]; };
+      const pane = q('.story-pane[data-pane="6"]').getBoundingClientRect();
+      const cap = q('.topology-caption').getBoundingClientRect();
+      const r = (n) => Math.round(n * 10) / 10;
+      return {
+        band: box(q('.base-backend')).map(r),
+        peer: box(q('.base-peer')).map(r),
+        badge: box(q('.base-head > .canvas-label')).map(r),
+        mode: box(q('.base-mode')).map(r),
+        clients: box(q('.base-clients')).map(r),
+        chip: box(q('.base-part[data-service="auth"]')).map(r),
+        bus: r(q('.base-link--bus').getBoundingClientRect().top),
+        clip: r(cap.bottom - pane.bottom)
+      };
+    })()`);
+    const pose = async (value) => {
+      await evaluate(`(() => {
+        const per = document.querySelector('[data-story-stage] .base-perimeter');
+        per.style.setProperty('--pose', '${value}', 'important');
+      })()`);
+      await delay(60);
+    };
+    for (const vp of decks) {
+      await setViewport(vp);
+      await waitSettled();
+      await snapTo(6);
+      const where = `at ${vp.width}x${vp.height}`;
+      await pose(0);
+      const cloud = await read();
+      assert.ok(cloud.chip[1] <= cloud.band[1] + 0.5,
+        `the second container row stays in the band ${where} (${cloud.chip[1]} of ${cloud.band[1]})`);
+      assert.ok(cloud.chip[1] <= cloud.clients[0] + 0.5,
+        `the second container row clears the clients ${where} (${cloud.chip[1]} of ${cloud.clients[0]})`);
+      assert.ok(cloud.mode[1] <= cloud.band[0] + 0.5,
+        `the mode clears the band ${where} (${cloud.mode[1]} of ${cloud.band[0]})`);
+      await pose(1);
+      const local = await read();
+      assert.ok(local.peer[0] >= local.band[0] - 0.5 && local.peer[1] <= local.band[1] + 0.5,
+        `the peer stays in the band ${where} (${local.peer.join('..')} of ${local.band.join('..')})`);
+      assert.ok(local.badge[1] <= local.peer[0] + 0.5,
+        `the badge clears the peer ${where} (${local.badge[1]} of ${local.peer[0]})`);
+      assert.ok(local.bus >= local.peer[1] - 0.5,
+        `the bus clears the peer ${where} (${local.bus} of ${local.peer[1]})`);
+      assert.ok(local.mode[1] <= local.band[0] + 0.5,
+        `the mode clears the band ${where} (${local.mode[1]} of ${local.band[0]})`);
+      assert.ok(local.clip <= 1, `the caption stays inside the mat ${where} (${local.clip})`);
+      await evaluate(`document.querySelector('[data-story-stage] .base-perimeter').style.removeProperty('--pose')`);
+      await reload();
+    }
+    await setViewport(VIEWPORTS[0]);
+    await waitSettled();
+    await go(0);
+    await waitSettled();
+  });
+
   test('geometry: every beat is one page and the pitch never drifts', async () => {
     const geo = await evaluate(`(() => {
       const hero = document.querySelector('.hero');
@@ -950,16 +1018,20 @@ if (!CHROME_BIN) {
   });
 
   test('morph: every tile leaves the board and lands on its own entry', async () => {
-    const start = await offset(3);
-    const span = await travel(3);
+    const boardStart = await offset(3);
+    const boardSpan = await travel(3);
+    const start = boardStart;
+    const span = boardSpan;
     /* This probe reads the scroll-driven frame, so it turns the snap off: the
        snap itself is covered by the snap tests above. */
     await evaluate(`window.__h.snap('none')`);
     await delay(50);
 
     /* A proxy leaves from the worked board, not from where the drag happened to
-       be: let the scene reach its still frame, then read the tiles it carries. */
-    await go(start + span * 0.02);
+       be: let the scene reach its still frame, then read the tiles it carries.
+       The seam window is chapter 3's own exit, so the worked pose is sampled
+       at the chapter's head and the flight over its tail. */
+    await go(boardStart + boardSpan * 0.02);
     await waitSettled();
     await waitFor(async () => (await evaluate(`window.__h.scene(3).settled`)), 12000, 'the board scene reaches its still frame');
     const rest = await seam(3);
