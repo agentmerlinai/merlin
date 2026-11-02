@@ -4073,11 +4073,19 @@ html[data-panel="tailor"] .repo-row .note::after { animation-play-state: running
 /* The ending borrows the section shell, so this block owns composition only:
    the claim row states the guarantee, the band hands the repo over, and the
    stage note qualifies it under the doors. */
-/* The panel is a frame, not a column: the ending centres as one block, so a
-   tall screen keeps the argument and the doors in one line of sight instead of
-   leaving a hole between them. */
-.close { position: relative; view-timeline: --phase-close block; }
-.close .wrap { display: flex; flex-direction: column; justify-content: center; min-height: 100%; }
+/* The ending shares the deck's page top: its block starts on the same line as
+   every chapter, and the section shell supplies the one top inset, so no
+   second vertical owner holds the block in the middle.
+   The last panel is the only panel whose top must reach the scrollport top.
+   A 100svh panel is shorter than the live viewport once the browser chrome
+   collapses, so the last snap point falls past max scroll; the snap engine
+   then clamps and the ending rests low. The live height keeps the last rest
+   reachable in both chrome states. Only the ending needs it: every other
+   panel has a panel below it, which supplies the remaining scroll range. */
+.close {
+  position: relative; view-timeline: --phase-close block;
+  min-height: 100dvh;
+}
 /* The headline names the beat; the tree beside it is the proof. A short
    measure keeps both in one line of sight. */
 .close h2 { max-width: 22ch; }

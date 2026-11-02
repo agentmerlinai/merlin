@@ -524,10 +524,14 @@ test('story: the page is the only scrollport', () => {
   assert.match(section[1], /height:\s*var\(--panel\)/, 'a section is exactly one panel');
   assert.doesNotMatch(section[1], /min-height/, 'a grown section would trap its own tail');
   /* The ending borrows the shell: one panel, one owner for height and padding.
-     A second declaration here is how a panel grew past a page unnoticed. */
+     A second declaration here is how a panel grew past a page unnoticed. The
+     one exception is the live viewport floor: the ending is the last panel, so
+     a live height can only make its top reachable, never trap a tail. */
   const close = css.match(/\n\.close\s*\{([^}]*)\}/);
   assert.ok(close, 'the ending modifier is locatable');
-  assert.doesNotMatch(close[1], /height|padding/, 'the ending owns composition, not the panel box');
+  assert.match(close[1], /min-height:\s*100dvh/, 'the last panel tracks the live viewport');
+  assert.doesNotMatch(close[1], /(?:^|[;\s])height\s*:/, 'the ending never fixes the panel height');
+  assert.doesNotMatch(close[1], /padding/, 'the ending owns composition, not the panel box');
 });
 
 test('story: the phone fold reserves the copy before it sizes the figure', () => {
