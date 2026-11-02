@@ -1,9 +1,11 @@
 import { createElement } from 'react';
 import { hydrateRoot } from 'react-dom/client';
+import { KitBench } from './kit/KitBench';
 import { ThemeLab } from './theme-lab/ThemeLab';
 import { ThemeToggle } from './theme-toggle/ThemeToggle';
 
 const reactIslands = {
+  kit: KitBench,
   theme: ThemeToggle,
   lab: ThemeLab,
 } as const;

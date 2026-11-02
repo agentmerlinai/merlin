@@ -542,6 +542,139 @@ html { scroll-snap-type: y mandatory; }
   grid-column: 2; grid-row: 2; list-style: none; margin: 0; padding: 0;
   position: relative; z-index: 1;
 }
+.kit-bench {
+  display: grid;
+  grid-template-columns: minmax(0, 1.06fr) minmax(0, 0.94fr);
+  gap: clamp(20px, 3vw, 42px);
+  align-items: center;
+  inline-size: 100%;
+  /* The panel's inset is also its corner clearance. A content box whose
+     corner sits p from both edges stays inside a corner of radius r only
+     while p ≥ r(1 − 1/√2) ≈ 0.293r; the Round preset lifts r to 28px, so a
+     fixed 6px inset would put the title across the border. 0.45r keeps a
+     visible gutter for every preset (6 / 16 / 28). */
+  --kit-inset: max(clamp(12px, 2.4vh, 30px), calc(var(--radius-xl) * 0.45));
+  padding: var(--kit-inset);
+}
+.kit-left { display: flex; flex-direction: column; gap: 14px; min-inline-size: 0; }
+.kit-eyebrow {
+  display: block; margin-bottom: 7px;
+  font-family: var(--font-caption); font-size: 9.5px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-accent-fg);
+}
+.kit-title {
+  font-family: var(--font-heading); font-size: clamp(20px, 1.8vw, 26px);
+  line-height: 1.15; letter-spacing: var(--tracking-heading);
+  color: var(--text-primary);
+}
+.kit-lead {
+  max-inline-size: 46ch; margin-top: 7px;
+  font-size: 13px; line-height: 1.55; color: var(--text-secondary);
+}
+.kit-specimen {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 14px; border: 1px solid var(--border-muted);
+  border-radius: var(--radius-lg); background: var(--bg-muted);
+}
+.kit-specimen-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.kit-specimen-name {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-caption); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-secondary);
+}
+.kit-specimen-name .icon { width: 16px; height: 16px; color: var(--color-primary-fg); }
+.kit-specimen-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+/* The specimen is the live icon surface: one glyph per role and four size
+   tiers, so a kit switch repaints the whole mock, not one corner. Every icon
+   keeps the `icon` class; the root gate and pixel crispEdges key off it. */
+.kit-card-glyph { width: 18px; height: 18px; }
+.kit-step-glyph { width: 14px; height: 14px; color: var(--text-secondary); }
+.kit-step-label { min-inline-size: 0; }
+.kit-btn-glyph { width: 13px; height: 13px; }
+.kit-tag-glyph { width: 12px; height: 12px; }
+.kit-composer { position: relative; }
+.kit-composer-send {
+  position: absolute; inset-inline-end: 10px; inset-block-start: 50%;
+  translate: 0 -50%; width: 14px; height: 14px;
+  color: var(--color-primary-fg); pointer-events: none;
+}
+.kit-controls { display: flex; flex-direction: column; gap: 12px; min-inline-size: 0; }
+.kit-group { display: flex; flex-direction: column; gap: 7px; }
+.kit-group-name {
+  font-family: var(--font-caption); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted);
+}
+.kit-tiles { display: grid; gap: 6px; }
+.kit-tiles--presets { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.kit-tiles--types { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.kit-tiles--kits, .kit-tiles--corners { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.kit-tile {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+  padding: 8px 9px; border: 1px solid var(--border-muted);
+  border-radius: var(--radius-md); background: var(--bg-page);
+  color: var(--text-secondary); cursor: pointer; text-align: start;
+}
+.kit-tile:hover { border-color: var(--border-default); color: var(--text-primary); }
+.kit-tile[aria-pressed="true"] {
+  border-color: var(--color-primary); background: var(--color-primary-subtle);
+  color: var(--color-primary-fg);
+}
+.kit-tile--corner { flex-direction: row; align-items: center; }
+/* The kit tile is a specimen strip: four glyphs from the set, spread across
+   the tile so the sample reads as the set, not one cropped icon. */
+.kit-sample-row {
+  display: flex; align-items: center; justify-content: space-between;
+  inline-size: 100%; color: inherit;
+}
+/* Five equal tiles share the compact panel. A long preset name carries a
+   soft hyphen, so the label wraps inside the 320px reflow floor instead of
+   painting over its neighbour; break-word is the guard for future names. */
+.kit-tile-label {
+  font-family: var(--font-caption); font-size: 9px; line-height: 1.2;
+  letter-spacing: 0.05em; overflow-wrap: break-word;
+}
+.kit-type-sample { font-size: 20px; line-height: 1; color: var(--text-primary); }
+.kit-glyph { width: 18px; height: 18px; flex: none; color: currentColor; }
+.kit-corner { width: 18px; height: 18px; flex: none; background: var(--bg-muted); border: 1px solid var(--border-default); }
+.kit-knobs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; }
+.kit-knobs .knob { gap: 6px; }
+.kit-knobs .knob-name { font-size: 9px; letter-spacing: 0.08em; }
+.kit-actions {
+  display: flex; align-items: center; gap: 12px;
+  padding-top: 10px; border-top: 1px solid var(--border-muted);
+}
+.kit-state {
+  margin-inline-end: auto; min-inline-size: 0;
+  font-family: var(--font-caption); font-size: 9px; letter-spacing: 0.05em;
+  color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.theme-reset {
+  padding: 5px 10px; border: 1px solid var(--border-muted);
+  border-radius: var(--radius-full); background: transparent;
+  font-family: var(--font-caption); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-secondary); cursor: pointer;
+}
+.theme-reset:hover { border-color: var(--border-strong); color: var(--text-primary); }
+.kit-ds {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--font-caption); font-size: 10px; color: var(--text-secondary);
+  text-decoration: underline; text-underline-offset: 3px; white-space: nowrap;
+}
+.kit-ds:hover { color: var(--text-primary); }
+.kit-ds .icon { width: 12px; height: 12px; }
+.kit-tabs { display: none; }
+.kit-tab {
+  flex: 1; padding: 6px 8px; border: 1px solid var(--border-muted);
+  border-radius: var(--radius-full); background: transparent;
+  font-family: var(--font-caption); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text-secondary); cursor: pointer;
+}
+.kit-tab[aria-pressed="true"] {
+  border-color: var(--color-primary); background: var(--color-primary-subtle);
+  color: var(--color-primary-fg);
+}
 /* One beat is one page: the morph's scroll interval and the station pitch are
    the same panel, so every chapter takes the same gesture. Nothing here is a
    snap area — the point above the copy is. */
@@ -3820,10 +3953,10 @@ html[data-panel="tailor"] .repo-row .note::after { animation-play-state: running
   .chat-caret, .plan-bar:not(.plan-bar--grow)
 ) { animation-trigger: none; }
 
-/* ── Your brand ────────────────────────────────────────────── */
-/* The page is the preview: two hue inputs rewrite the token layer, so every
-   surface above and below moves with them. Controls keep the design
-   system's native range pattern; the tape shows the generated scale. */
+/* ── The kit and the lab ───────────────────────────────────── */
+/* Both surfaces write the same token layer, so every surface on the page is
+   the preview. The home kit section composes these primitives compactly; the
+   design-system lab adds the token tape. */
 .theme-lab { margin-top: clamp(12px, 2.6vh, 36px); padding: clamp(12px, 2.4vh, 32px); }
 .presets { display: flex; flex-wrap: wrap; gap: 6px; }
 /* One recipe for every studio choice: colour pair, icon kit, and corner
@@ -4133,6 +4266,18 @@ html[data-panel="tailor"] .repo-row .note::after { animation-play-state: running
     display: block; min-height: 0;
     padding-top: calc(var(--story-copy-gap) - var(--story-pane-inset));
   }
+  /* One column: the specimen stacks above the controls, so the reader sees
+     the artifact and then the knobs that repaint it. Three tabs keep every
+     group reachable within one fold. */
+  .kit-bench {
+    display: flex; flex-direction: column; gap: 7px; align-items: stretch;
+    /* The fold sets the inset here, so the corner guard cannot add to it:
+       12px already clears the largest radius. */
+    --kit-inset: max(12px, calc(var(--radius-xl) * 0.45));
+    padding: var(--kit-inset);
+  }
+  .kit-left { gap: 10px; }
+
   /* One column: the sentence stacks above the working copy, so the reader
      reads the claim and then the artifact at one width. */
   /* One column keeps the doors on the sentence, so the action is still one
@@ -4343,6 +4488,79 @@ html[data-panel="tailor"] .repo-row .note::after { animation-play-state: running
   .typeface { margin-top: 14px; padding-top: 12px; }
 }
 
+/* A short window has less channel than the full card. The compact card
+   keeps the same choices in one group at a time, so the panel still ends
+   above the fold. The specimen stays: on a phone it is the artifact that
+   sits above the knobs; only a short, wide window retires it (below). */
+@media (max-width: 980px), (max-height: 700px) {
+  .kit-eyebrow, .kit-group-name, .kit-state { display: none; }
+  .kit-title { font-size: 19px; line-height: 1.15; }
+  .kit-tabs { display: flex; gap: 4px; }
+  .kit-group { display: none; gap: 5px; }
+  .kit-group[data-active="true"] { display: flex; }
+  .kit-controls { gap: 8px; }
+  /* The specimen takes the compact inset on every narrow panel, so the fold
+     holds both the artifact and the knobs. */
+  .kit-specimen { gap: 8px; padding: 9px; }
+  .kit-tile { padding: 5px 6px; gap: 4px; }
+  .kit-tile-label { font-size: 8px; }
+  /* Type labels alone must fit a 12-character word; the tighter inset and
+     flat tracking keep "legible" inside 320px. */
+  .kit-tile--type { padding-inline: 4px; }
+  .kit-tile--type .kit-tile-label { letter-spacing: 0; }
+  .kit-type-sample { font-size: 16px; }
+  .kit-glyph { width: 14px; height: 14px; }
+  .kit-knobs { gap: 8px 12px; }
+  .kit-knobs .knob { gap: 3px; }
+  .kit-knobs .knob-head { gap: 4px; }
+  .kit-knobs .knob-name { font-size: 8px; }
+  .kit-knobs .knob-value { font-size: 9px; }
+  .kit-actions { padding-top: 8px; gap: 8px; }
+  .kit-ds { margin-inline-start: auto; }
+}
+
+/* A short fold spends its channel on the controls. The title carries the
+   claim; the lead returns as soon as the window has the room. */
+@media (max-height: 700px) {
+  .kit-lead { display: none; }
+}
+
+/* A short window that is not narrow puts the specimen beside the controls,
+   where it has no height to live: the wall retires and the knobs keep the
+   panel. Phones are exempt — they stack it above the knobs. */
+@media (min-width: 981px) and (max-height: 700px) {
+  .kit-specimen { display: none; }
+}
+
+/* The tightest fold takes one card inset less, so the card still ends above
+   the fold. The mock keeps its card — the glyph roles the panel exists to
+   show — and spends its secondary chrome (composer, tag row) on the fit.
+   The space tokens are scoped to the specimen: one local density, no change
+   to the shared components. */
+@media (max-width: 980px) and (max-height: 700px) {
+  /* The corner guard wins over the fold here: 6px is under 0.293 × 28. The
+     rows below pay the difference, so the bench still ends above the fold. */
+  .kit-bench {
+    --kit-inset: max(6px, calc(var(--radius-xl) * 0.45));
+    padding: var(--kit-inset);
+    gap: 5px;
+  }
+  .kit-controls { gap: 6px; }
+  .kit-tab { padding: 5px 8px; }
+  .kit-title { font-size: 18px; }
+  .kit-actions { padding-top: 6px; }
+  .kit-composer, .kit-specimen-tags { display: none; }
+  .kit-specimen {
+    --space-1_5: 4px;
+    --space-2: 6px;
+    --space-3: 7px;
+    --space-4: 10px;
+    gap: 5px;
+    /* Same guard as the panel, at the specimen's own radius: the head row
+       sits in the corner too, so its inset follows --radius-lg. */
+    padding: max(6px, calc(var(--radius-lg) * 0.4));
+  }
+}
 
 /* Short folds spend the same page on the copy channel. The figure holds its
    floor, so the copy takes one rung tighter instead of leaving its last line

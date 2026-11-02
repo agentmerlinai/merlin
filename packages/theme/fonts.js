@@ -61,10 +61,13 @@ const codeAll = (family) => ({ keyword: family, string: family, fn: family, comm
    only preset that mixes faces inside a code block: its families are metric-
    compatible, so syntax keeps alignment while the voice changes. Every other
    preset collapses the code sub-roles to its code face; a proportional serif
-   in a code block would break the grid. */
+   in a code block would break the grid. Labels are display copy: the two
+   compound names carry soft hyphens so the five-up phone tile can wrap them
+   instead of painting over its neighbour. Selects and the summary ignore the
+   hint because the character only renders at a line break. */
 export const TYPE_PRESETS = {
   monaspace: {
-    label: 'Monaspace',
+    label: 'Mono\u00ADspace',
     note: 'Technical',
     fonts: { body: 'MNeon', heading: 'MXenon', caption: 'MArgon', code: 'MNeon', agent: 'MKrypton', prose: 'MRadon' },
     code: { keyword: 'MKrypton', string: 'MArgon', fn: 'MXenon', comment: 'MRadon' },
@@ -88,7 +91,7 @@ export const TYPE_PRESETS = {
     code: codeAll('Source Code Pro'),
   },
   hyperlegible: {
-    label: 'Hyperlegible',
+    label: 'Hyper\u00ADlegible',
     note: 'Accessible',
     fonts: { body: 'Atkinson Hyperlegible Next', heading: 'Atkinson Hyperlegible Next', caption: 'Atkinson Hyperlegible Mono', code: 'Atkinson Hyperlegible Mono', agent: 'Atkinson Hyperlegible Mono', prose: 'Newsreader' },
     code: codeAll('Atkinson Hyperlegible Mono'),

@@ -1,6 +1,7 @@
 import { SiteLayout } from '../../components/SiteLayout';
 import { EndingSection } from './sections/EndingSection';
 import { HeroSection } from './sections/HeroSection';
+import { KitSection } from './sections/KitSection';
 
 export default function HomePage() {
   return (
@@ -18,6 +19,7 @@ export default function HomePage() {
         </div>
       </div>
       <HeroSection />
+      <KitSection />
       <EndingSection />
     </SiteLayout>
   );

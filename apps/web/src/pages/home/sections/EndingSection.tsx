@@ -27,7 +27,7 @@ const DOORS = [
    the reader decides. */
 export function EndingSection() {
   return (
-    <section className="section close" id="tailor" data-label="Tailor" data-index="07">
+    <section className="section close" id="tailor" data-label="Tailor" data-index="08">
       {/* Panel point: the deck rests on panel tops only. */}
       <span className="snap-point" aria-hidden="true" />
       <div className="wrap">

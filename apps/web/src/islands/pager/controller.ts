@@ -30,9 +30,9 @@ function panelName(el: HTMLElement): string {
 }
 
 /* A panel's numeral has one source: its explicit `data-index` (the intro's
-   00, the close's 07) or, for a story beat, its own chapter index. No deck
-   ordinal exists, so a row and the running head can never print different
-   numbers. */
+   00, the kit's 07, the close's 08) or, for a story beat, its own chapter
+   index. No deck ordinal exists, so a row and the running head can never
+   print different numbers. */
 function panelIndex(el: HTMLElement): string | null {
   const explicit = el.dataset.index;
   if (explicit) return explicit;
@@ -212,8 +212,8 @@ export function initPager(root: HTMLElement): void {
     if (best !== current) {
       current = best;
       live.textContent = `${panel.name} — panel ${best + 1} of ${panels.length}`;
-      /* One station signal. The brand thread and the tests read this owner
-         instead of re-deriving the nearest panel from the scroll. */
+      /* One station signal. The kit section's tests read this owner instead
+         of re-deriving the nearest panel from the scroll. */
       document.documentElement.dataset.panel = panel.el.id;
       document.dispatchEvent(new CustomEvent('merlin:panel', { detail: { id: panel.el.id } }));
     }

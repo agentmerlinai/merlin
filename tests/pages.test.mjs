@@ -7,6 +7,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { createServer as createViteServer } from 'vite';
+import { ICON_KITS, RADIUS_STYLES } from '../packages/theme/kits.js';
 import { startServer, DIST } from '../scripts/serve-dist.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
@@ -293,11 +294,11 @@ test('home: static sections render and hydrate without errors', async () => {
   })`);
   assert.match(page.title, /Merlin/);
   assert.equal(page.h1, 'Build collaborative agent experiences.');
-  assert.deepEqual(page.sections, ['top', 'tailor']);
-  assert.deepEqual(page.islands, ['pager', 'theme', 'hero']);
+  assert.deepEqual(page.sections, ['top', 'kit', 'tailor']);
+  assert.deepEqual(page.islands, ['pager', 'theme', 'hero', 'kit']);
   assert.equal(page.nav, 0, 'the nav no longer duplicates the contents');
   assert.deepEqual(errors, []);
-  await waitFor(() => evaluate('document.querySelectorAll(".pager-row").length === 8'), 5000, 'contents');
+  await waitFor(() => evaluate('document.querySelectorAll(".pager-row").length === 9'), 5000, 'contents');
   const pager = await evaluate(`({
     now: document.querySelector('.pager-now')?.textContent,
     num: document.querySelector('.pager-trigger-num')?.textContent,
@@ -316,7 +317,7 @@ test('home: static sections render and hydrate without errors', async () => {
   assert.match(pager.label, /Intro/, 'the panel names itself');
   const spine = await readSpine();
   assert.equal(spine.marks, 1, 'the spine draws one mark, not a segmented strip');
-  assert.ok(Math.abs(spine.width - spine.track / 8) <= 1, `the mark is one of eight equal steps (${spine.width} of ${spine.track})`);
+  assert.ok(Math.abs(spine.width - spine.track / 9) <= 1, `the mark is one of nine equal steps (${spine.width} of ${spine.track})`);
   assert.ok(Math.abs(spine.left) <= 1, 'the mark rests on the first step');
   assert.notEqual(spine.markColour, spine.trackColour, 'the current step is the only painted part');
   const edge = await evaluate(`(() => {
@@ -333,7 +334,7 @@ test('pager: the running head follows the panel the deck rests on', async () => 
      spine, the head, and the contents read the same snap position the scroll
      engine uses. */
   await navigate('/');
-  await waitFor(() => evaluate('document.querySelectorAll(".pager-row").length === 8'), 5000, 'contents');
+  await waitFor(() => evaluate('document.querySelectorAll(".pager-row").length === 9'), 5000, 'contents');
   await evaluate(`document.querySelector('#tailor').scrollIntoView({ behavior: 'instant', block: 'start' })`);
   await waitFor(() => evaluate(`document.querySelector('.pager-now').textContent === 'Tailor'`), 4000, 'head follows the panel');
   const at = await evaluate(`({
@@ -343,11 +344,11 @@ test('pager: the running head follows the panel the deck rests on', async () => 
     live: document.querySelector('.pager-live')?.textContent
   })`);
   assert.equal(at.now, 'Tailor', 'the last panel names the handover, not the argument');
-  assert.equal(at.num, '07', 'the closing panel carries the numeral after the story');
+  assert.equal(at.num, '08', 'the closing panel carries the last numeral');
   assert.doesNotMatch(at.now, /\d/, 'the head never carries a deck numeral');
-  assert.equal(at.current, 7, 'the last panel is current');
-  await waitFor(async () => Math.round((await readSpine()).step) === 7, 2000, 'the spine follows the same panel');
-  assert.match(at.live, /panel 8 of 8/, 'the announcement names the position');
+  assert.equal(at.current, 8, 'the last panel is current');
+  await waitFor(async () => Math.round((await readSpine()).step) === 8, 2000, 'the spine follows the same panel');
+  assert.match(at.live, /panel 9 of 9/, 'the announcement names the position');
 
   /* The head's numeral is the row's numeral, not a deck ordinal: panel 6 is
      chapter 05, and both places must say 05. */
@@ -387,33 +388,41 @@ test('spine: the mark slides from step to step', async () => {
   );
 
   const forward = await walk('#chapter-6');
-  assert.ok(between(forward, 0, 6), `the mark travels forward instead of jumping (${forward.map((s) => s.toFixed(2))})`);
+  assert.ok(between(forward, 4, 7), `the mark travels forward instead of jumping (${forward.map((s) => s.toFixed(2))})`);
   await settle(6, 'forward rest');
 
   const backward = await walk('#chapter-5');
-  assert.ok(between(backward, 5, 6), `the mark travels backward instead of jumping (${backward.map((s) => s.toFixed(2))})`);
+  assert.ok(between(backward, 5, 7), `the mark travels backward instead of jumping (${backward.map((s) => s.toFixed(2))})`);
   await settle(5, 'backward rest');
   assert.deepEqual(errors, []);
 });
 
 test('pager: the running head opens the one contents list', async () => {
   await navigate('/');
-  await waitFor(() => evaluate('document.querySelectorAll(".pager-row").length === 8'), 5000, 'contents');
+  await waitFor(() => evaluate('document.querySelectorAll(".pager-row").length === 9'), 5000, 'contents');
   await evaluate('document.querySelector(".pager-trigger").click()');
   await waitFor(() => evaluate('document.querySelector(".pager-contents").matches(":popover-open") && document.querySelector(".pager-trigger").getAttribute("aria-expanded") === "true"'), 3000, 'contents open');
   const open = await evaluate(`({
     rows: document.querySelectorAll('.pager-row').length,
     chapters: [...document.querySelectorAll('.pager-row-num')].map((n) => n.textContent).filter(Boolean),
     captions: document.querySelectorAll('.pager-group').length,
+    bench: (() => {
+      const row = [...document.querySelectorAll('.pager-row')][7];
+      return {
+        num: row.querySelector('.pager-row-num').textContent,
+        name: row.lastElementChild.textContent
+      };
+    })(),
     last: (() => {
       const row = [...document.querySelectorAll('.pager-row')].at(-1);
       return row.querySelector('.pager-row-num').textContent + ' ' + row.lastElementChild.textContent;
     })()
   })`);
-  assert.equal(open.rows, 8, 'the list holds every panel');
-  assert.deepEqual(open.chapters, ['00', '01', '02', '03', '04', '05', '06', '07'], 'the intro is 00, the story runs 01 to 06, the close is 07');
+  assert.equal(open.rows, 9, 'the list holds every panel');
+  assert.deepEqual(open.chapters, ['00', '01', '02', '03', '04', '05', '06', '07', '08'], 'the intro is 00, the story runs 01 to 06, then the kit and the close');
   assert.equal(open.captions, 0, 'the list repeats the deck without headings');
-  assert.equal(open.last, '07 Tailor', 'the closing panel ends the list as a numbered plain row');
+  assert.deepEqual(open.bench, { num: '07', name: 'The kit' }, 'the kit follows the story with its own numeral');
+  assert.equal(open.last, '08 Tailor', 'the closing panel ends the list as a numbered plain row');
   await evaluate('document.querySelector(".pager-row").click()');
   await waitFor(() => evaluate('!document.querySelector(".pager-contents").matches(":popover-open")'), 3000, 'contents closed');
   assert.deepEqual(errors, []);
@@ -509,9 +518,266 @@ test('theme toggle: every mode paints its icon', async () => {
   assert.deepEqual(errors, []);
 });
 
+test('kit section: the panel retints the page, persists, and resets', async () => {
+  await setViewport(1440, 900);
+  await navigate('/');
+  await waitFor(() => evaluate('Boolean(document.querySelector("#kit"))'), 5000, 'kit section');
+  await evaluate(`document.querySelector('#kit').scrollIntoView({ behavior: 'instant', block: 'start' })`);
+  await waitFor(() => evaluate('document.documentElement.dataset.panel === "kit"'), 5000, 'kit panel');
 
+  const before = await evaluate(`({
+    bg: getComputedStyle(document.body).backgroundColor,
+    presets: [...document.querySelectorAll('#kit [data-preset]')].map((n) => [n.dataset.preset, n.getAttribute('aria-pressed')]),
+    types: [...document.querySelectorAll('#kit [data-typeface]')].map((n) => n.dataset.typeface),
+    kits: [...document.querySelectorAll('#kit [data-kit-choice]')].map((n) => n.dataset.kitChoice),
+    corners: [...document.querySelectorAll('#kit [data-radius]')].map((n) => n.dataset.radius),
+    tabs: [...document.querySelectorAll('#kit [data-kit-tab]')].map((n) => n.dataset.kitTab),
+    glyphs: [...document.querySelectorAll('#kit [data-kit-choice]')].map((tile) => ({
+      kit: tile.dataset.kitChoice,
+      uses: [...tile.querySelectorAll('.kit-glyph use')].map((n) => n.getAttribute('href'))
+    })),
+    reset: Boolean(document.querySelector('#kit .theme-reset')),
+    link: document.querySelector('#kit .kit-ds')?.getAttribute('href'),
+    inert: document.querySelector('.kit-specimen')?.hasAttribute('inert'),
+    hidden: document.querySelector('.kit-specimen')?.getAttribute('aria-hidden')
+  })`);
+  assert.deepEqual(before.presets, [
+    ['arcane', 'true'], ['meridian', 'false'], ['bloom', 'false'], ['ember', 'false']
+  ], 'the default pair is pressed and every preset is a choice');
+  assert.deepEqual(before.types, ['monaspace', 'geist', 'plex', 'source', 'hyperlegible']);
+  assert.deepEqual(before.kits, ['phosphor', 'lucide', 'pixel']);
+  assert.deepEqual(before.corners, ['soft', 'sharp', 'round']);
+  assert.deepEqual(before.tabs, ['colour', 'type', 'shape']);
+  assert.deepEqual(before.glyphs.map((tile) => tile.kit), ['phosphor', 'lucide', 'pixel']);
+  for (const tile of before.glyphs) {
+    const prefix = `#${ICON_KITS[tile.kit].sprite}-`;
+    assert.ok(tile.uses.length >= 3, `${tile.kit}: the tile samples the set, not one glyph`);
+    assert.ok(tile.uses.every((href) => href.startsWith(prefix)),
+      `${tile.kit}: every sample belongs to the tile's own kit (${tile.uses.join(', ')})`);
+  }
+  assert.equal(before.reset, true, 'the kit can restore the default kit');
+  assert.equal(before.link, '/design-system/', 'the kit keeps the one door to the reference page');
+  assert.equal(before.inert, true, 'the specimen is a preview, not a second control set');
+  assert.equal(before.hidden, 'true', 'the specimen stays out of the a11y tree');
 
+  await evaluate(`document.querySelector('#kit [data-preset="bloom"]').click()`);
+  await waitFor(() => evaluate('document.querySelector("#kit-primary-hue-value").textContent === "135°"'), 3000, 'bloom pair');
+  /* The page retints through the body's 200 ms colour transition; the stored
+     pair updates on the click, the paint follows it. */
+  await waitFor(async () => (await evaluate('getComputedStyle(document.body).backgroundColor')) !== before.bg,
+    3000, 'page retint');
+  const bloom = await evaluate(`({
+    bg: getComputedStyle(document.body).backgroundColor,
+    pressed: document.querySelector('#kit [data-preset="bloom"]').getAttribute('aria-pressed'),
+    stored: (() => { try { return JSON.parse(localStorage.getItem('merlin-brand')); } catch { return null; } })()
+  })`);
+  assert.notEqual(bloom.bg, before.bg, 'a preset retints the page');
+  assert.equal(bloom.pressed, 'true', 'the chosen preset reads as pressed');
+  assert.equal(bloom.stored.v, 3, 'the brand is versioned');
+  assert.deepEqual([bloom.stored.primaryHue, bloom.stored.accentHue], [135, 330], 'the preset pair is stored');
 
+  await evaluate(`document.querySelector('#kit [data-typeface="geist"]').click()`);
+  await waitFor(() => evaluate('getComputedStyle(document.body).fontFamily.includes("Geist")'), 3000, 'geist');
+  await evaluate(`document.querySelector('#kit [data-kit-choice="lucide"]').click()`);
+  await waitFor(() => evaluate('document.documentElement.dataset.iconKit === "lucide"'), 3000, 'lucide');
+  await evaluate(`document.querySelector('#kit [data-radius="round"]').click()`);
+  await waitFor(() => evaluate('getComputedStyle(document.documentElement).getPropertyValue("--radius-xl").trim() === "28px"'), 3000, 'round corners');
+
+  const stored = await evaluate(`(() => { const value = JSON.parse(localStorage.getItem('merlin-brand')); return {
+    preset: value.type.preset, kit: value.iconKit, radius: value.radius
+  }; })()`);
+  assert.deepEqual(stored, { preset: 'geist', kit: 'lucide', radius: 'round' }, 'every choice persists');
+  const faceVars = await evaluate(`(() => { const value = JSON.parse(localStorage.getItem('merlin-brand')); return {
+    prose: value.vars['--font-prose'], keyword: value.vars['--font-code-keyword']
+  }; })()`);
+  assert.match(faceVars.prose, /^'Newsreader'/, 'the reading role follows the face preset');
+  assert.match(faceVars.keyword, /^'Geist Mono'/, 'the code role follows the face preset');
+
+  const loaded = new Promise((resolve) => cdp.on('Page.loadEventFired', resolve));
+  await cdp.send('Page.reload');
+  await loaded;
+  await waitFor(() => evaluate('Boolean(document.querySelector("#kit"))'), 5000, 'kit after reload');
+  await evaluate(`document.querySelector('#kit').scrollIntoView({ behavior: 'instant', block: 'start' })`);
+  await waitFor(() => evaluate('document.documentElement.dataset.panel === "kit"'), 5000, 'kit panel after reload');
+  await waitFor(() => evaluate('document.querySelector("#kit-primary-hue-value").textContent === "135°"'), 3000,
+    'the pair is restored');
+  assert.equal(await evaluate('document.querySelector("#kit [data-typeface=geist]").getAttribute("aria-pressed")'), 'true', 'the face is restored');
+  assert.equal(await evaluate('document.querySelector("#kit [data-kit-choice=lucide]").getAttribute("aria-pressed")'), 'true', 'the kit is restored');
+  assert.equal(await evaluate('document.querySelector("#kit [data-radius=round]").getAttribute("aria-pressed")'), 'true', 'the corners are restored');
+
+  await evaluate(`document.querySelector('#kit .theme-reset').click()`);
+  await waitFor(() => evaluate('document.querySelector("#kit-primary-hue-value").textContent === "280°"'), 3000, 'reset pair');
+  await waitFor(() => evaluate('getComputedStyle(document.body).fontFamily.includes("MNeon")'), 3000, 'reset face');
+  await waitFor(() => evaluate('document.documentElement.dataset.iconKit === "phosphor"'), 3000, 'reset kit');
+  await waitFor(() => evaluate('getComputedStyle(document.documentElement).getPropertyValue("--radius-xl").trim() === "16px"'), 3000, 'reset corners');
+  assert.deepEqual(errors, []);
+});
+
+test('kit section: the card fits the fold, tabs on a phone, and no second door', async () => {
+  /* The mock is the artifact the section exists to show: phones stack it above
+     the knobs; a short, wide window has no channel for it and retires it. */
+  for (const [width, height] of [[1440, 900], [1440, 520], [390, 844], [360, 640]]) {
+    await setViewport(width, height);
+    await navigate('/');
+    await waitFor(() => evaluate('Boolean(document.querySelector("#kit"))'), 5000, `kit ${width}x${height}`);
+    await evaluate(`document.querySelector('#kit').scrollIntoView({ behavior: 'instant', block: 'start' })`);
+    await waitFor(() => evaluate('document.documentElement.dataset.panel === "kit"'), 5000, `panel ${width}x${height}`);
+    const fit = await evaluate(`(() => {
+      const kit = document.querySelector('#kit');
+      const box = document.querySelector('.kit-bench').getBoundingClientRect();
+      const spec = document.querySelector('.kit-specimen');
+      const controls = document.querySelector('.kit-controls').getBoundingClientRect();
+      const mock = spec.getBoundingClientRect();
+      const points = kit.querySelectorAll(':scope > .snap-point').length;
+      return {
+        points,
+        boxTop: Number(box.top.toFixed(1)),
+        boxBottom: Number(box.bottom.toFixed(1)),
+        fold: innerHeight,
+        tabs: getComputedStyle(document.querySelector('.kit-tabs')).display,
+        colour: getComputedStyle(document.querySelector('#kit-group-colour')).display,
+        specimen: getComputedStyle(spec).display,
+        above: mock.bottom <= controls.top + 0.5,
+        scrollWidth: document.documentElement.scrollWidth
+      };
+    })()`);
+    assert.equal(fit.points, 1, `${width}x${height}: the kit is one rest`);
+    assert.ok(fit.boxBottom <= fit.fold + 0.5,
+      `${width}x${height}: the kit clears the fold (${fit.boxBottom} vs ${fit.fold})`);
+    assert.ok(fit.scrollWidth <= width + 1,
+      `${width}x${height}: the kit never widens the page (${fit.scrollWidth})`);
+    if (width <= 980) {
+      assert.notEqual(fit.tabs, 'none', `${width}x${height}: the tabs are the phone's control surface`);
+      assert.notEqual(fit.specimen, 'none', `${width}x${height}: the phone shows the mock`);
+      assert.ok(fit.above, `${width}x${height}: the mock sits above the knobs`);
+    } else if (height <= 700) {
+      assert.equal(fit.specimen, 'none', `${width}x${height}: a short, wide window retires the mock`);
+    } else {
+      assert.notEqual(fit.specimen, 'none', `${width}x${height}: the desktop keeps the mock`);
+    }
+    assert.deepEqual(errors, []);
+  }
+
+  await setViewport(390, 844);
+  await navigate('/');
+  await waitFor(() => evaluate('Boolean(document.querySelector("#kit"))'), 5000, 'mobile kit');
+  await evaluate(`document.querySelector('#kit').scrollIntoView({ behavior: 'instant', block: 'start' })`);
+  await waitFor(() => evaluate('document.documentElement.dataset.panel === "kit"'), 5000, 'mobile panel');
+  await evaluate(`document.querySelector('#kit [data-kit-tab="type"]').click()`);
+  assert.equal(await evaluate('getComputedStyle(document.querySelector("#kit-group-colour")).display'), 'none',
+    'the colour group leaves when type is chosen');
+  assert.equal(await evaluate('getComputedStyle(document.querySelector("#kit-group-type")).display'), 'flex',
+    'the type group arrives');
+  await evaluate(`document.querySelector('#kit [data-kit-tab="shape"]').click()`);
+  assert.equal(await evaluate('getComputedStyle(document.querySelector("#kit-group-shape")).display'), 'flex',
+    'the shape group arrives');
+
+  const gone = await evaluate(`({
+    thread: document.querySelector('.brand-thread') !== null,
+    trigger: document.querySelector('.brand-trigger') !== null,
+    panel: document.querySelector('#brand-panel') !== null,
+    control: document.querySelector('.brand-control') !== null,
+    toggle: Boolean(document.querySelector('#themeToggle'))
+  })`);
+  assert.deepEqual(gone, { thread: false, trigger: false, panel: false, control: false, toggle: true },
+    'the badge, the leader, and the nav studio leave one theme control');
+  assert.deepEqual(errors, []);
+});
+
+/* A face name is the control's label: it must stay readable inside its tile
+   at the 320px reflow floor. The row keeps five tiles; the copy wraps, the
+   page never widens, and the compact card keeps the fold on phones. */
+test('kit type tiles: every face name stays inside its tile on a phone', async () => {
+  for (const [width, height] of [[390, 844], [360, 640], [320, 640]]) {
+    await setViewport(width, height);
+    await navigate('/');
+    await waitFor(() => evaluate('Boolean(document.querySelector("#kit"))'), 5000, `kit ${width}x${height}`);
+    await evaluate(`document.querySelector('#kit').scrollIntoView({ behavior: 'instant', block: 'start' })`);
+    await waitFor(() => evaluate(`document.documentElement.dataset.panel === 'kit'`), 5000, `kit panel ${width}x${height}`);
+    await evaluate(`document.querySelector('#kit [data-kit-tab="type"]').click()`);
+    await waitFor(
+      () => evaluate(`getComputedStyle(document.querySelector('#kit-group-type')).display === 'flex'`),
+      3000, `type group ${width}x${height}`);
+    const fit = await evaluate(`(() => {
+      const tiles = [...document.querySelectorAll('#kit-group-type .kit-tile')];
+      return {
+        overflow: document.documentElement.scrollWidth - innerWidth,
+        bottom: document.querySelector('.kit-bench').getBoundingClientRect().bottom,
+        fold: innerHeight,
+        tiles: tiles.map((tile) => {
+          const label = tile.querySelector('.kit-tile-label');
+          const box = tile.getBoundingClientRect();
+          const line = label.getBoundingClientRect();
+          const style = getComputedStyle(tile);
+          return {
+            name: label.textContent.replace(/\\u00AD/g, ''),
+            right: line.right,
+            limit: box.right - parseFloat(style.paddingRight) - parseFloat(style.borderRightWidth),
+            lines: Math.round(line.height / parseFloat(getComputedStyle(label).lineHeight))
+          };
+        })
+      };
+    })()`);
+    for (const tile of fit.tiles) {
+      assert.ok(tile.right <= tile.limit + 0.5,
+        `${width}x${height}: ${tile.name} stays inside its tile (${tile.right.toFixed(1)} vs ${tile.limit.toFixed(1)})`);
+      assert.ok(tile.lines <= 2, `${width}x${height}: ${tile.name} uses at most two lines (${tile.lines})`);
+    }
+    assert.ok(fit.overflow <= 1, `${width}x${height}: the type row never widens the page (${fit.overflow})`);
+    if (width > 320) {
+      assert.ok(fit.bottom <= fit.fold + 0.5,
+        `${width}x${height}: the type card clears the fold (${fit.bottom.toFixed(1)} vs ${fit.fold})`);
+    }
+    assert.deepEqual(errors, []);
+  }
+});
+
+/* The panel inset is also its corner clearance. Content at inset p stays inside
+   a corner of radius r only while p ≥ r(1 − 1/√2); the Round preset lifts the
+   panel radius to 28px, so the inset must follow the preset, not a constant. */
+test('kit section: every corner preset keeps the copy inside the panel', async () => {
+  for (const [width, height] of [[390, 844], [360, 640]]) {
+    await setViewport(width, height);
+    await navigate('/');
+    await waitFor(() => evaluate('Boolean(document.querySelector("#kit"))'), 5000, `kit ${width}x${height}`);
+    await evaluate(`document.querySelector('#kit').scrollIntoView({ behavior: 'instant', block: 'start' })`);
+    await evaluate(`document.querySelector('#kit [data-kit-tab="shape"]').click()`);
+    for (const preset of ['sharp', 'soft', 'round']) {
+      await evaluate(`document.querySelector('#kit [data-radius="${preset}"]').click()`);
+      const xl = RADIUS_STYLES[preset].scale.xl;
+      await waitFor(
+        () => evaluate(`getComputedStyle(document.documentElement).getPropertyValue('--radius-xl').trim() === '${xl}'`),
+        3000, `${preset} radius at ${width}x${height}`);
+      const fit = await evaluate(`(() => {
+        const panel = document.querySelector('.kit-bench');
+        const box = panel.getBoundingClientRect();
+        const title = document.querySelector('.kit-title').getBoundingClientRect();
+        const radius = parseFloat(getComputedStyle(panel).borderTopLeftRadius);
+        const spec = document.querySelector('.kit-specimen');
+        const specBox = spec.getBoundingClientRect();
+        const head = document.querySelector('.kit-specimen-head').getBoundingClientRect();
+        const specRadius = parseFloat(getComputedStyle(spec).borderTopLeftRadius);
+        return {
+          need: radius * (1 - Math.SQRT1_2),
+          left: title.left - box.left,
+          specNeed: specRadius * (1 - Math.SQRT1_2),
+          specLeft: head.left - specBox.left,
+          bottom: box.bottom,
+          fold: innerHeight
+        };
+      })()`);
+      assert.ok(fit.left >= fit.need + 0.5,
+        `${width}x${height} ${preset}: the title clears the panel corner (${fit.left} vs ${fit.need})`);
+      assert.ok(fit.specLeft >= fit.specNeed + 0.5,
+        `${width}x${height} ${preset}: the mock head clears its own corner (${fit.specLeft} vs ${fit.specNeed})`);
+      assert.ok(fit.bottom <= fit.fold + 0.5,
+        `${width}x${height} ${preset}: the kit clears the fold (${fit.bottom} vs ${fit.fold})`);
+    }
+    assert.deepEqual(errors, []);
+  }
+  /* Leave the default corners for the tests that follow. */
+  await evaluate(`document.querySelector('#kit [data-radius="soft"]').click()`);
+});
 
 test('theme lab: a slider updates its output and the page tokens', async () => {
   await navigate('/design-system/');
@@ -670,7 +936,6 @@ test('home: the human bubble separates from the chat well', async () => {
   }
 });
 
-
 test('story: each station paints its own surface', async () => {
   await setViewport(1440, 900);
   await cdp.send('Emulation.setEmulatedMedia', {
@@ -695,7 +960,17 @@ test('story: each station paints its own surface', async () => {
 test('no JS: both routes keep their content', async () => {
   await navigate('/', { scripts: false });
   assert.equal(await evaluate('document.querySelector("h1").textContent'), 'Build collaborative agent experiences.');
-  assert.equal(await evaluate('document.querySelectorAll("main > section").length'), 2);
+  assert.equal(await evaluate('document.querySelectorAll("main > section").length'), 3);
+  assert.equal(await evaluate('document.querySelectorAll("#kit [data-preset]").length'), 4,
+    'the kit renders its colour choices without JS');
+  assert.equal(await evaluate('document.querySelectorAll("#kit [data-kit-tab]").length'), 3,
+    'the kit renders its phone tabs without JS');
+  assert.equal(await evaluate('document.querySelector("#kit .kit-ds")?.getAttribute("href")'), '/design-system/',
+    'the kit keeps the design-system door without JS');
+  assert.equal(await evaluate('document.querySelector(".brand-trigger") !== null'), false,
+    'the nav studio is gone');
+  assert.equal(await evaluate('document.querySelector("#brand-panel") !== null'), false,
+    'no popover survives');
   await navigate('/design-system/', { scripts: false });
   assert.equal(await evaluate('document.querySelector("h1").textContent'), 'One kit. Both themes.');
   assert.equal(await evaluate('document.querySelectorAll(".ds-showcase").length'), 5);
@@ -735,7 +1010,7 @@ test('component CSS: every scoped class in the gallery has a rule', { skip: DIST
    are the last things to fit — at every guarded size. */
 test('ending: one panel holds the shape, the claim and the doors', async () => {
   await navigate('/');
-  await waitFor(() => evaluate('document.querySelectorAll(".pager-row").length === 8'), 5000, 'contents');
+  await waitFor(() => evaluate('document.querySelectorAll(".pager-row").length === 9'), 5000, 'contents');
   await evaluate(`document.querySelector('#tailor').scrollIntoView({ behavior: 'instant', block: 'start' })`);
   await waitFor(() => evaluate(`document.querySelector('.pager-now').textContent === 'Tailor'`), 4000,
     'the deck ends on Tailor');

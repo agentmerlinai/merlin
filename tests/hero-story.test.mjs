@@ -407,7 +407,7 @@ if (!CHROME_BIN) {
     assert.match(page.snap, /^y mandatory$/, 'the page commits to the nearer panel');
     assert.equal(page.hero, 'clip', 'the hero clips without becoming a scrollport');
     assert.deepEqual(page.nested, [], 'the page is the only scroller');
-    assert.equal(page.points, 8, 'one point per panel; the last panel is the document end');
+    assert.equal(page.points, 9, 'one point per panel; the last panel is the document end');
     assert.deepEqual(page.bare, [], 'every panel carries exactly one point');
     assert.deepEqual([...new Set(page.stops)], ['always'], 'one gesture must not fly over a station');
     assert.deepEqual(page.rests, [], 'no block may be a snap area');
@@ -977,6 +977,8 @@ if (!CHROME_BIN) {
         faces: beats.map((b) => Math.round(b.getBoundingClientRect().height)),
         pitch: tops.slice(1).map((t, i) => t - tops[i]),
         heroH: Math.round(hero.getBoundingClientRect().height),
+        kitTop: Math.round(document.querySelector('#kit').getBoundingClientRect().top + scrollY),
+        kitH: Math.round(document.querySelector('#kit').getBoundingClientRect().height),
         nextTop: Math.round(document.querySelector('#tailor').getBoundingClientRect().top + scrollY),
         storyEnd: Math.round(hero.getBoundingClientRect().bottom + scrollY)
       };
@@ -987,8 +989,50 @@ if (!CHROME_BIN) {
     for (const [i, d] of geo.pitch.entries()) {
       assert.ok(Math.abs(d - geo.panel) <= 1, `chapter pitch ${i + 2} is one page (${d})`);
     }
-    assert.ok(geo.heroH >= 7 * geo.panel - 1, `the hero is at least seven pages (${geo.heroH})`);
-    assert.ok(Math.abs(geo.nextTop - geo.storyEnd) <= 1, 'the first section follows the story');
+    /* The story is the intro and six full chapters. The kit is the first
+       standalone section after it, one panel tall, and the ending follows. */
+    assert.ok(Math.abs(geo.heroH - 7 * geo.panel) <= 1,
+      `the hero is six chapters plus the intro (${geo.heroH})`);
+    assert.ok(Math.abs(geo.kitTop - geo.storyEnd) <= 1, 'the kit follows the story');
+    assert.ok(Math.abs(geo.kitH - geo.panel) <= 1, `the kit is one panel (${geo.kitH})`);
+    assert.ok(Math.abs(geo.nextTop - (geo.kitTop + geo.kitH)) <= 1, 'the ending follows the kit');
+  });
+
+  test('geometry: the kit is the first section after the story', async () => {
+    const composition = await evaluate(`({
+      sections: [...document.querySelectorAll('main > section')].map((s) => s.id),
+      insideHero: Boolean(document.querySelector('.hero #kit'))
+    })`);
+    assert.deepEqual(composition.sections, ['top', 'kit', 'tailor'],
+      'the kit sits between the hero and the ending');
+    assert.equal(composition.insideHero, false, 'the kit is not a story row');
+
+    /* The card is the section's only in-flow child: it must clear the nav and
+       end above the fold at every desktop fold. The section paints no sheet,
+       so the page grid stays continuous above and below the card. */
+    for (const vp of [{ width: 1440, height: 900 }, { width: 1332, height: 768 }, { width: 1440, height: 720 }]) {
+      await setViewport({ ...vp, mobile: false });
+      await evaluate(`document.querySelector('#kit').scrollIntoView({ behavior: 'instant', block: 'start' })`);
+      await waitSettled();
+      const kit = await evaluate(`(() => {
+        const nav = document.querySelector('.nav').getBoundingClientRect();
+        const section = document.querySelector('#kit');
+        const box = section.getBoundingClientRect();
+        const card = section.querySelector('.kit-bench').getBoundingClientRect();
+        const style = getComputedStyle(section);
+        return { nav: nav.bottom, top: card.top, bottom: card.bottom,
+                 fold: innerHeight, h: box.height,
+                 fill: style.backgroundColor, image: style.backgroundImage };
+      })()`);
+      const where = `${vp.width}x${vp.height}`;
+      assert.ok(kit.top >= kit.nav, `${where}: the card clears the nav`);
+      assert.ok(kit.bottom <= kit.fold + 0.5, `${where}: the card ends above the fold`);
+      assert.ok(Math.abs(kit.h - kit.fold) <= 1, `${where}: the kit is one panel (${kit.h})`);
+      assert.equal(kit.fill, 'rgba(0, 0, 0, 0)', `${where}: the kit paints no sheet`);
+      assert.equal(kit.image, 'none', `${where}: the kit adds no image layer`);
+    }
+    await setViewport(VIEWPORTS[0]);
+    await waitSettled();
   });
 
   test('snap: a reversed gesture returns to the previous station', async () => {
@@ -1004,7 +1048,7 @@ if (!CHROME_BIN) {
     await waitSettled();
     /* The first section is the next panel: the exit commits to its top edge
        whole, so a section arrives as a frame, never half-scrolled. */
-    const nextTop = await evaluate(`Math.round(document.querySelector('#tailor').getBoundingClientRect().top + scrollY)`);
+    const nextTop = await evaluate(`Math.round(document.querySelector('#kit').getBoundingClientRect().top + scrollY)`);
     const y = (await state()).y;
     assert.ok(Math.abs(y - nextTop) <= 3, `the exit lands on the section top (${y} vs ${nextTop})`);
     /* The trap this suite used to miss: the deck took focus on the first key
@@ -1020,7 +1064,7 @@ if (!CHROME_BIN) {
     }
     /* The page has no scroll padding: a section's own panel padding is what
        clears the nav, so an anchor lands on the section's top edge. */
-    for (const id of ['#tailor']) {
+    for (const id of ['#kit', '#tailor']) {
       await evaluate(`document.querySelector('${id}').scrollIntoView({ behavior: 'instant', block: 'start' })`);
       await waitSettled();
       const top = await evaluate(`Math.round(document.querySelector('${id}').getBoundingClientRect().top)`);
@@ -1860,11 +1904,9 @@ if (!CHROME_BIN) {
      flags may force a pose, but they must never cancel an animation: a new
      animation would start at zero and replay the surface the reader is on. */
   const toggleTypeface = async () => {
-    const next = await evaluate(`document.querySelector('#brand-typeface').value === 'geist' ? 'monaspace' : 'geist'`);
+    const next = await evaluate(`document.querySelector('#kit [data-typeface="geist"]').getAttribute('aria-pressed') === 'true' ? 'monaspace' : 'geist'`);
     await evaluate(`(() => {
-      const select = document.querySelector('#brand-typeface');
-      select.value = '${next}';
-      select.dispatchEvent(new Event('change', { bubbles: true }));
+      document.querySelector('#kit [data-typeface="${next}"]').click();
       return true;
     })()`);
     await evaluate('document.fonts.ready.then(() => true)');

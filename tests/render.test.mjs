@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { renderRoute } from '../dist/server/entry-server.js';
+import { ICON_KITS } from '../packages/theme/kits.js';
 
 const ROUTES = ['home', 'design-system'];
 
@@ -22,8 +23,47 @@ test('render: home keeps the story contract', () => {
   assert.equal((html.match(/data-story-beat=/g) || []).length, 6);
   assert.match(html, /data-story-stage=/);
   assert.match(html, /data-island="hero"/);
+  /* The kit is the first standalone section after the story: it carries the
+     one hands-on control set and no chapter numeral. */
+  assert.ok(html.indexOf('id="kit"') > html.indexOf('id="chapter-6"'),
+    'the kit follows the six chapters');
+  assert.ok(html.indexOf('id="kit"') < html.indexOf('id="tailor"'),
+    'the kit precedes the ending');
+  assert.match(html, /class="section kit"/);
+  assert.match(html, /data-island="kit"/);
+  assert.match(html, /data-label="The kit"/);
+  assert.match(html, /The design system is a base too\./);
+  assert.match(html, /Adapt it to your brand, not the other way around\./);
+  assert.match(html, /data-preset="arcane"/);
+  assert.match(html, /data-kit-tab="colour"/);
+  assert.match(html, /id="kit-primary-hue"/);
+  assert.match(html, /id="kit-accent-hue"/);
+  assert.match(html, /data-typeface="monaspace"/);
+  assert.match(html, /data-kit-choice="phosphor"/);
+  assert.match(html, /data-radius="soft"/);
+  assert.match(html, /href="\/design-system\/"/);
+  /* No second door: the badge, the leader, and the nav studio are gone. */
+  assert.doesNotMatch(html, /brand-thread/);
+  assert.doesNotMatch(html, /brand-trigger/);
+  assert.doesNotMatch(html, /brand-panel/);
+  assert.doesNotMatch(html, /your-brand/);
   assert.match(html, /data-island="theme"/);
   assert.match(html, /id="top"/);
+});
+
+/* The kit specimen is the live icon surface: a kit switch must repaint the
+   mock, not only the control tiles. Ten distinct glyphs is the floor. */
+test('render: the kit specimen repaints the whole mock', () => {
+  const html = renderRoute('home');
+  const start = html.indexOf('class="kit-specimen"');
+  const end = html.indexOf('class="kit-controls"');
+  assert.ok(start !== -1 && end > start, 'the specimen sits before the controls');
+  const names = new Set(
+    [...html.slice(start, end).matchAll(new RegExp(`#${ICON_KITS.phosphor.sprite}-([a-z0-9-]+)`, 'g'))]
+      .map(([, name]) => name)
+  );
+  assert.ok(names.size >= 10,
+    `the specimen carries ${names.size} glyphs; the kit must touch every zone`);
 });
 
 test('render: design system exposes every kit showcase', () => {

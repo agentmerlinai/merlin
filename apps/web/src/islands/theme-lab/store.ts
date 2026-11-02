@@ -14,8 +14,9 @@ import type { IconKit, RadiusStyle } from '@merlin/theme/kits';
 
 export type Hues = Pick<BrandState, 'primaryHue' | 'accentHue'>;
 
-/* The reader's brand outlives the page they met it on. The nav studio and the
-   design-system lab share this store, so one token layer has one writer. */
+/* The reader's brand outlives the page they met it on. The home kit section
+   and the design-system lab share this store, so one token layer has one
+   writer. */
 let current: BrandState = DEFAULT_BRAND;
 let restored = false;
 const listeners = new Set<() => void>();
